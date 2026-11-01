@@ -1,0 +1,121 @@
+[
+  {
+    "arxiv": "1305.1694v1",
+    "url": "https://arxiv.org/pdf/1305.1694v1",
+    "file": "papers\\wang-wong-2013.pdf",
+    "bytes": 303665,
+    "sha256": "5728b7dec688676d16985afeed1fe03a1831a8ab615923f10d1c17575d309a67"
+  },
+  {
+    "arxiv": "1305.1694v1",
+    "url": "https://arxiv.org/src/1305.1694v1",
+    "file": "papers\\wang-wong-2013.source",
+    "bytes": 33449,
+    "sha256": "5a00018f395c71ba9f1e9639d91c0ce5bf1667b8256c6ed11162479ba4d4fd68"
+  },
+  {
+    "arxiv": "2602.18049v1",
+    "url": "https://arxiv.org/pdf/2602.18049v1",
+    "file": "papers\\tang-2026-matching.pdf",
+    "bytes": 320121,
+    "sha256": "2c7d598db337538dfc40cb62598e8ced2452186ffaed6ee87f0f9cba4f8118e6"
+  },
+  {
+    "arxiv": "2602.18049v1",
+    "url": "https://arxiv.org/src/2602.18049v1",
+    "file": "papers\\tang-2026-matching.source",
+    "bytes": 15377,
+    "sha256": "8da3514258aab3b219ef8e082128c3258a2d691e826564b6cf4f0c12cf1fa759"
+  },
+  {
+    "arxiv": "2608.09210v1",
+    "url": "https://arxiv.org/pdf/2608.09210v1",
+    "file": "papers\\lu-2026-vertex-cover.pdf",
+    "bytes": 248060,
+    "sha256": "b0708e3ac6fdd5ff7a21e9c848ef0416e0b63af7ac537c8341089f03bd37c6ff"
+  },
+  {
+    "arxiv": "2608.09210v1",
+    "url": "https://arxiv.org/src/2608.09210v1",
+    "file": "papers\\lu-2026-vertex-cover.source",
+    "bytes": 12778,
+    "sha256": "42d659cecf0c960df126fbf7470d570db662cfb39d92fe9ada9a308437a37064"
+  },
+  {
+    "arxiv": "1904.08255v1",
+    "url": "https://arxiv.org/pdf/1904.08255v1",
+    "file": "papers\\gamlath-et-al-2019.pdf",
+    "bytes": 466032,
+    "sha256": "5f5c6bedb588e1b8facee04d750367e0eed2d8e9f4772d4786b188fdb2c71b2f"
+  },
+  {
+    "arxiv": "1904.08255v1",
+    "url": "https://arxiv.org/src/1904.08255v1",
+    "file": "papers\\gamlath-et-al-2019.source",
+    "bytes": 53823,
+    "sha256": "6bf208df0b8010cf15598489ba4fd24e0379987bc3a51b0da44b0e2a3379c879"
+  },
+  {
+    "arxiv": "2202.02948v2",
+    "url": "https://arxiv.org/pdf/2202.02948v2",
+    "file": "papers\\tang-zhang-2024.pdf",
+    "bytes": 707072,
+    "sha256": "5de46d61255b8810f47b77c88bd51e0f2cd296cd2b7ab4c3964b338b121a6e4f"
+  },
+  {
+    "arxiv": "2202.02948v2",
+    "url": "https://arxiv.org/src/2202.02948v2",
+    "file": "papers\\tang-zhang-2024.source",
+    "bytes": 1636930,
+    "sha256": "ee5344d842f8128440a477a5aa75aa9bdb69c054d685037dd9abfc6ad030a115"
+  },
+  {
+    "arxiv": "2608.04994v1",
+    "url": "https://arxiv.org/pdf/2608.04994v1",
+    "file": "papers\\tang-zhang-2026-edge-cover.pdf",
+    "bytes": 449713,
+    "sha256": "f4de2a07d4b5998c98d9439c4a9d6ab95d5e3652fb39975dc2bddc54b92a3eae"
+  },
+  {
+    "arxiv": "2608.04994v1",
+    "url": "https://arxiv.org/src/2608.04994v1",
+    "file": "papers\\tang-zhang-2026-edge-cover.source",
+    "bytes": 10195,
+    "sha256": "b20f493e461458a6dc50cd14acf46c0deaeba93cc9476b0ffffd93630e2a9ff8"
+  },
+  {
+    "arxiv": "2607.14656v2",
+    "url": "https://arxiv.org/pdf/2607.14656v2",
+    "file": "papers\\assadi-jiang-xiang-2026-blueprints.pdf",
+    "bytes": 477892,
+    "sha256": "060c029afae9451e4a56913336271b00cde52450ff5a3b161e1d5992a102eb07"
+  },
+  {
+    "arxiv": "2607.14656v2",
+    "url": "https://arxiv.org/src/2607.14656v2",
+    "file": "papers\\assadi-jiang-xiang-2026-blueprints.source",
+    "bytes": 39666,
+    "sha256": "69f463c567143a5027c66574877fbcde9fed125338dbae29b39ceff1858f5bb1"
+  },
+  {
+    "arxiv": "2608.24630v1",
+    "url": "https://arxiv.org/pdf/2608.24630v1",
+    "file": "papers\\baligacs-et-al-2026-trees.pdf",
+    "bytes": 718095,
+    "sha256": "36be76b3561e29b397418e72ac4ac9d887797246b512f3ea6aa9d57820d1c85b"
+  },
+  {
+    "arxiv": "2608.24630v1",
+    "url": "https://arxiv.org/src/2608.24630v1",
+    "file": "papers\\baligacs-et-al-2026-trees.source",
+    "bytes": 227444,
+    "sha256": "1c5810bfb0bb3e9c07ab68753f8c0eb543df62db9e82737dd8e85a3eb57bbb2b"
+  },
+  {
+    "doi": "10.4230/LIPIcs.ESA.2017.22",
+    "url": "https://drops.dagstuhl.de/storage/00lipics/lipics-vol087-esa2017/LIPIcs.ESA.2017.22/LIPIcs.ESA.2017.22.pdf",
+    "file": "papers\\buchbinder-segev-tkach-2017.pdf",
+    "bytes": 495853,
+    "sha256": "23649cd6684c79762537edd3b3830c81ed72ec26661156268fd7a4ba641522e4"
+  }
+]

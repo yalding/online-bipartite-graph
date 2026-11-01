@@ -1,0 +1,4 @@
+# Locally installed research dependencies and Python bytecode.
+.research-deps/
+__pycache__/
+*.py[cod]

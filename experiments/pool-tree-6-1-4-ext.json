@@ -1,0 +1,26 @@
+{
+  "prefixes": 683,
+  "variables": 3870,
+  "constraints": 7204,
+  "ratio": 1.6462395543175488,
+  "max_primal_residual": 1.5987211554602254e-14,
+  "extension_budgets": false,
+  "cover_extensions": true,
+  "status": "Floating optimum plus exact rounded-dual lower bound",
+  "certificate": {
+    "lower_bound": "411559881/250000000",
+    "decimal": 1.646239524,
+    "numerator": 1646239524,
+    "denominator": 1000000000,
+    "negative_slack_correction": -25069656,
+    "exact_integer_weak_duality": true
+  },
+  "root": 4,
+  "step": 1,
+  "limit": 20,
+  "phases": 2,
+  "tree": true,
+  "depth": 6,
+  "sizes": "1,4",
+  "parents": "root-last"
+}

@@ -1,0 +1,49 @@
+\section{Preliminaries}
+In this section, we present the two models formally and then introduce the standard primal dual analysis for matching.
+% \zhihao{The two models + primal dual}
+%\begin{itemize}
+%	\item Water levels: $a_u, p_u$ for active/passive; $x_u$
+%	\item Prices: $\tau_u, \theta_u$
+%	\item Price function: $g(\alpha_u, x_u)$ when the current water level is $x_u$;
+%\end{itemize}
+\paragraph{General Vertex Arrival.}
+Consider an underlying input graph $G=(V,E)$, where $V$ arrives online and we will reveal $E$ along with $V$. At each $v$'s arrival time:
+\begin{itemize}
+    \item All the edges between $v$ and previously arrived vertices are revealed. 
+    \item The algorithm fractionally matches the newly revealed edges. And these edges cannot be matched afterwards. 
+\end{itemize}
+Every vertex cannot be matched more than one unit. The goal is to maximize the size of the fractional matching. 
+\paragraph{Fully Online Matching.}
+Consider an underlying input graph $G=(V,E)$, where $V$ arrives online and we will reveal $E$ along with $V$. Each time step is one of the following:
+\begin{itemize}
+    \item The arrival of vertex $v$: all edges between $v$ and previously arrived vertices are revealed. 
+    \item The deadline of vertex $v$: this is the last chance we can (fractionally) match $v$ to the remaining vertices in the graph.
+\end{itemize}
+We assume that all neighbors of $v$ arrive before $v$'s deadline. Every vertex cannot be matched more than one unit. The goal is to maximize the size of the fractional matching. 
+As observe by Huang et al.~\cite{jacm/HuangKTWZZ20}, it is without loss of generality to consider lazy algorithms that only make matching decisions on the deadlines of vertices. On the other hand, we study algorithms that make matching decisions on the arrival of vertices for a cleaner analysis.
+
+
+\paragraph{Primal Dual Analysis} Following the standard competitive analysis, we say an online algorithm is $\Gamma$-competitive if for any input instance, its solution is always at least $\Gamma$ times the optimal solution. We apply the standard primal dual framework. First, we present the standard matching LP and its dual, that is common for the two models we study in this paper.
+\begin{align*}
+\max: \quad & \textstyle \sum_{(u,v)\in E} x_{uv} && \qquad\qquad & \min: \quad & \textstyle\sum_{u \in V} \alpha_u\\
+\text{s.t.} \quad & \textstyle \sum_{v:(u,v)\in E} x_{uv} \leq 1 && \forall u\in V & \text{s.t.} \quad & \alpha_u + \alpha_v \geq 1 && \forall (u,v)\in E \\
+& x_{uv} \geq 0 && \forall (u,v)\in E & & \alpha_u \geq 0 && \forall u \in V
+\end{align*}
+
+We shall set the primal variables $x_{uv}$'s to be the matched portion of edge $(u,v)$ of our algorithm, and maintain the dual variables at the same time.
+% so that the dual objective $D = \sum_{v} \alpha_v$ is at least the primal objective $P=\sum_{(u,v) \in E} x_{uv}$. 
+%we maintain a primal set $P$, which in equivalent to the fractional matching that the algorithm made, and we maintain a dual set $D$, which will be used in the analysis. We have that 
+\begin{lemma}%[Deterministice Version of Devanur et al. \cite{soda/DevanurJK13}]
+    \label{lem:primal-dual}
+    An online primal dual algorithm is $\Gamma$-competitive if we have:
+    %
+    \begin{itemize}
+        %
+        \item \emph{Approximate dual feasibility:~}
+            $\forall (u, v) \in E,~\alpha_u + \alpha_v \ge \Gamma$;
+        %
+        \item \emph{Reverse weak duality:~} the primal objective $P$ and the dual objective $D$ satisfies that $P \ge D $.
+        %
+    \end{itemize}
+    %
+\end{lemma}

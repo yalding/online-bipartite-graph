@@ -1,0 +1,279 @@
+
+\begin{figure}[t!]
+\centering
+\begin{tikzpicture}[
+    x=0.78cm,
+    y=1cm,
+    >=Latex,
+    line cap=butt
+]
+
+    %------------------------------------------------------------
+    % Geometry
+    %------------------------------------------------------------
+    \def\boxheight{2.8}
+    \def\boxwidth{16}
+
+    % End of the first and second boxes
+    \def\startend{1.6}
+    \def\delayend{3.6}
+
+    % Partitions inside the walk region
+    \def\walkA{6.4}
+    \def\walkB{7.55}
+    \def\walkC{8.70}
+    \def\walkD{9.85}
+
+    % Half-length of each small horizontal interval separator
+    \def\separatorhalfwidth{0.12}
+
+    % Vertical midpoint of the large box
+    \pgfmathsetmacro{\ymid}{\boxheight/2}
+
+    % Centers of the first two boxes
+    \pgfmathsetmacro{\startcenter}{\startend/2}
+    \pgfmathsetmacro{\delaycenter}{(\startend+\delayend)/2}
+
+    % Centers of the three narrow boxes
+    \pgfmathsetmacro{\dcenterA}{(\walkA+\walkB)/2}
+    \pgfmathsetmacro{\dcenterB}{(\walkB+\walkC)/2}
+    \pgfmathsetmacro{\dcenterC}{(\walkC+\walkD)/2}
+
+    % The walk region is everything after the delay box
+    \pgfmathsetmacro{\walkcenter}{(\delayend+\boxwidth)/2}
+
+    %------------------------------------------------------------
+    % Styles
+    %------------------------------------------------------------
+    \tikzset{
+        outer box/.style={
+            draw=black,
+            rounded corners=2mm,
+            line width=0.65pt
+        },
+        partition/.style={
+            draw=black,
+            line width=0.55pt
+        },
+        colored bar/.style={
+            line width=3pt,
+            line cap=butt
+        },
+        interval separator/.style={
+            draw=black,
+            line width=0.55pt,
+            line cap=round
+        },
+        small arrow/.style={
+            -{Latex[length=1.8mm,width=1.35mm]},
+            line width=0.9pt,
+            black
+        },
+        upward arrow/.style={
+            -{Latex[length=2.7mm,width=2.1mm]},
+            line width=1.5pt,
+            green!65!black,
+            line cap=butt
+        },
+        downward arrow/.style={
+            -{Latex[length=2.7mm,width=2.1mm]},
+            line width=1.5pt,
+            red!70,
+            line cap=butt
+        },
+        lower label/.style={
+            anchor=north,
+            font=\large\itshape
+        },
+        set label/.style={
+            font=\Large
+        }
+    }
+
+    %------------------------------------------------------------
+    % Clip all interior elements to the rounded outer box
+    %------------------------------------------------------------
+    \begin{scope}
+        \clip[rounded corners=2mm]
+            (0,0) rectangle (\boxwidth,\boxheight);
+
+        %--------------------------------------------------------
+        % Exact top-to-bottom partition lines
+        %--------------------------------------------------------
+        \foreach \x in {
+            \startend,
+            \delayend,
+            \walkA,
+            \walkB,
+            \walkC,
+            \walkD
+        }{
+            \draw[partition]
+                (\x,0)
+                --
+                (\x,\boxheight);
+        }
+
+        %--------------------------------------------------------
+        % First box: unequal interval lengths
+        %--------------------------------------------------------
+        \draw[colored bar,green!65!black]
+            (\startcenter,0)
+            --
+            (\startcenter,0.55);
+
+        \draw[colored bar,red!75]
+            (\startcenter,0.55)
+            --
+            (\startcenter,1.90);
+
+        \draw[colored bar,blue!60]
+            (\startcenter,1.90)
+            --
+            (\startcenter,\boxheight);
+
+        % Horizontal separators between the three intervals
+        \foreach \y in {0.55,1.90}{
+            \draw[interval separator]
+                ({\startcenter-\separatorhalfwidth},\y)
+                --
+                ({\startcenter+\separatorhalfwidth},\y);
+        }
+
+        %--------------------------------------------------------
+        % Second box: six equal intervals
+        %--------------------------------------------------------
+        \foreach \col [count=\i from 0] in {
+            red!75,
+            orange!85!black,
+            cyan!65!black,
+            green!60!black,
+            magenta!65,
+            blue!60
+        }{
+            \pgfmathsetmacro{\segmentbottom}{\i*\boxheight/6}
+            \pgfmathsetmacro{\segmenttop}{(\i+1)*\boxheight/6}
+
+            \draw[colored bar,\col]
+                (\delaycenter,\segmentbottom)
+                --
+                (\delaycenter,\segmenttop);
+        }
+
+        % Horizontal separators between the six equal intervals
+        \foreach \i in {1,...,5}{
+            \pgfmathsetmacro{\separatorheight}
+                {\i*\boxheight/6}
+
+            \draw[interval separator]
+                ({\delaycenter-\separatorhalfwidth},
+                 \separatorheight)
+                --
+                ({\delaycenter+\separatorhalfwidth},
+                 \separatorheight);
+        }
+
+        %--------------------------------------------------------
+        % Three narrow boxes:
+        % each is divided into equal upper and lower intervals
+        %--------------------------------------------------------
+        \foreach \x in {
+            \dcenterA,
+            \dcenterB,
+            \dcenterC
+        }{
+            % Upper interval
+            \draw[upward arrow]
+                (\x,\ymid)
+                --
+                (\x,\boxheight);
+
+            % Lower interval
+            \draw[downward arrow]
+                (\x,\ymid)
+                --
+                (\x,0);
+
+            % Horizontal separator between the two intervals
+            \draw[interval separator]
+                ({\x-\separatorhalfwidth},\ymid)
+                --
+                ({\x+\separatorhalfwidth},\ymid);
+        }
+
+        %--------------------------------------------------------
+        % Small left-to-right arrows
+        %--------------------------------------------------------
+
+        % First box
+        \draw[small arrow]
+            (0.32,1.23)
+            --
+            (0.59,1.23);
+
+        % Second box
+        \draw[small arrow]
+            (2.08,2.15)
+            --
+            (2.35,2.15);
+
+        % First narrow box
+        \draw[small arrow]
+            (6.57,2.02)
+            --
+            (6.82,2.02);
+
+        % Second narrow box
+        \draw[small arrow]
+            (7.70,0.70)
+            --
+            (7.95,0.70);
+
+        % Third narrow box
+        \draw[small arrow]
+            (8.85,0.95)
+            --
+            (9.10,0.95);
+    \end{scope}
+
+    %------------------------------------------------------------
+    % Draw the outer boundary last
+    %------------------------------------------------------------
+    \draw[outer box]
+        (0,0)
+        rectangle
+        (\boxwidth,\boxheight);
+
+    %------------------------------------------------------------
+    % External labels
+    %------------------------------------------------------------
+\node[set label,overlay]
+    at (-0.72,\ymid)
+    {$[C]$};
+
+    \node[set label]
+        at ({\boxwidth/2},{\boxheight+0.62})
+        {$[P]$};
+
+    % All lower labels share the same baseline
+    \node[lower label]
+        at (\startcenter,-0.1)
+        {\pstart};
+
+    \node[lower label]
+        at (\delaycenter,-0.1)
+        {\pdelay};
+
+    \node[lower label]
+        at (\dcenterA,-0.1)
+        {$d+2$};
+
+    \node[lower label]
+        at (\walkcenter,-0.1)
+        {\pwalk};
+
+\end{tikzpicture}
+
+\caption{An illustration of the random walk $W(x)$ in~\Cref{def:W(x)} when $m=3$ and $D=6$. The figure shows how the indices of $[P]$ are partitioned into $(\pstart,\pdelay,\pwalk)$. The intervals inside each box shows how $[C]$ is partitioned into different intervals. The tiny arrows in each box shows the value of a single point $x \in [C]^P$ on each relevant index. The walk $W(x)$ thus first considers $x_{\pstart}$ and so chooses starting state $2$. The delay $d$ is set to $5$ given $x_{\pdelay}$. Finally, the walk waits until time $d$ and then decide its next move based on the index $d+2$ and so on; in this particular example, the walk goes to $3$ next, then $2$, and then $1$. }
+\label{fig:W(x)}
+\end{figure}

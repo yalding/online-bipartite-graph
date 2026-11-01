@@ -1,0 +1,473 @@
+===== PDF PAGE 1 =====
+     A Tight Bound on Online Vertex Cover under Edge Arrivals
+
+                        Zhihao Gavin Tang∗                                               Yuhao Zhang†
+     Shanghai University of Finance and Economics                            Shanghai Jiao Tong University
+
+
+
+
+                                                        Abstract
+           We prove a tight impossibility result for online vertex cover under edge arrivals.  No ran-
+       domized integral or fractional algorithm achieves a competitive ratio strictly below2against
+       an oblivious adversary, even on bipartite graphs.  Since the standard algorithm that takes both
+       endpoints of every uncovered edge is2-competitive,  this settles the optimal ratio.  Our proof
+       is a direct reduction from the recent breakthrough blueprint framework of Assadi, Jiang, and
+       Xiang.
+
+1   Introduction
+
+In the edge-arrival online vertex cover problem, the vertex set is known in advance and edges arrive
+one at a time. The algorithm maintains a set of selected vertices that must cover every edge seen
+so far. This set can only grow: selected vertices can never be removed. Adding both endpoints of
+each uncovered edge is2-competitive because the triggering edges form a matching [Demange and
+Paschos,2005]. Can fractional decisions or randomization improve this factor?
+    Primal–dual algorithms yield the same competitive ratios for online matching and online vertex
+cover. Throughout this paper, we state competitive ratios using the convention that they are at
+least1.             1 Under one-sided vertex arrivals, both problems admit the tight competitive ratioe/(e−1)
+[Karp et al.,1990]; for vertex cover, the corresponding lower bound follows from ski rental [Wang
+and Wong,2015]. Under general vertex arrivals, the best algorithms for both problems achieve a
+ratio of1/Γ      ∗ ≈1.901[Wang and Wong,2015,Tang and Zhang,2024], andTang[2026] recently
+proved this ratio tight for matching, even on bipartite graphs. Under edge arrivals, the standard
+algorithms achieve a ratio of2for both problems, andGamlath et al.[2019] proved this ratio tight
+for matching, again even on bipartite graphs.
+    Thesecommonupperboundsarisebecausethecorrespondingalgorithmsconstructmatchingand
+vertex-cover solutions simultaneously. However, lower bounds for matching do not automatically
+transfer to vertex cover. Even in the one-sided vertex-arrival model, where the two problems have
+the same tight ratio, the vertex-cover lower bound comes from a completely different source, namely,
+a reduction from ski rental. Before our work, only in the one-sided vertex-arrival model was the
+algorithmic ratio matched by a vertex-cover lower bound. Under general vertex arrivals, the best
+knownlowerboundforvertexcoverisonlyabout1.753[WangandWong,2015]. Underedgearrivals,
+it remained open whether a fractional or randomized algorithm could achieve a competitive ratio
+strictly smaller than2.
+
+   ∗Email:tang.zhihao@mail.shufe.edu.cn
+   †Email:zhang_yuhao@sjtu.edu.cn
+   1The matching literature typically uses the reciprocal convention.  Under that convention,  the ratios discussed
+here are1−1/e,Γ               ∗ ≈0.526, and1/2.
+
+
+                                                             1
+
+===== PDF PAGE 2 =====
+Our result.We close this gap. For every deterministic fractional online vertex cover algorithm
+and everyε >0, we construct a finite bipartite instance with competitive ratio at least2−ε. Taking
+expectations coordinatewise gives the same bound for randomized integral and fractional algorithms
+against an oblivious adversary. Thus the optimal ratio is exactly2.
+
+Reduction and proof idea.Our key technical contribution is a direct reduction from proper
+blueprints, introduced by Assadi, Jiang, and Xiang [Assadi et al.,2026a]. From a blueprint of value
+ν, cyclic shifts hide an independent setIof size2νn. Matching batches force at leastνnweight
+ontoIbefore it is identified. We then attach a private leaf to every vertex outsideI. The offline
+optimum takes these2(1−ν)nvertices, while the algorithm also retains its weight onI, giving ratio
+(2−ν)/(2(1−ν)). Existing blueprints haveν→2/3[Assadi et al.,2026b], so this ratio tends to2.
+
+Relation to semi-streaming.Whether the factor2can be improved for streaming vertex cover
+was raised explicitly in prior work [Assadi et al.,2019,Derakhshan et al.,2025]; the latter also shows
+that constant-party one-way communication cannot establish a factor-2streaming lower bound.
+The two blueprint papers derive semi-streaming vertex cover lower bounds: approximately1.790in
+general graphs and the tight factor2in bipartite graphs [Assadi et al.,2026a,b], but they do not
+imply our result. Semi-streaming algorithms can postpone their output but have limited memory;
+online algorithms have unlimited memory but make irrevocable choices. Technically, the streaming
+reductions use ERS graph expansions, communication complexity, and information theory; ours
+applies a blueprint directly. Conceptually, streaming pays for forgetting absent edges, while online
+computation pays for being unable to retract weight placed before the hidden independent set is
+revealed.
+
+Positive results in restricted settings.Positive results have been attained with extra assump-
+tions on the input. For graphs of maximum degreed,Buchbinder et al.[2019] gave a primal–dual
+algorithm with competitive ratio2−2               1−d   for both online fractional matching and online fractional
+vertex cover. On forests, they also obtained a randomized9/5-competitive matching algorithm.
+The dual cover used in that analysis, however, is constructed only after the full input is known
+and therefore does not yield an online vertex-cover algorithm. More recently,Baligács et al.[2026]
+gave an11/6-competitive algorithm for online fractional vertex cover on forests. Under a different
+restriction,Lee and Singla[2020] obtained ratio2−2                                                         1−s   for fractional bipartite vertex cover with
+sarrival batches, where each batch is revealed in full before the corresponding irrevocable update.
+
+2   Preliminaries
+
+We first formally define the edge-arrival online vertex cover problem. The vertex setVis known
+in advance, while the edges between these vertices arrive online. After thet-th edge arrives, the
+algorithmmaintainsasetS     t ⊆Vthatcoverseveryedgerevealedsofar. Thesetsmustbeincreasing:
+St−1    ⊆S   t. Thus, selected vertices can never be removed. In particular, if a new edge(u, v)has
+neither endpoint inS    t−1  , the algorithm must add at least one ofuandv.  The objective is to
+minimize the size of the final set.
+
+Fractional relaxation. In the fractional relaxation, after thet-th arrival the algorithm maintains
+a vectorx          (t)   ∈[0,1]       V.  These vectors are coordinatewise nondecreasing:x                            (t−1)v      ≤x   (t)v  for every
+v∈V. They must also satisfyx                (t)u  +x   (t)v  ≥1for every edge(u, v)revealed by timet. Writingxfor
+the final vector, the objective is to minimize Pv∈V    xv.
+
+                                                                2
+
+===== PDF PAGE 3 =====
+    The integral problem is a special case of the fractional problem obtained by restrictingx∈
+{0,1}        V. Moreover, against an oblivious adversary, any randomized integral or fractional algorithm
+can be simulated by a deterministic fractional algorithm, without regard to computational efficiency,
+whose objective value equals the expected objective value of the randomized algorithm.
+    We evaluate online algorithms using competitive analysis.  A fractional online vertex cover
+algorithmAlgis said to beΓ-competitive if, for every input sequenceσ,
+
+                                                        Alg(σ)
+                                                        Opt(σ)         ≤Γ,
+
+whereAlg(σ)denotes the objective value achieved byAlgonσ, andOpt(σ)denotes the objective
+value of an optimal offline solution for the same input.
+
+3   A Tight Lower Bound
+
+In this section, we prove that no fractional online algorithm can achieve a competitive ratio strictly
+smaller than2for the edge-arrival online vertex cover problem. By the equivalence discussed in the
+previous section, the same lower bound applies to randomized integral and fractional algorithms
+against an oblivious adversary.
+
+Theorem 1.For every deterministic fractional online vertex cover algorithmAlgand everyε >0,
+there exists a finite input sequenceσsuch that
+
+                                                     Alg(σ)
+                                                     Opt(σ)         ≥2−ε.
+
+Moreover, the underlying graph ofσis bipartite.
+
+3.1   Proof Overview
+We prepare two vertex setsL       0 andR       0 with|L          0|=|R      0|=n, and reveal a bipartite edge setE           0
+between them. The main part of the construction produces a hidden set
+
+                                                        I=L     I ∪R   I,
+
+whereL           I ⊆L   0,R I ⊆R   0, and|L        I|=|R      I|=ϕ, with the following two properties:
+
+   1.Iis an independent set in(L          0 ∪R   0, E0).
+
+   2.After processingE                 0, the fractional solution maintained byAlgsatisfies
+                                                         X
+                                                             xv ≥ϕ=     |I|2 .
+                                                         v∈I
+
+    We say that the algorithmfully coversa vertex setUif                      Pv∈U    xv ≥ |U|/2. Thus, the second
+property states thatIis fully covered.
+    The term “hidden” means that the identities of the vertices inIare concealed from the algorithm
+while the edges inE    0 arrive. Before the algorithm can determine the hidden set, it may have already
+assignedsubstantialirrevocablefractionalweighttoitsvertices. Thisunnecessaryweightisthemain
+source of the lower bound.
+
+
+                                                               3
+
+===== PDF PAGE 4 =====
+     For every vertexv∈L               0 ∪R   0, we reserve a distinct auxiliary vertexv        ′. All auxiliary vertices are
+included in the vertex set known to the algorithm from the beginning, but remain isolated whileE          0
+is revealed. Once the hidden set has been determined, we reveal a pendant edge(v, v        ′)for every
+v /∈I.
+     The following lemma formalizes this completion step.
+Lemma 3.1.Suppose thatE               0 is a bipartite edge set onL     0 ∪R   0, where|L   0|=|R      0|=n. Suppose
+further that, after processingE           0, there exists an independent setI=L         I ∪R   I satisfying
+
+                                           |L I|=|R      I|=ϕ   and          X             xv ≥ϕ.
+                                                                                     v∈I
+Then the input can be extended, while preserving bipartiteness, so that
+                                                           Alg
+                                                           Opt ≥   2n−ϕ2(n−ϕ)          .
+Proof.For everyv∈(L                  0 ∪R   0)\I, reveal the pendant edge(v, v             ′). LetE        1 denote the set of these
+edges, and place each auxiliary vertexv     ′ on the side opposite tov.
+     SinceIis independent in(L                 0 ∪R   0, E0), the set(L         0 ∪R   0)\Icovers every edge inE          0 ∪E   1.
+Therefore,
+                                               Opt≤ |(L            0 ∪R   0)\I|= 2(n−ϕ).
+     The edges inE    1 are pairwise vertex-disjoint, so their covering constraints force the algorithm
+to assign total weight at least2(n−ϕ)to their endpoints. Moreover, the fractional weight already
+assigned toIcannot decrease. Since the endpoints ofE         1 are disjoint fromI, we obtain
+
+                                                  Alg≥2(n−ϕ) +ϕ= 2n−ϕ.
+
+Consequently,                                   Alg
+
+                                                           Opt ≥   2n−ϕ2(n−ϕ)          .
+
+
+     Thus, it remains to construct an independent set withϕclose to2n/3that is fully covered.
+
+3.2   The Blueprint Construction
+To construct such a hidden independent set, we use the blueprint technique introduced inAssadi
+et al.[2026a].
+Definition 3.2(Proper blueprint).LetP≥1andC≥2be integers. AblueprintB= (L,R,E)
+consists of two vertex sets
+
+                             L={L(a) :a∈[C]                          P}   and R={R(a) :a∈[C]                                    P},
+
+together with a bipartite edge set partitioned as
+
+                                                         E=E      (1)  ˙∪ ··· ˙∪ E(P)   .
+
+Fora∈[C]             P, leta    <p denote the prefix consisting of its firstp−1coordinates, and let◦denote
+concatenation.  2
+     The blueprint isproperif the following conditions hold:
+
+   2For two vectorsu= (u                    1, . . . , uk)andv= (v                1, . . . , vℓ), their concatenation isu◦v= (u                 1, . . . , uk, v1, . . . , vℓ).
+
+
+                                                                       4
+
+===== PDF PAGE 5 =====
+    1.Eis a matching.
+
+    2.For every edge(L(a),R(b))∈ E                                 (p)  and everyc∈[C]                   P−p+1   , at least one ofL(a        <p ◦c)and
+        R(b     <p ◦c)is isolated in the blueprint.
+Here, a blueprint vertex isisolatedif it is not incident to any edge inE. Thevalueof the blueprint
+is
+                                                               ν(B) =      |E|CP .
+
+     We use the following result.
+Theorem 2(Blueprint theorem [Assadi et al.,2026b, Theorem 3]).There exists a sequence of finite
+proper blueprints whose values converge to2/3.
+     Fix a finite proper blueprintB= (L,R,E)with parametersPandC. We prepare two vertex
+sets
+                          L0 ={L      0(a) :a∈[C]               P}   and R         0 ={R      0(a) :a∈[C]               P}.
+Thus,|L       0|=|R      0|=C     P. The symbolsL     0(a)andR             0(a)refer to vertices in the online instance,
+whereasL(a)andR(a)refer to vertices in the blueprint.
+     We would like to use the endpoints of the blueprint edges as the hidden independent set. How-
+ever, mappingL(a)directly toL                   0(a)andR(b)directly toR                          0(b)would reveal the hidden set from
+the beginning. To conceal this mapping, we use a cyclic shift.
+     Throughout the construction, we identify[C]with the cyclic groupZ              C, and use⊕and⊖to
+denote coordinate-wise addition and subtraction moduloC. For every shiftz∈[C]                             P, we map
+                                  L(a)7−→L             0(a⊕z)   and R(b)7−→R                                0(b⊕z).
+The hidden set associated withzis
+                                         I(z) =         [            {L  0(a⊕z), R           0(b⊕z)}.
+                                                    (L(a),R(b))∈E
+SinceEis a matching,I(z)contains exactly|E|vertices from each side. In particular,
+                                                              |I(z)|= 2|E|.
+     We next define the edge sequence associated with a fixed shiftz. For every phaset∈[P]and
+every blueprint edge
+                                                       e= (L(a),R(b))∈ E                         (t)  ,
+the adversary reveals the batch
+                        B(t)e  (z) =    L0 (a⊕z)         <t ◦c , R0 (b⊕z)         <t ◦c  :c∈[C]          P−t+1    	 .
+
+Each batch forms a perfect matching between two corresponding subcubes. Notice thatB        (t)e  (z)
+depends only on the prefixz           <t.
+     The phases are revealed in the order1,2, . . . , P.  Within each phase, the batches and their
+edges are revealed in an arbitrary fixed order. If an edge has already appeared in an earlier batch,
+it need not be revealed again. LetE      0(z)denote the set of all distinct edges revealed during the
+construction.
+     For the analysis, letZbe chosen uniformly at random from[C]                     P. UppercaseZalways denotes
+this random shift, whereas lowercasezdenotes a fixed realization.  Letx              (t)  denote the solution
+maintained byAlgafter phaset, and letxdenote its solution after allPphases.  WhenZis
+random, these vectors are also random.
+
+                                                                       5
+
+===== PDF PAGE 6 =====
+The Toy Example.We illustrate the construction using a simple example. LetC= 2andP= 1,
+and identify[2]with{0,1}. Consider the blueprint
+                                                    E=E      (1) ={(L(0),R(1))}.
+This blueprint is proper. Forc= 0, the vertexR(0)is isolated, while forc= 1, the vertexL(1)is
+isolated. Its value is
+                                                           ν(B) =      |E|CP  = 12.
+     SinceP= 1, the batch associated with the only blueprint edge contains all possible labels in
+[2]. Therefore, regardless of the shiftz, the adversary reveals
+                                        B(1)e  (z) ={(L           0(0), R      0(0)),(L          0(1), R      0(1))}.
+     The shift determines which endpoints form the hidden set. Ifz= 0, then
+                                                       I(0) ={L        0(0), R      0(1)},
+whereas ifz= 1, then
+                                                       I(1) ={L        0(1), R      0(0)}.
+Thus, the two possible shifts correspond exactly to the two candidate hidden independent sets.
+     Moreover,                                    
+                                EZ    X        xv = 1       xL0(0) +x   R0(1) +x   L0(1) +x   R0(0)
+
+                                       v∈I(Z)             2
+                                                      = 1     xL0(0) +x   R0(0) +x   L0(1) +x   R0(1)
+                                                          2
+                                                      ≥1.
+The inequality follows from the covering constraints of the two revealed edges. Hence, one of the
+two shifts produces a hidden independent set that is fully covered.
+     This example captures the two roles of a proper blueprint. The released batch forces sufficient
+fractional weight onto the hidden endpoints, while the properness condition guarantees that the
+hidden endpoints form an independent set.
+
+3.3   Analysis
+We first show that the batch corresponding to each blueprint edge forces one unit of expected
+fractional weight onto its two hidden endpoints.
+Lemma 3.3.For every phasetand every edge(L(a),R(b))∈ E                                                 (t) ,hi
+
+                                                 EZ    x(t)L0(a⊕Z)       +x   (t)R0(b⊕Z)≥1.
+
+Proof.Condition on the prefixZ               <t. All edges revealed through phasetdepend only onZ            <t. Hence,
+under this conditioning, the input observed byAlgand the resulting vectorx                     (t)  are fixed.
+     The suffixZ     ≥t  remains uniformly distributed over[C]        P−t+1   . Therefore,a       ≥t  ⊕Z   ≥t  andb     ≥t  ⊕Z   ≥t
+are each uniformly distributed over[C]        P−t+1   . Reindexing the two marginal sums separately and
+using linearity of expectation, we obtainh                                Z<ti
+
+                                   EZ≥t     x(t)L0(a⊕Z)       +x   (t)R0(b⊕Z)
+                                                    X
+                                =      1CP−t+1                 x(t)L0((a⊕Z)          <t◦c)   +x   (t)R0((b⊕Z)          <t◦c).
+                                               c∈[C]        P−t+1
+
+
+                                                                      6
+
+===== PDF PAGE 7 =====
+For everyc∈[C]               P−t+1   , the pair
+
+                                               (L  0((a⊕Z)            <t ◦c), R      0((b⊕Z)           <t ◦c))
+
+belongs to the batchB   (t)e  (Z).  By the end of phaset, this edge has been revealed.  Therefore,
+feasibility of the fractional vertex cover implies
+
+                                                 x(t)L0((a⊕Z)          <t◦c)   +x   (t)R0((b⊕Z)          <t◦c)   ≥1.
+
+It follows that                                        h                                 Z<ti
+                                               EZ≥t     x(t)L0(a⊕Z)       +x   (t)R0(b⊕Z)         ≥1.
+
+Taking the expectation overZ    <t proves the lemma.
+
+     The properness condition ensures that the hidden set remains independent.
+
+Lemma 3.4.For every shiftz∈[C]                         P, the setI(z)is independent in(L                  0 ∪R   0, E0(z)).
+
+Proof.Consider an edge in the batch associated with(L(a),R(b))∈ E                                     (t) . It has the form
+                                                L0 (a⊕z)         <t ◦c , R0 (b⊕z)         <t ◦c 
+
+
+for somec∈[C]                  P−t+1   .
+     Under the inverse shift, its endpoints correspond to
+
+                                                 L(a     <t ◦c  ′)   and R(b              <t ◦c  ′),
+
+wherec         ′ =c⊖z       ≥t . By properness, at least one of these two blueprint vertices is isolated. Its image
+under the shift is therefore not contained inI(z).
+     Hence, every revealed edge has at least one endpoint outsideI(z), andI(z)is independent.
+
+     We can now combine the expected contributions of all blueprint edges.
+
+Lemma 3.5.There exists a shiftz∈[C]                         P such that, after allPphases,
+                                                               X       xv ≥ |I(z)|
+
+                                                              v∈I(z)               2    .
+
+Proof.SinceEis a matching, different blueprint edges correspond to distinct vertices inI(Z).
+Moreover, fractional variables can only increase. Lemma3.3therefore gives
+                                                
+                                                          PX          X                 h                                i
+                             EZ    X         xv ≥                                EZ     x(t)L0(a⊕Z)       +x   (t)R0(b⊕Z)
+                                    v∈I(Z)               t=1  (L(a),R(b))∈E                           (t)
+
+                                                          PX
+                                                     ≥        |E(t)  |=|E|=     |I(Z)| 2    .
+                                                         t=1
+Since|I(Z)|= 2|E|is independent ofZ, some fixed shiftzsatisfies the desired inequality.
+
+
+
+
+
+                                                                           7
+
+===== PDF PAGE 8 =====
+3.4   Proof of the Main Theorem
+We now complete the proof of the main theorem.
+
+Proof of Theorem1.ByTheorem2, thereexistsafiniteproperblueprintwhosevalueνisarbitrarily
+close to2/3. Choose such a blueprint so that
+                                                   2−ν
+                                                  2(1−ν)         ≥2−ε.
+
+Letn=C            P andϕ=|E|=νn.
+    By Lemma3.5, there exists a shiftz∈[C]                                     P for whichI(z)is fully covered. By Lemma3.4, the
+same set is independent. Lemma3.1therefore gives
+                                     Alg
+                                     Opt ≥   2n−ϕ2(n−ϕ)           =   2−ν2(1−ν)         ≥2−ε.
+The chosen blueprint is finite, so the resulting input sequence is finite.  The construction also
+preserves bipartiteness. This completes the proof.
+
+Declaration on the Use of AI Tools
+
+The authors began investigating this problem in February 2026 and made partial progress beyond
+the previously known1.753lower bound for the general vertex-arrival model. The authors then
+suggested that the recent blueprint framework of Assadi, Jiang, and Xiang might apply. Prompted
+by this suggestion, OpenAI’s GPT-5.6 Sol formulated the reduction yielding the tight factor-2lower
+bound proved in this paper and assisted with drafting the manuscript. The authors independently
+verified the reduction, proof, citations, and exposition and can directly defend every aspect of the
+submission. The authors assume responsibility for all content.
+
+References
+
+Sepehr Assadi, MohammadHossein Bateni, Aaron Bernstein, Vahab S. Mirrokni, and Cliff Stein.
+  Coresets meet EDCS: algorithms for matching and vertex cover on massive graphs. InSODA,
+  pages 1616–1635. SIAM, 2019.
+Sepehr Assadi, Max Jiang, and Mars Xiang. Semi-streaming matching in a single pass: A new
+  framework for lower bounds via blueprints. InSTOC, pages 979–990. ACM, 2026a.
+
+Sepehr Assadi, Max Jiang, and Mars Xiang. Semi-streaming matching in a single pass II: Greedy
+  is optimal, 2026b. arXiv:2607.14656.
+
+Júlia Baligács, Bartłomiej Bosek, Yann Disser, Andreas Emil Feldmann, Grzegorz Gutowski,
+  Katarzyna Kępińska, Paweł Putra, and Anna Zych-Pawlewicz. Online and incremental fractional
+  vertex cover on trees. InProceedings of the 34th Annual European Symposium on Algorithms,
+  Leibniz International Proceedings in Informatics, 2026. To appear.
+
+Niv Buchbinder, Danny Segev, and Yevgeny Tkach. Online algorithms for maximum cardinality
+  matching with edge arrivals.Algorithmica, 81(5):1781–1799, 2019.
+
+Marc Demange and Vangelis Th Paschos. On-line vertex-covering.Theoretical Computer Science,
+  332(1-3):83–108, 2005.
+
+                                                           8
+
+===== PDF PAGE 9 =====
+Mahsa Derakhshan, Andisheh Ghasemi, and Rajmohan Rajaraman. One-way communication com-
+  plexity of minimum vertex cover in general graphs.  InICALP, volume 334 ofLIPIcs, pages
+  66:1–66:19. Schloss Dagstuhl - Leibniz-Zentrum für Informatik, 2025.
+
+Buddhima Gamlath, Michael Kapralov, Andreas Maggiori, Ola Svensson, and David Wajc. Online
+  matching with general arrivals. InFOCS, pages 26–37. IEEE Computer Society, 2019.
+
+Richard M. Karp, Umesh V. Vazirani, and Vijay V. Vazirani. An optimal algorithm for on-line
+  bipartite matching. InSTOC, pages 352–358. ACM, 1990.
+
+Euiwoong Lee and Sahil Singla. Maximum matching in the online batch-arrival model.ACM Trans.
+  Algorithms, 16(4):49:1–49:31, 2020.
+
+Zhihao Gavin Tang.  Optimal competitive ratio of two-sided online bipartite matching, 2026.
+  arXiv:2602.18049.
+
+Zhihao Gavin Tang and Yuhao Zhang. Improved bounds for fractional online matching problems.
+  InEC, pages 279–307. ACM, 2024.
+
+Yajun Wang and Sam Chiu-wai Wong.  Two-sided online bipartite matching and vertex cover:
+  Beating the greedy algorithm. InICALP (1), volume 9134 ofLecture Notes in Computer Science,
+  pages 1070–1081. Springer, 2015.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                         9

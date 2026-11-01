@@ -1,0 +1,39 @@
+{
+  "scope": "Exact checks of restricted construction obstructions; universal hypothesis unresolved",
+  "boundary": {
+    "exact_fractional_interface_cases": 4080,
+    "exact_retirement_tables": 1040,
+    "exact_two_pool_phases": 4608,
+    "coarse_state_counterexample_optima": [
+      4,
+      3
+    ]
+  },
+  "subdivision": {
+    "completed_gadget_prefixes": 75972,
+    "half_gadget_prefixes": 75972,
+    "maximum_cost_over_matching_certificate": "3/2"
+  },
+  "cleanup": [
+    {
+      "file": "vertex-blueprint-P2-C3.json",
+      "shifts_checked": 9,
+      "exact_forcing": "4"
+    },
+    {
+      "file": "vertex-blueprint-P3-C2.json",
+      "shifts_checked": 8,
+      "exact_forcing": "2"
+    },
+    {
+      "file": "vertex-blueprint-P3-C3.json",
+      "shifts_checked": 27,
+      "exact_forcing": "8"
+    },
+    {
+      "file": "vertex-blueprint-P4-C2.json",
+      "shifts_checked": 16,
+      "exact_forcing": "3"
+    }
+  ]
+}

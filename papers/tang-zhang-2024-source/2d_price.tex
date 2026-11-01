@@ -1,0 +1,200 @@
+\section{Improved Algorithm for Fully Online Matching}
+\label{sec:fully_lower}
+
+We first recall the Eager Water-filling algorithm proposed by Huang et al.~\cite{focs/HuangTWZ20} and present it from an economic view.
+\begin{itemize}
+	\item Each vertex $v$ maintains a price that depends on its current water level.
+	\item On the arrival of each vertex $u$, fractionally match it to the neighbor with the cheapest price, until the cheapest price among all neighbors and $u$'s own price sum to $1$.
+	\item On the departure of each vertex $u$, fractionally match it to the neighbor with the cheapest price to maximize its own utility.
+\end{itemize}
+
+The standard water-filling algorithm only consists of the first and third steps. In the design of Water-filling~\cite{soda/HuangPTTWZ19} and Eager Water-filling~\cite{focs/HuangTWZ20}, the price of a vertex solely depends on its water level, i.e. the price of a vertex $v$ = $f(x_v)$ for some increasing function $f$. As a result, the selection of a vertex with the cheapest price is equivalent to the selection of a vertex with the lowest water level.
+
+We improve upon the Eager Water-filling algorithm by modifying its pricing policy.  
+%\zhihao{intuition on how the 2d-pricing helps, and maybe compare to the 2d-pricing in the random arrival model.} 
+In principle, one can set a price based on all historical information of the instance, instead of the specific local information of its water level. We implement this idea by introducing a two-dimensional price function. Our design of the algorithm is directly motivated by the primal-dual analysis.
+
+\paragraph{Our Algorithm.} Fix an increasing function $f:[0,1] \to [0,1]$ and a two-dimensional function $g:[0,1]^2 \to [0,1]$ that is non-decreasing in both dimensions. 
+%\yuhao{is that non-decreasing?}
+%\zhihao{do we need the monotonicity in the first dimension?}
+All matched portion $x_{uv}$'s, $x_u$'s, and the dual variable $\alpha_u$'s  are initialized to $0$ upon $u$'s arrival. 
+%We use $\rho_v = g(\alpha_v, x_v)$ to denote the current price of vertex $v$.
+\begin{itemize}
+	%\item Each vertex $v$ set its price as $g(a_v, x_v)$, where $a_v$ is the price of $v$ after its arrival and $x_v$ is the current water level of $v$.
+	\item On the arrival of each vertex $u$, fractionally matches $u$ to the neighbor $v$ with the cheapest price $\rho_v = g(a_v, x_v)$, as long as $f(x_u) + g(a_v, x_v) \le 1$. When the process ends, let $a_u = x_u$ be the \emph{active} water level of $u$.% be By the definition of our algorithm, we have $g(\alpha_u, x_u) \ge \alpha_u$ right after the arrival of $u$. If there is no available neighbor of $u$, let $\alpha_u$ be $0$.
+	\item On the departure of each vertex $u$, fractionally match it to the neighbor $v$ with the cheapest price $g(a_v, x_v)$.
+\end{itemize}
+
+In both steps, when $x_{uv}$ increases by $dx$ at the arrival or departure of $u$, update $\alpha_u, \alpha_v$ by 
+\[
+d\alpha_u = 1-g(a_v,x_v) dx \quad \text{and} \quad d\alpha_v = g(a_v, x_v) dx
+\]
+%\zhihao{the pseudocode does not look good. I prefer not to include it.}
+Refer to Algorithm~\ref{alg:fully} for the pseudocode of our algorithm.
+\paragraph{Remark.} Eager Water-filling algorithm is a special case of the above algorithm when $g$ is set to be the same function $f$, i.e. $g(a, x) = f(x)$ for all $a$.
+
+\begin{algorithm}
+	\caption{History-based Pricing Algorithm for Fully Online Matching}
+	\label{alg:fully}
+	\begin{algorithmic}
+	\If{a vertex $u$ arrives} 
+		\For{$\forall v \in N(u)$} \Comment{$N(u)$ denotes $u$'s current neighbor set}
+		\State $x_{u,v} \gets 0$ \Comment{$x_{u,v}$ denotes the matched portion of $(u,v)$}
+		\EndFor
+		\State $x_{u} \gets 0$ \Comment{$x_u$ denotes the water level of $u$}
+		\State $v \gets \arg\min_{v\in N(u)}g(a_v,x_{v})$
+		\While{$f(x_u) + g(a_v,x_v)\leq 1$}
+			\State $x_{u,v}  ~{\scriptstyle  \mathrel{+}=}~ dx$ \Comment{Match $u$, $v$ (small enough portion $dx$).}
+			\State $x_{u} ~{\scriptstyle  \mathrel{+}=}~ dx$, $x_{v}  ~{\scriptstyle  \mathrel{+}=}~ dx$ \Comment{Water level update}
+			\State $\alpha_u   ~{\scriptstyle  \mathrel{+}=}~ (1 - g(a_{v},x_{v}))dx$,  $\alpha_{v}  ~{\scriptstyle  \mathrel{+}=}~ g(a_{v},x_{v})dx$ \Comment{
+				Dual update}
+			\State $v \gets \arg\min_{v\in N(u)}g(a_v,x_{v})$.
+		\EndWhile
+		\State $a_u \gets x_u$ \Comment{Fix $u$'s active water level.}
+	\EndIf
+	\If{a vertex $u$ departs} 
+		\While{$x_u < 1$}
+			\State $v \gets \arg\min_{v\in N(u)}g(a_v,x_{v})$ \Comment{$N(u)$ becomes $u$'s final neighbor set}
+			\State $x_{u,v}  ~{\scriptstyle  \mathrel{+}=}~ dx$ \Comment{Match $u$, $v$ (small enough portion $dx$).}
+			\State $x_{u} ~{\scriptstyle  \mathrel{+}=}~ dx$, $x_{v}  ~{\scriptstyle  \mathrel{+}=}~ dx$ \Comment{Water level update}
+			\State $\alpha_u   ~{\scriptstyle  \mathrel{+}=}~ (1 - g(a_{v},x_{v}))dx$,  $\alpha_{v}  ~{\scriptstyle  \mathrel{+}=}~ g(a_{v},x_{v})dx$ \Comment{
+				Dual update}
+		\EndWhile
+	\EndIf
+	\end{algorithmic}
+\end{algorithm}
+
+\paragraph{Analysis.} 
+Our proofs are inherently similar to the analysis of Eager Water-filling by \cite{focs/HuangTWZ20}. Each lemma below has a corresponding counterpart in the analysis of Eager Water-filling. After all, the family of algorithms we proposed include Eager Water-filling as a special case. Nevertheless, we need to do quite non-trivial transformation of the derived lower bounds, so that we can apply factor revealing LP techniques to optimize the functions $f,g$ of our algorithm. 
+
+Fix a pair of neighbors $(u,v)$. Suppose $u$'s deadline is before $v$'s deadline. Let $p_u$ be the water level of $u$ right \emph{before} $u$'s deadline. 
+%We shall have that $g(\alpha_u, a_u) \ge \alpha_u$.
+Let $p_v$ be the water level of $v$ right \emph{after} $v$'s deadline. 
+
+\begin{lemma}
+Right after $u$'s deadline, we have
+\begin{equation}
+\label{eq:gain}
+\alpha_u + \alpha_v \ge a_u \cdot f(a_u) + \int_{a_u}^{p_u} g(a_u, x_u) dx_u + a_v \cdot f(a_v) + \int_{a_v}^{p_v} g(a_v, x_v) dx_v + (1-p_u) \cdot (1-g(a_v, p_v)).
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+On the arrival of the vertex $v$, it fractionally matches the neighbor $z$ with the cheapest price as long as $f(x_v) + g(a_z, x_z) \le 1$. Hence, during the process, the marginal gain of $v$ is $d \alpha_v = (1-g(a_z, x_z)) dx \ge f(a_v) dx$. Here, the inequality holds since the utility $1-g(a_z,x_z)$ decreases during the process as the cheapest price increases. We use the fact that $f$ is a continuous function. 
+
+Thus, $\alpha_v \ge a_v \cdot f(a_v)$ after $v$'s arrival. Later, $v$ is passively matched and $x_v$ increases from $a_v$ to $p_v$, $\alpha_u$ increases at the rate of $g(a_v, x_v)$. Hence, $\alpha_v \ge a_v \cdot f(a_v) + \int_{a_v}^{p_v}g(a_v, x_v)dx_v$ right after $u$'s deadline.
+
+Similarly, $\alpha_u \ge a_u \cdot f(a_u) + \int_{a_u}^{p_u}g(a_u, x_u)dx_u$ right \emph{before} $u$'s deadline.
+On the deadline of $u$, $u$ actively matches the neighbor with the cheapest price, which is at most $g(a_v, p_v)$. Therefore, after the deadline of $u$, $\alpha_u \ge a_u \cdot f(a_u) + \int_{a_u}^{p_u}g(a_u, x_u)dx_u + (1-p_u) \cdot (1-g(a_v, p_v))$.
+
+Summing up the total gains of $\alpha_u, \alpha_v$ gives the claimed bound.
+\end{proof}
+
+\paragraph{Reformulating the lower bound.}
+To facilitate the analysis, we define the following function $h: [0,1]^2 \to [0,1]$ that has a one-one correspondence with $g$:
+\[
+h(\tau,\theta) = \inf \{x: g(f^{-1}(\tau), x) \ge \theta\}. 
+\]
+Our function $g$ shall be only defined on $(a, x) \in [0,1]^2$ with $x \ge a$. Hence, $h(\tau,\tau)=f^{-1}(\tau)$. Moreover, our functions $f,g$ satisfy that $f(x) = g(x,x)$ for all $x \in [0,1]$.
+
+Then for any $0 \le \tau \le \theta \le 1$, we have
+%\zhihao{Seems we need that $g(\alpha, h(\alpha, \alpha)) = \alpha$}
+\[
+\int_{h(\tau,\tau)}^{h(\tau,\theta)} g(f^{-1}(\tau),x) dx = \theta \cdot h(\tau, \theta) - \tau \cdot h(\tau, \tau) - \int_{\tau}^{\theta} h(\tau, y) dy.
+\]
+
+The following lemma studies the two cases depending on whether $u$ arrives earlier than $v$ or $v$ arrives earlier than $u$ and reformulate the lower bound~\eqref{eq:gain}.
+
+\begin{lemma}
+\label{lem:uearlier}
+If $u$ arrives earlier than $v$, then
+\begin{multline}
+\label{eq:uearlier}
+\alpha_u + \alpha_v \ge \min_{\substack{\tau_u \le \theta_u \\ 1-\theta_u \le \tau_v \le \theta_v}} \bigg\{ \theta_u \cdot h(\tau_u, \theta_u) - \int_{\tau_u}^{\theta_u} h(\tau_u, y_u) dy_u \\
++ \theta_v \cdot h(\tau_v, \theta_v) - \int_{\tau_v}^{\theta_v} h(\tau_v, y_v) dy_v + (1-h(\tau_u, \theta_u)) \cdot (1-\theta_v) \bigg\}
+\end{multline}
+\end{lemma}
+\begin{proof}
+Let $\tau_u = f(a_u), \tau_v= f(a_v), \theta_u = g(a_u, p_u)$ and $\theta_v = g(a_v, p_u)$. 
+%By definition, we have $p_u \ge h(\alpha_u,\rho_u)$ and $p_v \ge h(\alpha_v, \rho_v)$. 
+With the notion of $h$, we rewrite Equation~\eqref{eq:gain}.
+\begin{multline}
+\label{eq:uearlier_gainv}
+a_v \cdot f(a_v) + \int_{a_v}^{p_v} g(a_v, x_v) dx_v = \tau_v \cdot h(\tau_v,\tau_v) + \int_{h(\tau_v,\tau_v)}^{p_v} g(f^{-1}(\tau_v), x_v) dx_v \\
+\ge \tau_v \cdot h(\tau_v,\tau_v) + \int_{h(\tau_v,\tau_v)}^{h(\tau_v, \theta_v)} g(f^{-1}(\tau_v), x_v) dx_v = \rho_v \cdot h(\alpha_v, \rho_v) - \int_{\alpha_v}^{\rho_v} h(\alpha_v,y_v) dy_v,
+\end{multline}
+where the inequality holds from the fact that $p_v \ge h(\tau_v,\theta_v)$.
+Let $G$ be the right hand side of Equation~\eqref{eq:gain}. We calculate the derivative of $G$ over $p_u$:
+\[
+\frac{\partial G}{\partial p_u} = g(a_u, p_u) - 1 + g(a_v, p_v) \ge g(a_u, p_u) - 1 + f(a_v) \ge 0.
+\]
+The last inequality holds due to the stopping condition of our algorithm on $v$'s arrival. Consequently, the minimum of $G$ is achieved when $p_u = h(\tau_u,\theta_u)$. 
+Thus, we have 
+\begin{align}
+&\phantom{\ge} a_u \cdot f(a_u) + \int_{a_u}^{p_u} g(a_u, x_u) dx_u + (1-p_u) \cdot (1-g(a_v,p_v)) \notag \\
+& \ge \tau_u \cdot h(\tau_u,\tau_u) + \int_{h(\tau_u,\tau_u)}^{h(\tau_u,\theta_u)} g(f^{-1}(\tau_u),x_u) dx_u + (1-h(\tau_u,\theta_u)) \cdot (1-\theta_v) \notag \\
+& = \theta_u \cdot h(\tau_u, \theta_u) - \int_{\tau_u}^{\theta_u} h(\tau_u, y_u) dy_u + (1-h(\tau_u, \theta_u)) \cdot (1-\theta_v). \label{eq:uearlier_gainu}
+\end{align}
+We conclude the proof by summing up \eqref{eq:uearlier_gainv} and \eqref{eq:uearlier_gainu} and taking the minimum over all possible values of $\tau_u,\theta_u,\tau_v$ and $\theta_v$. Notice that since $u$ arrives earlier than $v$, we must have $\tau_v = f(a_v) > 1-g(a_u,p_u) = 1-\theta_u$, by the design of our algorithm.
+\end{proof}
+
+\begin{lemma}
+\label{lem:vearlier}
+If $v$ arrives earlier than $u$, then
+\begin{equation}
+\label{eq:vearlier}
+	\alpha_u + \alpha_v \ge \min_{\substack{\tau_v \le \theta_v}} \left\{ \theta_v \cdot h(\tau_v, \theta_v) - \int_{\tau_v}^{\theta_v} h(\tau_v, y_v) dy_v + 1 - \theta_v \right\}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Let $\tau_u = f(a_u), \tau_v = f(a_v), \theta_u = g(a_u,p_u)$ and $\theta_v = g(a_v,p_u)$. Let $G$ be the right hand side of Equation~\eqref{eq:gain}. We calculate the derivative of $G$ over $p_u$:
+\[
+\frac{\partial G}{\partial p_u} = g(a_u, p_u) - 1 + g(a_v, p_v) \ge f(a_u) - 1 + g(a_v,p_u) \ge 0.
+\]
+The last inequality holds due to the stopping condition of our algorithm on $u$'s arrival. Thus, the minimum is achieved when $p_u=a_u$. Thus, we have
+\begin{align*}
+\alpha_u+\alpha_v & \ge a_v \cdot f(a_v) + \int_{a_v}^{p_v} g(a_v, x_v) dx_v + a_u \cdot f(a_u) + (1-a_u) \cdot (1-g(a_v, p_v)) \\
+& \ge \tau_v \cdot h(\tau_v, \tau_v) + \int_{h(\tau_v,\tau_v)}^{h(\tau_v, \theta_v)} g(f^{-1}(\tau_v), x_v) dx_v +(1-\theta_v) \\
+& = \theta_v \cdot h(\tau_v, \theta_v) - \int_{\tau_v}^{\theta_v} h(\tau_v, y_v) dy_v +1-\theta_v,
+\end{align*}
+where the second inequality holds by the fact that $f(a_u) \ge 1-g(a_v,p_v) = 1-\theta_v$.
+Finally, taking the minimum over all possible values of $\tau_v,\theta_v$ concludes the proof.
+\end{proof}
+
+Let $\Phi_1, \Phi_2$ denote the two lower bounds derived from the above lemmas. Formally,
+\begin{align*}
+    &\Phi_1(\tau_v,\theta_v) \eqdef \theta_v \cdot h(\tau_v, \theta_v) - \int_{\tau_v}^{\theta_v} h(\tau_v, y_v) dy_v + 1-\theta_v; \\ 
+    &\Phi_2(\tau_u,\theta_u,\tau_v,\theta_v) \eqdef \left(
+    \begin{aligned}
+        &\theta_u \cdot h(\tau_u, \theta_u) - \int_{\tau_u}^{\theta_u} h(\tau_u, y_u) dy_u + \theta_v \cdot h(\tau_v, \theta_v)\\
+        & - \int_{\tau_v}^{\theta_v} h(\tau_v, y_v) dy_v + (1-h(\tau_u, \theta_u)) \cdot (1-\theta_v)
+    \end{aligned}
+    \right).
+\end{align*}
+Finally, we use the folklore factor revealing lp techniques to optimize the function $h$. A detailed implementation of the factor revealing lp is provided in Appendix~\ref{app:factor_lp}.
+\begin{lemma}
+\label{lem:opth}
+There exists a function $h:[0,1]^2 \to [0,1]$ such that for $\Gamma = 0.6$:
+\begin{align}
+	& \forall 0\le \tau_v \le \theta_v \le 1: &\Phi_1 \ge \Gamma; \label{eqn:h-feasible-1} \\
+    & \forall 0\le \tau_u \le \theta_u \le 1, 1-\theta_u\le \tau_v \le \theta_v \le 1 :\quad  & \Phi_2 \ge \Gamma; \label{eqn:h-feasible-2} 
+\end{align}
+\end{lemma}
+
+\begin{theorem}
+	The algorithm with the functions $f,g$ chosen corresponding to the $h$ function of Lemma~\ref{lem:opth} is $\Gamma=0.6$-competitive for fractional fully online matching on general graphs.
+\end{theorem}
+\begin{proof}
+We conclude the competitive ratio of our algorithm by putting the lemmas together. Fix an arbitrary pair of neighbors $(u,v)$ with $u$'s deadline later than $v$'s deadline. Approximate dual feasibility follows by the two cases. If $u$ arrives earlier than $v$,
+\[
+\alpha_u + \alpha_v \ge \min_{\substack{0\le\tau_u \le \theta_u\le 1 \\ 1-\theta_u \le \tau_v \le \theta_v}} \Phi_2(\tau_u,\theta_u,\tau_v,\theta_v) \ge 0.6,
+\]
+where the first inequality follows from Lemma~\ref{lem:uearlier} and the second inequality follows from Lemma~\ref{lem:opth}.
+If $v$ arrives earlier than $u$,
+\[
+\alpha_u + \alpha_v \ge \min_{0\le\tau_v\le\theta_v\le 1} \Phi_1(\tau_v,\theta_v) \ge 0.6,
+\]
+where the first inequality follows from Lemma~\ref{lem:vearlier} and the second inequality follows from Lemma~\ref{lem:opth}.
+Finally, reverse weak duality holds trivially according to the definition of dual variables.
+\end{proof}

@@ -1,0 +1,9 @@
+{
+  "distribution": "experiments\\general-5-1-4-subset-yao.json.gz",
+  "instances": 7,
+  "prefixes": 21,
+  "optimal_expected_ratio": 1.641025640820513,
+  "certified_lower_ratio": 1.6410256338205127,
+  "max_primal_residual": 0.0,
+  "scope": "Independent float optimization of actual inputs; no continuation-budget constraints"
+}

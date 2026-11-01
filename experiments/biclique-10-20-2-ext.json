@@ -1,0 +1,13 @@
+{
+  "prefixes": 421,
+  "variables": 9032,
+  "constraints": 14093,
+  "ratio": 1.7458282187227874,
+  "max_primal_residual": 3.592016558112502e-12,
+  "extension_budgets": true,
+  "status": "Floating LP value; no exact dual certificate yet",
+  "root": 10,
+  "step": 1,
+  "limit": 20,
+  "phases": 2
+}

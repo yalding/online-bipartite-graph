@@ -1,0 +1,835 @@
+===== PDF PAGE 1 =====
+Online and Incremental Fractional Vertex Cover
+on Trees
+Júlia Baligács✉
+Department of Computer Science, University of Oxford, United Kingdom
+Bartłomiej Bosek✉
+Institute of Theoretical Computer Science, Faculty of Mathematics and Computer Science,
+Jagiellonian University, Kraków, Poland
+Yann Disser✉
+Department of Mathematics, TU Darmstadt, Germany
+Andreas Emil Feldmann✉
+Department of Computer Science, University of Sheffield, United Kingdom
+Grzegorz Gutowski✉
+Institute of Theoretical Computer Science, Faculty of Mathematics and Computer Science,
+Jagiellonian University, Kraków, Poland
+Katarzyna Kępińska✉
+Institute of Theoretical Computer Science, Faculty of Mathematics and Computer Science,
+Jagiellonian University, Kraków, Poland
+Paweł Putra✉
+Institute of Informatics, University of Warsaw, Poland
+Anna Zych-Pawlewicz✉
+Institute of Informatics, University of Warsaw, Poland
+
+       Abstract
+In this paper we study the fractional vertex cover problem on trees in two related models: online
+and incremental. In the online model, the vertices of the tree are known a priori and the edges
+arrive one at a time. The goal is to maintain a fractional vertex cover of the tree, i.e., an assignment
+of fractional weights from[0       , 1]to the vertices such that the weights of endpoints of every edge
+sum up to at least one. After each edge arrival, we need to modify the fractional vertex cover to
+cover the new edge as well. However, we can only increase the values assigned to vertices. The
+problem was studied before (in the vertex arrival model) by Wang and Wong, who motivated it as a
+generalization of the ski-rental problem, but also (more importantly) by its close connection to the
+dual online matching problem. They presented a1  .901-competitive algorithm for general graphs
+in the vertex arrival model. We present an  116 ≈ 1.83-competitive algorithm for trees in the more
+general edge arrival model.
+    In addition, we study the fractional vertex cover problem in an incremental model, where we
+again seek a fractional vertex cover after every update, but all the updates to the tree are known to
+the algorithm a priori. In this model, we give a1  .5-competitive algorithm and provide a matching
+lower bound.
+
+2012 ACM Subject ClassificationMathematics of computing      → Discrete mathematics; Theory of
+computation→Online algorithms
+
+Keywords and phrasesfractional vertex cover, online algorithms, incremental algorithms, edge
+arrival model, trees, competitive analysis
+
+FundingThis  work  is  a  result  of  research  conducted  within  research  project  number
+2023/51/B/ST6/02833 financed by the National Science Centre, Poland (Bartłomiej Bosek, Grzegorz
+Gutowski, Katarzyna Kępińska, Paweł Putra and Anna Zych-Pawlewicz)
+Júlia Baligács: During employment in Warsaw supported by ERC grant BOBR (grant no. 948057).
+During employment in Oxford supported by ERC grant CCOO (grant no. 101165139).
+
+===== PDF PAGE 2 =====
+2      Online and Incremental Fractional Vertex Cover on Trees
+
+
+             1  Introduction and Related Work
+
+           In this paper we consider the fractional vertex cover problem in the online and in the
+           incremental edge arrival model. In this model, edges of an underlying graph appear one by
+           one and we need to maintain a fractional vertex cover after each step. Here, a fractional
+           (resp. integral) vertex cover is an assignment of weights from[0   , 1](resp. from {0, 1}) to the
+           vertices so that every edge in the graph iscovered, i.e., such that the weights assigned to its
+           endpoints sum to at least1. The objective is to minimize the total weight of the vertices,
+           and the challenge is that our decisions are irrevocable in the sense that we may only ever
+           increase the weights assigned to the vertices from one step to the next. We cannot hope to
+           maintain an optimal fractional vertex cover in each time step, instead we aim for solutions of
+           smallcompetitive ratio, i.e., solutions that are never suboptimal by more than this ratio.
+                The online setting differs from the incremental setting in that it assumes no prior
+           knowledge of the edges of the graph, while the incremental setting assumes that we know the
+           graph a priori. Both settings have in common that we need to define increasing sequences of
+           vertex weights that simultaneously approximate a minimum fractional vertex cover across
+           all time steps. The incremental setting can be viewed as an online problem, where the only
+           unknown is the number of steps that we need to optimize for (much like in the ski rental
+           problem). We provide online algorithms for both the online and the incremental setting in
+           the edge arrival model for the case where the underlying graph is a tree.
+                The online fractional vertex cover problem was studied on general graphs by Wang and
+           Wong [30], but in the vertex arrival model, where vertices are revealed one at a time together
+           with the adjacent edges to the previously revealed vertices. This model is easier than the edge
+           arrival model in the sense that vertex addition can be simulated by adding adjacent edges
+           one by one. Wang and Wong motivated the problem as a generalization of the ski-rental
+           problem, and, more importantly, by its connection to the fractional online matching problem.
+           They present a1 .901-competitive online algorithm maintaining a fractional vertex cover,
+           with a proof based on primal-dual analysis. This means that the authors maintain an online
+           solution to the dual fractional matching problem. By weak duality, the maintained matching
+           is(1 /1.901≈ 0.526)-competitive. This lower bound was later matched by an algorithm by
+           Tang and Zhang [29], which was later shown to be optimal by Tang [28].
+                The existence of a(1 /2 +ε)-competitive algorithm for the fractional matching problem
+           on general graphs in vertex arrival model had been a long standing open question. Thus, as
+           a byproduct of their approach, Wang and Wong provide such an online algorithm. Building
+           on this result, Gamlath et al. [13] used a general rounding technique to transform an online
+           fractional matching algorithm to an online randomized (integral) matching algorithm. They
+           obtain a randomized(                      12 +ε)-competitive online matching algorithm for some small ε> 0. On
+           the other hand, Gamlath et al. also show that, in the edge arrival model, no online algorithm
+           (even randomized) can beat a competitive ratio of1 /2. This is an important result, since
+           online matching is a very well-motivated and widely studied problem. A straightforward
+           greedy algorithm is1 /2-competitive for this problem, and a significant amount of research
+           has been devoted to providing better ratios in different regimes and for different graph
+           classes [19, 22, 26, 6, 3, 20, 4].
+                For forests, the online fractional matching problem was studied by Buchbinder et al. [4].
+           They show an online5    /9-competitive fractional matching algorithm which translates to a
+           randomized integral algorithm with the same expected competitive ratio. Their analysis relies
+           again on the primal-dual technique, where instead of maintaining a proper fractional vertex
+           cover throughout the runtime of the algorithm, a new one is constructed retrospectively after
+
+===== PDF PAGE 3 =====
+Baligács, Bosek, Disser, Feldmann, Gutowski, Kępińska, Putra, Zych-Pawlewicz         3
+
+
+each edge introduction. The construction of those covers heavily depends on the parent–child
+relation between edge endpoints imposed by rooting each tree in the forest arbitrarily at each
+time step. Sadly this does not yield a(9 /5 = 1.8)-competitive online fractional vertex cover,
+as merging two trees in the forest by introducing an edge between them and rooting this tree
+can effectively reverse the relationship between some edge endpoints. This in turn leads to a
+vertex weight decreasing in the cover at some steps, which is not allowed in an online setting.
+They also show an upper bound of≈  0.5914on the competitive ratio of any fractional
+matching algorithms in this model. Online fractional matchings on forests were also studied
+by Jiang and Zhang [17] in the free disposal model, in which any of the matched edges can
+later be removed permanently by the algorithm. They show a(5 /8 = 0.625)-competitive
+algorithm for online fractional matching in this setting, showing a clear separation between
+competitive ratios of algorithms attainable for the two models. Importantly the free disposal
+model allows them to maintain a single dual solution throughout the algorithm by taking
+advantage of the model allowing non-incremental changes, which is not possible in our case.
+    To the best of our knowledge, the best known competitive ratio for fractional vertex
+cover on trees in the edge arrival model is the trivial ratio of2, as the bound of Wang and
+Wong [30] does not apply to the edge arrival model. In this paper, we improve the state of
+the art by presenting a(   116 ≈1.83)-competitive online fractional vertex cover algorithm for
+trees.
+    We also present a1 .5-competitive incremental fractional vertex cover algorithm for
+trees, as well as a matching lower bound for the problem.  The fractional vertex cover
+problem does not seem to have been previously considered from an incremental perspective.
+Incremental minimization problems studied in the past include k-median [5, 25, 21], facility
+location [27, 21], and k-center [15]. In all of these problems, solutions are only constrained
+in their (growing) cardinality, otherwise every solution is feasible and the structure of the
+problem is encoded in the objective. In contrast, in the incremental vertex cover problem,
+we have a covering constraint in the sense that only solutions covering all the edges are
+permitted. As noted by Lin et al. [21], the results for the minimum latency problem in [2, 14]
+implicitly yield results for the incremental k-MST problem, which is another example of an
+incremental minimization problem with a non-trivial feasibility constraint, namely that the
+solution must form a tree.
+    There is a substantial body of work on incrementalmaximizationproblems, ranging from
+problems under a growing cardinality constraint [1, 10, 11] to growing knapsack [24, 9, 8] and
+matroid [12, 18] constraints. Hassin and Rubinstein [16] considered the incremental maximum
+matching problem, which is related to our setting via the duality between matchings and
+vertex covers. They show that the best possible competitive ratio for incremental matchings
+is√2, whichwaslatercomplementedbyMatuschke, Skutella, andSoto[23]withatightbound
+of ln(4)≈ 1.38for the randomized competitive ratio. The setting was further generalized
+to matroid intersection [12] and independence systems with bounded exchangeability [18].
+That being said, these results do not seem transferable to (fractional) vertex cover.
+
+ 2  Online Fractional Vertex Cover Algorithm
+
+In this section, we present our online fractional vertex cover algorithm for trees that we call
+RGB algorithm. Before we proceed, we more formally introduce the necessary definitions.
+    Afractional vertex coverof a graph     G  =  (V,E)is a function f  : V→    [0, 1]such
+that, for every edge(   u,v)∈E , we have f(u) +f(v) ⩾ 1. The online edge arrival model
+assumes that the edges of G are revealed one at a time according to somepresentation order
+
+===== PDF PAGE 4 =====
+4      Online and Incremental Fractional Vertex Cover on Trees
+
+
+            e1≪e    2≪···≪e    m. We denote by Gt := (V,{e   1,...,et})the graph after presenting all
+            edges ei with i⩽t  . The task of an online algorithm is to produce a sequence f1,...,fm of
+            fractional vertex covers such that:
+
+            (1)For allt∈{1,...,m},f                      t is a fractional vertex cover forG     t.
+            (2) For all t∈{ 2,...,m}  and v∈V   , we have ft−1    (v) ⩽f   t(v), i.e., the covers are increasing.
+
+                 Importantly, the algorithm needs to output ft without any knowledge of Gt+1 ,...,Gm.
+            By Optt, we denote the weight of a minimum vertex cover inGt. For a fixed algorithm Alg,
+            by Algt :=∑v∈V  ft(v), we denote the total weight of the fractional vertex cover generated
+            by it at time t. We say that the algorithm Alg is ρ-competitive if max{         AlgtOptt|t∈   [m]}⩽ρ
+            for any input. As the algorithm has no knowledge of the future, we can equivalently say that
+            an algorithm is ρ-competitive if Algm ⩽ρ·Opt      m for every instance on m edges. When t is
+            clear from context we omit the subscript and also use yv as a shorthand of ft(v). If for an
+            edge(   u,v)∈E  it holds that yu +yv ⩾ 1, we say that(    u,v)iscovered. If, on the other hand,
+            yu +y   v <1, we say that(u,v)isuncoveredwith adeficitofd= 1−y                                              u−y   v.
+                 Afractional matchingfor a graph        G is an assignment of weights muv∈ [0, 1]to each
+            edge(   u,v)∈E  such that for every v∈V   it holds that ∑(u,v)∈E    muv ⩽ 1, i.e., the sum
+            of weights on edges incident to any vertex does not exceed1. In the fractional matching
+            problem, the objective is to maximize the sum of the valuesm         uv assigned to the edges.
+                 It is worth noting that on bipartite graphs (and in particular on trees) both the fractional
+            vertex cover problem and the fractional matching problem admit optimal integral solutions.
+            In particular, Optt will always be integral for our purposes. We also note that it is very easy
+            to obtain a competitive ratio of2for online fractional vertex cover problem: we maintain a
+            maximal matching and pick the endpoints of the matching edges to the vertex cover (i.e.,
+            assign them the values1). Clearly, the size of a minimum vertex cover is at least the size of
+            the matching, and hence2-competitiveness follows.
+                 We now move on to defining the RGB algorithm.
+
+            ▶ Definition 1(RGB algorithm).The RGB algorithm colors each arriving edge of the graph
+            by one of three available colors from the list[     red = 1,green  = 2,blue  = 3]. On arrival of an
+            edge e, it is assigned color ce, which is either the first color from the list not present on its
+            incident edges, or blue if no such color exists (see Algorithm 1). Let C(v)be a set of colors
+            present on the edges adjacent to v. The weight of a vertex in the cover is assigned according
+            to the colors of adjacent edges in the following way
+                           
+                             1ifC(v) ={red,green,blue}
+                              5
+                              6 ifC(v) ={red,green}
+                              4
+                              6 ifC(v) ={red,blue}
+                 f(v) =       2
+                           6 ifC(v) ={green,blue}
+                              3
+                              6 ifC(v) ={red}
+                              1
+                              6 ifC(v) ={green}
+                             0ifC(v) ={blue}orC(v) =∅.
+
+                 We start the analysis by proving the correctness of RGB algorithm.
+
+            ▶ Lemma 2.The RGB Algorithm maintains a fractional vertex cover after every edge arrival.
+
+            Proof. We need to prove that after introducing an online edge e  =  (u,v)it holds that
+            yu +y   v ⩾1. We make case distinction for each possible color assigned to the new edgee:
+
+===== PDF PAGE 5 =====
+Baligács, Bosek, Disser, Feldmann, Gutowski, Kępińska, Putra, Zych-Pawlewicz         5
+
+
+
+    Algorithm 1RGB Algorithm
+    Input:Online graphG= (V,E)with offline verticesV
+    Output:A fractional vertex cover ofG
+  1Initializey                 u←0for eachu∈V
+  2foreach online edgee= (u,v)do
+  3  c  e←min{{i∈{1,2}|u,vare not adjacent to any edge of colori}∪{3}}
+  4  y  u←f(u)
+  5  y  v←f(v)
+
+  6end
+  7return(y                 v)v∈V
+
+
+
+    ce  =  red: Both u and v are incident to a  red edge, implying that yu,yv  ⩾   12, so
+    yu +y   v ⩾1.
+    ce  =  green: Since e  =  (u,v)got assigned   green, it means that at least one of u,v
+    must be adjacent to a red edge. Assume without loss of generality that it is u, then
+    {red,green}⊆C(u)givingy                                           u ⩾  56, andgreen∈C(v)givingy                                       v ⩾  16, soy    u +y   v ⩾1
+    ce = blue: This means that at least one of u,v is adjacent to a red edge and at least one
+    is adjacent to agreenedge. There are two cases:
+        Case 1: At least one of u,v is adjacent to both a  red and a  green edge. Assume
+        without loss of generality that u is such a vertex. Then{red,green,blue}⊆C                             (u)
+        givingy           u ⩾1, soy         u +y   v ⩾1.
+        Case 2: Both u and v are adjacent to exactly one of red and green. Assume without
+        loss of generality that u is adjacent to  red and v is adjacent to  green. Then we
+        have{red,blue}⊆C                   (u), giving yu ⩾  46 and{green,blue}⊆C                       (v)giving yv ⩾  26, so
+        yu +y   v ⩾1
+
+                                                                                                                        ◀
+
+    Next, we prove that the RGB algorithm achieves the desired competitive ratio.
+
+▶Theorem 3.The RGB Algorithm is         116 -competitive on forests.
+
+Proof. For a fixed moment t we will show how to transform the total weight of the cover
+Algt produced up to this moment into a fractional matching M of weight   611Algt. The
+result will follow from weak duality, as the vertex cover LP is the dual of the matching LP
+(see for instance [7]).
+    Let muv denote the weight discharged onto the edge(   u,v). To create the matching we
+first root each connected component at an arbitrary vertex. Then for each vertex v we
+discharge the weighty  v by doing the following.
+
+1. If vertex v has a red edge(   ur,v), then increase murv by∆   red and decrease yv by∆   red,
+    where∆              red = min(y  v, 46− 16[u r is a parent ofv]).
+2. If vertex v has a green edge(   ug,v), then increase mugv by∆   green and decrease yv by
+    ∆green, where∆              green = min(y  v, 26− 16[u g is a parent ofv]).
+3. If vertex v has at least one blue edge, fix one such edge(   ub,v), increase mubv by∆   blue
+    and decreasey               v by∆   blue, where∆              blue = min(y  v, 16− 16[u b is a parent ofv]).
+
+    To prove that this is enough to discharge the entirety of yv, it suffices to show that the
+sum of discharged amounts is at least yv for all possible setsC(v)of colors incident to v. For
+
+===== PDF PAGE 6 =====
+6      Online and Incremental Fractional Vertex Cover on Trees
+
+
+             C(v) ={red,green,blue}              , by summing the discharged amounts over all steps, we obtain
+             that the discharged amount is at least(                                                          )            (        )
+
+                  min      yv, 46 + 26 + 16− 16[someu∈{u              r,ug,ub}is a parent ofv]                   = min       yv, 66     =y   v,
+
+             asy    v ⩽1and each vertexvhas at most one parent. ForC(v) ={red,green}we get(       )            (         )
+
+                  min      yv, 46 + 26− 16[someu∈{u              r,ug}is a parent ofv]                = min       yv, 56    =y   v,
+
+             asy    v ⩽  56. ForC(v) ={red,blue}we get
+                         (                                                                        )            (         )
+                  min      yv, 46 + 16− 16[someu∈{u              r,ub}is a parent ofv]                = min       yv, 46    =y   v,
+
+             asy    v ⩽  46. ForC(v) ={green,blue}we get
+                         (                                                                        )            (         )
+                  min      yv, 26 + 16− 16[someu∈{u              g,ub}is a parent ofv]                = min       yv, 26    =y   v,
+
+             asy    v ⩽  26. ForC(v) ={red}we get
+                         (                                           )            (         )
+                  min      yv, 46− 16[u r is a parent ofv]               = min       yv, 36    =y   v,
+
+             asy    v ⩽  36. ForC(v) ={green}we get
+                         (                                           )            (         )
+                  min      yv, 26− 16[u g is a parent ofv]               = min       yv, 16    =y   v,
+
+             as yv ⩽  16. For C(v) ={blue}      we have yv  = 0so there is nothing to discharge. Let mv
+             denote the sum of weights of edges incident to vertex v. Clearlyv can be adjacent to at most
+             one red and at most one green edge. Additionally, a vertex may be adjacent to multiple
+             blue edges, but only one of them can have a positive weight. To prove this, consider two
+             cases:
+                  (1) v has a blue edge to its parent p: In this case both red and green edges of v point
+                  to its children, so the entirety of yv will be discharged onto them. This means that the
+                  only blue edge with positive charge can be the edge(   v,p), as   blue edges can only get
+                  charge from their parent vertex.
+                  (2) v has no blue edge to its parent: Since blue edges can only get charge from their
+                  parent vertex, andv charges only one blue edge, there is only one blue edge with positive
+                  charge incident tov.
+                  Summing the contributions of edges aroundvwe get
+                                                                         ( 1                   )
+                                 mv ⩽ 46 + 36/bracehtipupleft+ 26 + 16/bracehtipupleft+ max6 + 0,0 +  16/bracehtipupleft= 76 + 36 + 16 = 116 ,
+                                             /bracehtipdownright/bracehtipdownleft/bracehtipupright/bracehtipdownright/bracehtipdownleft/bracehtipupright/bracehtipupleft/bracehtipdownright/bracehtipdownleft/bracehtipupright/bracehtipdownright/bracehtipdownleft/bracehtipupright
+                                            red         green              blue(1)    blue(2)
+             where under-braced parts show the contributions of each edge as a sum of contribution
+             of an edge of given color from its parent and child end in the tree. This gives us that
+             M=  { 611muv|(u,v)∈E   } is a fractional matching.
+                  Let|M  ∗|be the weight of a maximum fractional matching. From weak duality we get
+                                                            6  =|M|⩽|M       ∗|=Opt
+                                                           11Alg
+
+                                                                     Alg⩽         116 Opt
+                                                                                                                                                ◀
+
+===== PDF PAGE 7 =====
+Baligács, Bosek, Disser, Feldmann, Gutowski, Kępińska, Putra, Zych-Pawlewicz         7
+
+
+ 3  Incremental Vertex Cover
+
+In this section, we study a variant of the online vertex cover problem in which the algorithm
+has full knowledge of the future, and the objective is to maintain a good solution at all
+times. The motivation for this model is the following. Consider the process of building a
+road network. During construction, the site must be monitored by security cameras. Given
+the full construction plan, we must decide where and when to install cameras. Once installed,
+they cannot be moved, and at every point in time we aim to minimize the total number of
+cameras in use.
+    We formalize this setting as theincremental vertex coverproblem. Similar to the online
+setting, we are given as input a graph G = (V,E)together with an ordering of its edges
+e1≪···≪e    m. The goal is to compute an increasing sequencef1,...,fm of fractional vertex
+covers such that:
+
+(1)For allt∈{1,...,m},f                      t is a fractional vertex cover forG     t = (V,{e     1,...,et}).
+(2) For all t∈{ 2,...,m}  and v∈V   , we have ft−1    (v) ⩽f   t(v), i.e., the covers are increasing.
+
+    We denote ft(v)as y(t)v . The key difference to the online setting is that the algorithm
+has full knowledge of G and the ordering of the edges e1≪···≪e    m. The challenge here is
+to compute a good solution for all times. As in the online setting, we are seeking algorithms
+with a small competitive ratio, which is defined bymax  t∈[m]         AlgtOptt.
+    In this section, we focus on the fractional incremental vertex cover problem on forests. We
+show that the optimal competitive ratio is exactly3     /2. Specifically, we present an algorithm
+achieving this ratio and a matching lower bound. The algorithm is half-integral and follows
+a simple local rule. We conjecture that the same ratio of3 /2is achievable in the integral
+setting. However, we construct an example showing that no purely local integral rule can
+achieve a competitive ratio of3 /2, illustrating that the integral case is substantially more
+challenging.
+    Our lower bound construction is based on a simple instance – a binary tree revealed
+layer by layer. Despite its simplicity, the analysis is technically involved, as it must capture
+the behavior of an arbitrary fractional algorithm. The key idea is to derive constraints on
+the average weight assigned to each layer over time and to use LP duality to show that no
+algorithm satisfying these constraints can achieve a competitive ratio better than3/2.
+
+3.1  A 1.5-competitive half-integral algorithm
+In this subsection, we introduce a half-integral algorithm for incremental vertex cover, called
+TwoChildRule, and prove that it achieves a competitive ratio of3/2.
+    Before describing the algorithm, let us first establish a useful property. Observe that
+larger instances are more difficult to solve in the following sense: For a forest F, let ρ(F)
+denote the best achievable competitive ratio over all instances defined on F. If F is a
+subgraph of F′, then ρ(F ) ⩽ρ   (F′): Indeed, any instance on F can be embedded into F′ by
+revealing all edges in E(F )first and postponing all edges in E(F′)\E  (F )to the end. As a
+consequence, we can assume wlog. thatF is a tree (instead of only a forest), for which we can
+pick a root, and we can assume that every vertex has either at least two children or is a leaf.
+    The algorithm TwoChildRule is formally described in Algorithm 2. Throughout the
+description, we use the convention that whenever y(t)v  is not explicitly specified, it remains
+unchanged, i.e., y(t)v   =y(t−1)v   . The algorithm exploits the parent–child structure of the tree
+and follows a simple local rule. Vertices with two children are eventually assigned weight1.
+When an edge e = (p,c)arrives, where c is the first child of p, the algorithm looks ahead to
+
+===== PDF PAGE 8 =====
+8      Online and Incremental Fractional Vertex Cover on Trees
+
+
+             the next time step at which either p or c receives an additional child. If p receives another
+             child before c does, then p is assigned weight1. Otherwise, both  p and c are assigned
+            weight1/2.
+
+                 Algorithm 2TwoChildRule
+
+              1root the final tree arbitrarily;
+
+              2initializey                  (0)v    = 0(v∈V);
+              3at timet= 1,...,mdo
+              4   lete      t = (p,c)wherepis the parent ofc;
+
+              5     ify     (t−1)p       +y    (t−1)c   <1then
+
+              6         ifphas two children or (pgets another child beforecandy                      (t−1)c       = 0)then
+
+               7       y  (t)p ←1;
+              8         end
+              9         else
+
+             10      y    (t)p ←  12,y (t)c ←  12
+             11        end
+
+             12   end
+
+             13end
+
+
+             ▶ Observation 4. TwoChildRule is correct, that is,(  y(t)v  )v∈V,t∈[m]       satisfies conditions (1)
+            and (2).
+             Proof. By construction, the weights( y(t)v  )cover the edge et at every time step t. Therefore,
+             it only remains to check that no weight is ever decreased. Since no weight is set to0, it
+             suffices to ensure that no weight is changed from1to          12. However, once a vertex has weight1,
+             all future edges incident to it are already covered, and hence no further updates involving
+             this vertex are performed.                                                                   ◀
+
+                 We now proceed with proving that TwoChildRule achieves a competitive ratio of3 /2.
+            As a first step, we establish the following simple properties.
+             ▶ Observation 5.Fix a time step  t and consider the graph Gt = (V,{e   1,...,et})with the
+            vertex weights(y                (t)v  )v∈V   defined byTwoChildRule.
+            (a) If u has no children and y(t)u ̸= 0, then y(t)u   =  12, u has no siblings and y(t)p   =  12 as well
+                  for the parentpofu.
+            (b)If a vertexuhas exactly one childcandy                                      (t)u   = 1, theny          (t)c   = 0.
+             Proof. For part (a), note that the only way a leaf u can receive a non-zero weight is upon
+             arrival of edge(  u,p)and the second case of the algorithm is triggered. Thus, at the time
+             t′ when(    u,p)is revealed, we set y(t   ′)u    = y(t   ′)p     =  12. Moreover, it holds at time t′ that u
+             is the only child of p and p does not get another child before u gets a child. Since u is a
+             leaf at time t, it follows that, between times t′ + 1and t, neither u nor p receives a new
+             child. Therefore, neither yu nor yp is updated to1before time   t, and hence y(t)u   =y(t)p   =  12.
+             Moreover, it still holds at timetthatuis the only child ofp.
+                 For part (b), if y(t)u   = 1, then this weight must have been assigned through execution
+             of the first case upon arrival of edge(   u,c)at time t′. Since u has only one child at time
+             t′ ⩽t  , the fact that the if-condition in line 6 was triggered implies that u receives another
+             child before c and y(t   ′)c    =y(t   ′−1)c        = 0. Since u still has only one child at time t, no new edge
+             incident tocappears between timest     ′ + 1andt. Therefore,y                              (t)c   = 0.                       ◀
+
+===== PDF PAGE 9 =====
+Baligács, Bosek, Disser, Feldmann, Gutowski, Kępińska, Putra, Zych-Pawlewicz         9
+
+
+    Now, we have all the prerequisites at hand to prove an upper bound on the competitive
+ratio ofTwoChildRule.
+
+▶Theorem 6.TwoChildRuleis3/2-competitive.
+
+Proof. Fix a time step t and let Gt be the forest consisting of the edges that appeared up
+to time t. Let C∗ be a minimum vertex cover of Gt, so that|C∗| = Optt. Recall that
+Algt =∑v∈V  y(t)v  and we have to prove thatAlg        t ⩽  32 Optt.
+    Our strategy for this is as follows. We equip every v∈C  ∗ with a budget of3 /2and
+redistribute this budget among v and its neighbors. We then show that every u∈V    receives
+at least a budget ofy    (t)u  from this redistribution. Note that this implies the theorem.
+    We now describe the redistribution. For each v∈C  ∗, the process is independent of the
+other vertices. In the following description, any budget that is not explicitly distributed is
+kept byv.
+1.Ify       (t)v   = 1, thenvgives               12 to its parent.
+2.Ify       (t)v   =  12, thenvgives             12 to its parent and  12 to its first child.
+3.Ify       (t)v   = 0, thenvgives1to its parent and                     12 to its first child.
+
+    It remains to show that every u∈V    receives at least a budget of y(t)u . First, if u∈C  ∗,
+then u keeps at least a budget of y(t)u  to itself in all three cases. Therefore, assume from
+now on that u /∈C  ∗. In particular, all neighbors of u belong to C∗. We distinguish three
+cases: (1) where u has at least two children, (2) where u has no children, and (3) where u
+has precisely one child.
+    For case (1), note that, in all three redistribution rules, every vertex gives at least  12 to
+its parent. Since u has at least two children and all of them belong to C∗, u receives in total
+at least a budget of 1 from the redistribution.
+    Next, we consider case (2), i.e., where u has no children. If y(t)u   = 0, there is nothing to
+prove. Otherwise, Observation 5a implies that u has no siblings and y(t)u   =y(t)p   =  12, where p
+is the parent ofu. Sincep∈C     ∗, it gives  12 tou, souis covered.
+    Last, we consider case (3), i.e., where u has precisely one child c. If y(t)u   = 1, then by
+Observation 5b, we have y(t)c    = 0. Since c∈C ∗, it gives1to its parent   u, and thus u is
+covered. If y(t)u   =  12, then c∈C ∗ gives at least  12 to its parent in all cases, so again u is
+covered.
+    This exhausts all possibilities and therefore completes the proof of the theorem.◀
+
+    It remains open what the competitive ratio of the integral version of the problem is. For
+this, we formulate the following conjecture, which we verified for all instances on at most 10
+vertices via exhaustive search with a computer program.
+
+▶ Conjecture 7.There exists an integral3   /2-competitive algorithm for incremental vertex
+cover on forests.
+
+    In the following, we give an example showing that a simple local rule similar to the one
+used for the half-integral algorithm cannot achieve the claimed competitive ratio of3 /2. This
+suggests that solving the integral version of the problem is substantially more difficult.
+
+▶ Proposition 8.Consider an integral algorithm for incremental vertex cover on trees.
+Assume that the tree is rooted and, upon arrival of edge e  =  (u,v), the decision of the
+algorithm depends only on the subtree consisting of ancestors and descendants of u and v
+(and the ordering of its edges). Then the competitive ratio of the algorithm is at least  53.
+
+===== PDF PAGE 10 =====
+                                   10     Online and Incremental Fractional Vertex Cover on Trees
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                    Figure 1Example of a symmetric instance of incremental vertex cover where no symmetric
+                                                integral solution achieves a competitive ratio of3   /2. The left subfigure illustrates the instance and
+                                                the other two subfigures illustrate the two possible symmetric solutions. The filled vertices are the
+                                                ones chosen by the incremental algorithm, and the square vertices denote the offline optimum at
+                                                times 6 and 10, respectively.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                    Figure 2An asymmetric integral3   /2-competitive solution to the instance presented in Proposi-
+                                                tion 8. The vertex cover for timetconsists of the vertices with a label⩽t.
+
+
+                                                Proof. Consider the example depicted on the left in Figure 1, where the root vertex r is the
+                                                vertex depicted at the top. Observe that the two subtrees rooted at the two children of r are
+                                                equivalent in the sense that they result in the same tree and their edges appear in the same
+                                                order. However, we argue that any integral algorithm that follows the same strategy in both
+                                                subtrees has competitive ratio at least  53.
+                                                    At timet = 2, the only integral solution with competitive ratio less than 2 is to select the
+                                                root vertex, so we can assume that the algorithm does so. At times 3 and 4, the algorithm
+                                                needs to decide whether it selects the parent vertex or child vertex. We assume that the
+                                                algorithm decides for the same in the two subtrees. If it selects in both the parent vertex
+                                               (see second subfigure), at times 5 and 6, it needs to select an additional vertex each (in the
+                                                figure, we have decided wlog. for the child vertex). Then, at time 6, we have Alg6 = 5, while
+                                                Opt6 = 3. Therefore, assume that, at times 3 and 4, the algorithm selects in both subtrees
+                                                the child vertex (see third subfigure). At times 7 and 8, and at times 9 and 10, an additional
+                                                vertex must be selected each. Then, at time 10, we have Alg10 = 7, while   Opt10 = 4. To
+                                                summarize, in either case, the competitive ratio of the algorithm is at least  53.             ◀
+
+
+                                                    However, it is not difficult to see that an “asymmetric”3         /2-competitive integral solution
+                                                of the example presented in Proposition 8 exists (see Figure 2).
+
+
+
+
+
+
+
+
+
+
+          1    1     2
+          11         22
+          1          2
+                       4
+  99                        1010
+  9   3333               444410
+9      3
+      5555               6666
+                       6
+      777                888
+       7
+
+===== PDF PAGE 11 =====
+Baligács, Bosek, Disser, Feldmann, Gutowski, Kępińska, Putra, Zych-Pawlewicz        11
+
+
+3.2  A lower bound of 1.5 for fractional incremental vertex cover on trees
+
+In this subsection, we prove that the algorithm TwoChildRule is optimal by establishing
+a matching lower bound.
+▶ Theorem 9.Every algorithm for fractional incremental vertex cover on trees has a
+competitive ratio of at least3/2.
+Proof. The instance that we consider is a rooted binary tree of some depth d, which is
+revealed layer-by-layer. More precisely,layer i denotes the set of vertices at distance i from
+the root and, inphase  i, we reveal all edges between layer i−  1and i. When we refer to
+phase 0, we mean the time prior to arrival of any edge.
+    Let Alg be an algorithm for the incremental fractional vertex cover problem. For the
+analysis, we only consider the time steps at the end of a phase. For i = 1,...,d, let Opti
+denote the weight of an optimal offline vertex cover after phase i and let Algi denote the
+cost of the algorithm after phasei.
+    We begin by estimating Opti.  For this, note that equipping the vertices of layers
+i−  1,i−  3,i−  5,... with weight 1 and all other vertices with weight 0 yields a valid fractional
+vertex cover. Foriodd, its total weight is at most
+
+                                    (i−1)/2∑        /2   −1
+    Opti ⩽2   i−1    +···+ 1 =              4j = 4(i+1)4−1        ⩽ 2i+13 .
+                                      j=0
+Forieven, its total weight is at most
+
+                                       (i−2)/2∑
+    Opti ⩽2   i−1    +···+ 2 = 2·               4j = 2·   4i/2 −14−1      ⩽ 2i+13 .
+                                         j=0
+In any case, we have
+
+    Opti ⩽ 2i+13 .                                                              (1)
+
+    Next, we analyze the behavior of Alg. For this, let αi be the average weight of vertices
+in layer i after phase i (i∈{ 0,...,d} ), and let βi be the average weight of vertices in layer i
+after phase i + 1( i∈{ 0,...,d−   1}). Note that, after phase i + 1, the weights of the vertices
+in layeriare not further increased as no new adjacent edges are revealed.
+    We derive some inequalities thatAlgmust fulfill. First, incrementality ensures that
+
+    αi ⩽β   i for alli∈{0,...,d−1}.                                             (2)
+
+Next, after phase i + 1, the edges between layer i andi + 1need to be covered. This implies
+
+    βi +α   i+1  ⩾1for alli∈{0,...,d−1}.                                        (3)
+
+To see this, note that, after phase i + 1, the total weight of vertices in layer i is2   iβi and the
+total weight of vertices in layer i + 1is2     i+1 αi+1 . Each of the vertices in layer i contributes
+its weight to two edges between layer i and i + 1and each of the vertices in layer i + 1
+contributes its weight to one such edge. Therefore, the edges between layer i and i + 1get a
+total weight of2 · 2iβi + 2i+1 αi+1 . Since there are2     i+1 such edges, we obtain βi +αi+1  ⩾ 1.
+    Next, we have
+
+                        i−1∑
+    Algi = 2iαi +           2jβj for alli∈{1,...,d}.                                   (4)
+                       j=0
+
+===== PDF PAGE 12 =====
+12     Online and Incremental Fractional Vertex Cover on Trees
+
+
+                  Letρdenote the competitive ratio ofAlg. We obtain
+
+                                                  i−1∑
+                                (1)(4)⩾ 2iαi +                             i−1∑
+                                                  j=0  2jβj                         3
+                  ρ⩾   AlgiOpti               2i+1 /3          = 32αi +         2i+1−j   βj for alli∈{1,...,d}.        (5)
+                                                                           j=0
+
+                  Putting inequalities (2), (3), (5) together, we obtain that the competitive ratio of Alg is
+             at least the optimal objective value of the following linear program
+
+                  (LP)        minρ
+                                s.t.β     i−α   i ⩾0
+                                        αi+1  +β   i ⩾1
+
+                                                           i∑      3
+                                        ρ−   32αi+1 −          2i+2−j   βj ⩾0    (i∈{0,...,d−1})
+                                                          j=0
+                                        ρ,α0,...,αd,β0,...,βd−1    ⩾0.
+
+                  Next, we show a lower bound on the objective value for (LP) (and, hence, a lower bound
+             for the competitive ratio of Alg) by giving a solution for its dual, i.e., using weak duality. For
+             this, we first formulate the dual of (LP). We denote the dual variables for the first constraint
+             by a0,...,ad−1  , for the second constraint by b0,...,bd−1  , and for the last constraint by
+             c0,...,cd−1  , using the conventiona       d := 0. Then the dual is given by
+
+
+
+                                       d−1∑
+                  (D)        max            bi
+                                       i=0
+                               s.t.−a         0 ⩽0
+
+                                       −a   i +b   i−1 − 32ci−1   ⩽0    (i∈{1,...,d})
+
+                                                   d−1∑      3
+                                      ai +b   i−         2j+2−i   cj ⩽0    (i∈{0,...,d−1})
+                                                    j=i
+                                       d−1∑
+                                            cj ⩽1
+                                       j=0
+                                      ai,bi,ci ⩾0    (i∈{0,...,d−1}).
+
+                  Set a0 =··· = ad−1     = 0,b0 =··· = bd−1     =      32(d+1)  ,c0 =··· = cd−2     =    1d+1 ,cd−1     =    2d+1 .
+             We now show that this is a feasible solution. For the third inequality, we have for i∈
+             {0,...,d−2}
+
+                              d−1∑      3                           d−2∑     3        1                     2
+                  ai +b   i−        2j+2−i   cj =       32(d+ 1)  −       2j+2−i   d+ 1 −      32d+1−i   d+ 1
+                               j=i                                  j=i
+                                                                                                  
+                                                                         d−2∑     1
+                                                 =       32(d+ 1)1−           2j+1−i  −    22d−i  
+
+                                                                         j=i
+                                                                                                  
+                                                                         d−1−i∑   1
+                                                 =       32(d+ 1)1−             2j−      12d−1−i   = 0.
+
+                                                                           j=1
+
+===== PDF PAGE 13 =====
+Baligács, Bosek, Disser, Feldmann, Gutowski, Kępińska, Putra, Zych-Pawlewicz        13
+
+
+Fori=d−1, we have in the third inequality
+
+                d−1∑     3                               2
+    ai +b   i−       2j+2−i   cj =       32(d+ 1)  −  322d+ 1   = 0.
+                j=i
+
+Hence, the third inequality is fulfilled. For all other inequalities, it is immediate that they
+are fulfilled.
+    Therefore, the described solution is feasible and its objective value is
+
+    d−1∑
+         bi =      3d2(d+ 1)  .
+    i=0
+
+    Therefore, we obtain that the competitive ratio of Alg on a binary tree of depth d is at
+least      3d2(d+1)  . Lettingd→∞yields the statement of the Theorem.                ◀
+
+▶ Remark 10.It is worth noting that our lower bound construction also applies to thevertex
+arrival model, where an ordering of the vertices  V  ={v  1,...,vn} is given and, in time step t,
+all edges betweenvt andv1,...,vt−1   are revealed. Furthermore, our construction also applies
+to trees (not only forests), meaning that, at every time step, the graph induced by the
+revealed edges is connected.
+
+
+       References
+  1   Aaron Bernstein, Yann Disser, Martin Groß, and Sandra Himburg.  General bounds for
+       incremental maximization.Mathematical Programming, 191(2):953–979, 2022.                                        doi:10.1007/
+       s10107-020-01576-0.
+  2   Avrim Blum, Prasad Chalasani, Don Coppersmith, William R. Pulleyblank, Prabhakar
+       Raghavan, and Madhu Sudan. The minimum latency problem. InProceedings of the 26th
+       Annual  ACM  Symposium  on  Theory  of  Computing  (STOC), pages 163–171, 1994.                  doi:
+       10.1145/195058.195125.
+  3   Niv Buchbinder, Kamal Jain, and Joseph (Seffi) Naor. Online primal-dual algorithms for
+       maximizing ad-auctions revenue. InProceedings of the 15th Annual European Symposium on
+       Algorithms (ESA), pages 253–264, 2007.doi:10.1007/978-3-540-75520-3_24.
+  4   Niv Buchbinder, Danny Segev, and Yevgeny Tkach. Online algorithms for maximum car-
+       dinality matching with edge arrivals.Algorithmica, 81(5):1781–1799, 2019.          doi:10.1007/
+       s00453-018-0505-7.
+  5   Marek Chrobak, Claire Kenyon, John Noga, and Neal E. Young. Incremental medians via
+       online bidding.Algorithmica, 50(4):455–478, 2008.doi:10.1007/s00453-007-9005-x.
+  6   Ilan Reuven Cohen and David Wajc. Randomized online matching in regular graphs. In
+       Proceedings of the 29th Annual ACM-SIAM Symposium on Discrete Algorithms (SODA), pages
+       960–979, 2018.
+  7   Nikhil R. Devanur, Kamal Jain, and Robert D. Kleinberg. Randomized primal-dual analysis of
+       ranking for online bipartite matching. InProceedings of the 24th Annual ACM-SIAM Sympo-
+       sium on Discrete Algorithms (SODA), pages 101–107, 2013.      doi:10.1137/1.9781611973105.7.
+  8   Yann Disser, Max Klimm, Annette Lutz, and David Weckbecker. Fractionally subadditive
+       maximization under an incremental knapsack constraint with applications to incremental flows.
+       SIAM Journal on Discrete Mathematics, 38(1):764–789, 2024.doi:10.1137/23M1569265.
+  9   Yann Disser, Max Klimm, Nicole Megow, and Sebastian Stiller.  Packing a knapsack of
+       unknown capacity. SIAM Journal on Discrete Mathematics, 31(3):1477–1497, 2017.                          doi:
+       10.1137/16M1070049.
+
+===== PDF PAGE 14 =====
+14     Online and Incremental Fractional Vertex Cover on Trees
+
+
+
+            10   Yann Disser, Max Klimm, Kevin Schewior, and David Weckbecker. Incremental maximiza-
+                   tion via continuization. InProceedings of the 50th International Colloquium on Automata,
+                   Languages, and Programming (ICALP), pages 47:1–47:17, 2023.                 doi:10.4230/LIPIcs.ICALP.
+                   2023.47.
+            11   Yann Disser and David Weckbecker. Incremental maximization for a broad class of objectives.
+                   InProceedings of the 33rd Annual European Symposium on Algorithms (ESA), pages 92:1–92:13,
+                   2025.doi:10.4230/LIPIcs.ESA.2025.92.
+            12   Ryo Fujita, Yusuke Kobayashi, and Kazuhisa Makino.  Robust matchings and matroid
+                   intersections.SIAM Journal on Discrete Mathematics, 27(3):1234–1256, 2013.                                           doi:10.1137/
+                   100808800.
+            13   Buddhima Gamlath, Michael Kapralov, Andreas Maggiori, Ola Svensson, and David Wajc.
+                   Online matching with general arrivals. InProceedings of the 60th Annual IEEE Symposium on
+                   Foundations of Computer Science (FOCS), pages 26–37, 2019.           doi:10.1109/FOCS.2019.00011.
+            14   Michel X. Goemans and Jon M. Kleinberg. An improved approximation ratio for the minimum
+                   latency problem. Mathematical Programming, 82:111–124, 1998.doi:10.1007/BF01585867.
+            15   Teofilo F. Gonzalez. Clustering to minimize the maximum intercluster distance.Theoretical
+                  Computer Science, 38:293–306, 1985.doi:10.1016/0304-3975(85)90224-5.
+            16   Refael Hassin and Shlomi Rubinstein. Robust matchings.SIAM Journal on Discrete Mathe-
+                   matics, 15(4):530–537, 2002.doi:10.1137/S0895480198332156.
+            17   Tianle Jiang and Yuhao Zhang. Edge arrival online matching: The power of free disposal
+                   on acyclic graphs. InProceedings of the 21st International Conference on Web and Internet
+                   Economics (WINE), pages 591–608, 2026.doi:10.1007/978-3-032-08560-3_33.
+            18   Naonori Kakimura and Kazuhisa Makino. Robust independence systems.SIAM Journal on
+                   Discrete Mathematics, 27(3):1257–1273, 2013.doi:10.1137/120899480.
+            19   Richard M. Karp, Umesh V. Vazirani, and Vijay V. Vazirani. An optimal algorithm for
+                   on-line bipartite matching. InProceedings of the 22nd Annual ACM Symposium on Theory of
+                  Computing (STOC), pages 352–358, 1990.doi:10.1145/100216.100262.
+            20   Euiwoong Lee and Sahil Singla. Maximum matching in the online batch-arrival model.ACM
+                  Transactions on Algorithms, 16(4):49:1–49:31, 2020.doi:10.1145/3399676.
+            21   Guolong Lin, Chandrashekhar Nagarajan, Rajmohan Rajaraman, and David P. Williamson.
+                   A general approach for incremental approximation and hierarchical clustering.SIAM Journal
+                  on Computing, 39(8):3633–3669, 2010.doi:10.1137/070698257.
+            22   Mohammad Mahdian and Qiqi Yan. Online bipartite matching with random arrivals: An
+                   approach based on strongly factor-revealing LPs. InProceedings of the 43rd Annual ACM
+                   Symposium on Theory of Computing (STOC), pages 597–606, 2011.               doi:10.1145/1993636.
+                   1993716.
+            23   Jannik Matuschke, Martin Skutella, and José A. Soto. Robust randomized matchings.Mathe-
+                   matics of Operations Research, 43(2):675–692, 2018.doi:10.1287/moor.2017.0878.
+            24   Nicole Megow and Julián Mestre. Instance-sensitive robustness guarantees for sequencing with
+                   unknown packing and covering constraints. InProceedings of the 4th Innovations in Theoretical
+                  Computer Science Conference (ITCS), pages 495–504, 2013.              doi:10.1145/2422436.2422490.
+            25   Ramgopal R. Mettu and C. Greg Plaxton. The online median problem.SIAM Journal on
+                  Computing, 32(3):816–832, 2003.doi:10.1137/S0097539701383443.
+            26   Joseph(Seffi)NaorandDavidWajc. Near-optimumonlineadallocationfortargetedadvertising.
+                  ACM Transactions on Economics and Computation, 6(3–4):16:1–16:20, 2018.                        doi:10.1145/
+                   3105447.
+            27   C. Greg Plaxton. Approximation algorithms for hierarchical location problems.Journal of
+                  Computer and System Sciences, 72(3):425–443, 2006.doi:10.1016/j.jcss.2005.09.004.
+            28   Zhihao Gavin Tang. Optimal competitive ratio of two-sided online bipartite matching, 2026.
+                   URL:https://arxiv.org/abs/2602.18049,arXiv:2602.18049.
+
+===== PDF PAGE 15 =====
+Baligács, Bosek, Disser, Feldmann, Gutowski, Kępińska, Putra, Zych-Pawlewicz        15
+
+
+
+29   Zhihao Gavin Tang and Yuhao Zhang.  Improved bounds for fractional online matching
+      problems. InProceedings of the 25th ACM Conference on Economics and Computation, pages
+      279–307, 2024.doi:10.1145/3670865.3673459.
+30   Yajun Wang and Sam Chiu-wai Wong.  Two-sided online bipartite matching and vertex
+      cover: Beating the greedy algorithm. InProceedings of the 42nd International Colloquium
+      on Automata, Languages, and Programming (ICALP), pages 1070–1081, 2015.                 doi:10.1007/
+      978-3-662-47672-7_87.

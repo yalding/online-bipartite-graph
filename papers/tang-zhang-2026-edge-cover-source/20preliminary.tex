@@ -1,0 +1,14 @@
+\section{Preliminaries}
+
+We first formally define the edge-arrival online vertex cover problem. The vertex set $V$ is known in advance, while the edges between these vertices arrive online. After the $t$-th edge arrives, the algorithm maintains a set $S_t\subseteq V$ that covers every edge revealed so far. The sets must be increasing: $S_{t-1}\subseteq S_t$. Thus, selected vertices can never be removed. In particular, if a new edge $(u,v)$ has neither endpoint in $S_{t-1}$, the algorithm must add at least one of $u$ and $v$. The objective is to minimize the size of the final set.
+
+\paragraph{Fractional relaxation.}
+In the fractional relaxation, after the $t$-th arrival the algorithm maintains a vector $x^{(t)}\in[0,1]^V$. These vectors are coordinatewise nondecreasing: $x^{(t-1)}_v\leq x^{(t)}_v$ for every $v\in V$. They must also satisfy $x^{(t)}_u+x^{(t)}_v\geq 1$ for every edge $(u,v)$ revealed by time $t$. Writing $x$ for the final vector, the objective is to minimize $\sum_{v\in V}x_v$.
+
+The integral problem is a special case of the fractional problem obtained by restricting $x\in \{0,1\}^V$. Moreover, against an oblivious adversary, any randomized integral or fractional algorithm can be simulated by a deterministic fractional algorithm, without regard to computational efficiency, whose objective value equals the expected objective value of the randomized algorithm.
+
+We evaluate online algorithms using competitive analysis. A fractional online vertex cover algorithm $\ALG$ is said to be $\Gamma$-competitive if, for every input sequence $\sigma$,
+$$
+\frac{\ALG(\sigma)}{\OPT(\sigma)} \leq \Gamma,
+$$
+where $\ALG(\sigma)$ denotes the objective value achieved by $\ALG$ on $\sigma$, and $\OPT(\sigma)$ denotes the objective value of an optimal offline solution for the same input.

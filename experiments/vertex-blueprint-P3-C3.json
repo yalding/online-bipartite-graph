@@ -1,0 +1,234 @@
+{
+  "blueprint_value": "10/27",
+  "average_forced_hidden_weight": "8",
+  "vertex_arrival_lower_bound": "21/17",
+  "decimal_ratio": 1.2352941176470589,
+  "properness_verified": true,
+  "independence_verified_all_shifts": true,
+  "per_shift": [
+    {
+      "shift": 0,
+      "forcing_credit": "8",
+      "retained_edges": 27,
+      "illegal_edges_discarded": 12
+    },
+    {
+      "shift": 1,
+      "forcing_credit": "8",
+      "retained_edges": 27,
+      "illegal_edges_discarded": 12
+    },
+    {
+      "shift": 2,
+      "forcing_credit": "8",
+      "retained_edges": 27,
+      "illegal_edges_discarded": 12
+    },
+    {
+      "shift": 3,
+      "forcing_credit": "8",
+      "retained_edges": 27,
+      "illegal_edges_discarded": 12
+    },
+    {
+      "shift": 4,
+      "forcing_credit": "8",
+      "retained_edges": 27,
+      "illegal_edges_discarded": 12
+    },
+    {
+      "shift": 5,
+      "forcing_credit": "8",
+      "retained_edges": 27,
+      "illegal_edges_discarded": 12
+    },
+    {
+      "shift": 6,
+      "forcing_credit": "8",
+      "retained_edges": 27,
+      "illegal_edges_discarded": 12
+    },
+    {
+      "shift": 7,
+      "forcing_credit": "8",
+      "retained_edges": 27,
+      "illegal_edges_discarded": 12
+    },
+    {
+      "shift": 8,
+      "forcing_credit": "8",
+      "retained_edges": 27,
+      "illegal_edges_discarded": 12
+    },
+    {
+      "shift": 9,
+      "forcing_credit": "8",
+      "retained_edges": 27,
+      "illegal_edges_discarded": 12
+    },
+    {
+      "shift": 10,
+      "forcing_credit": "8",
+      "retained_edges": 27,
+      "illegal_edges_discarded": 12
+    },
+    {
+      "shift": 11,
+      "forcing_credit": "8",
+      "retained_edges": 27,
+      "illegal_edges_discarded": 12
+    },
+    {
+      "shift": 12,
+      "forcing_credit": "8",
+      "retained_edges": 27,
+      "illegal_edges_discarded": 12
+    },
+    {
+      "shift": 13,
+      "forcing_credit": "8",
+      "retained_edges": 27,
+      "illegal_edges_discarded": 12
+    },
+    {
+      "shift": 14,
+      "forcing_credit": "8",
+      "retained_edges": 27,
+      "illegal_edges_discarded": 12
+    },
+    {
+      "shift": 15,
+      "forcing_credit": "8",
+      "retained_edges": 27,
+      "illegal_edges_discarded": 12
+    },
+    {
+      "shift": 16,
+      "forcing_credit": "8",
+      "retained_edges": 27,
+      "illegal_edges_discarded": 12
+    },
+    {
+      "shift": 17,
+      "forcing_credit": "8",
+      "retained_edges": 27,
+      "illegal_edges_discarded": 12
+    },
+    {
+      "shift": 18,
+      "forcing_credit": "8",
+      "retained_edges": 27,
+      "illegal_edges_discarded": 12
+    },
+    {
+      "shift": 19,
+      "forcing_credit": "8",
+      "retained_edges": 27,
+      "illegal_edges_discarded": 12
+    },
+    {
+      "shift": 20,
+      "forcing_credit": "8",
+      "retained_edges": 27,
+      "illegal_edges_discarded": 12
+    },
+    {
+      "shift": 21,
+      "forcing_credit": "8",
+      "retained_edges": 27,
+      "illegal_edges_discarded": 12
+    },
+    {
+      "shift": 22,
+      "forcing_credit": "8",
+      "retained_edges": 27,
+      "illegal_edges_discarded": 12
+    },
+    {
+      "shift": 23,
+      "forcing_credit": "8",
+      "retained_edges": 27,
+      "illegal_edges_discarded": 12
+    },
+    {
+      "shift": 24,
+      "forcing_credit": "8",
+      "retained_edges": 27,
+      "illegal_edges_discarded": 12
+    },
+    {
+      "shift": 25,
+      "forcing_credit": "8",
+      "retained_edges": 27,
+      "illegal_edges_discarded": 12
+    },
+    {
+      "shift": 26,
+      "forcing_credit": "8",
+      "retained_edges": 27,
+      "illegal_edges_discarded": 12
+    }
+  ],
+  "phases": 3,
+  "alphabet": 3,
+  "edges": [
+    [
+      1,
+      1,
+      18
+    ],
+    [
+      1,
+      2,
+      12
+    ],
+    [
+      1,
+      10,
+      15
+    ],
+    [
+      1,
+      13,
+      7
+    ],
+    [
+      1,
+      19,
+      26
+    ],
+    [
+      1,
+      21,
+      4
+    ],
+    [
+      1,
+      22,
+      23
+    ],
+    [
+      2,
+      6,
+      5
+    ],
+    [
+      2,
+      16,
+      24
+    ],
+    [
+      3,
+      25,
+      17
+    ]
+  ],
+  "solver": {
+    "message": "Time limit reached. (HiGHS Status 13: Time limit reached)",
+    "objective_dual_bound": -47.00174074074074,
+    "mip_gap": 3.7000928379015665,
+    "variables": 1836,
+    "constraints": 26298
+  },
+  "scope": "Small blueprint cleanup experiment; not an improved universal bound"
+}

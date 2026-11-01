@@ -1,0 +1,27 @@
+\section{Failed Attempt for General Vertex Arrival}
+\label{app:fail}
+
+In this section, we explain in detail the straightforward adaption of Eager Water-filling to the general vertex arrival setting fails to achieve a competitive ratio better than $0.5$.
+
+Consider the following algorithm with a simple pricing scheme:
+Fix an increasing function $f:[0,1] \to [0,1]$.
+\begin{itemize}
+	\item On the arrival of each vertex $u$, fractionally matches $u$ to the neighbor with the cheapest price $f(x_v)$, as long as $f(x_u) + f(x_v) \le 1$. 
+\end{itemize}
+When $x_{uv}$ is increased by $dx$ on the arrival of vertex $u$, update $\alpha_u, \alpha_v$ by
+\[
+d\alpha_u = (1-f(x_v)) dx \quad \text{and} \quad d\alpha_v =f(x_v) dx.
+\]
+Note that this is a special case of the main algorithm we presented in Section~\ref{sec:general_lower} by setting $g(a_v,x_v) = f(x_v)$ for all $a_v,x_v$.
+Therefore, all the analysis applies to the above algorithm. Let $h(\tau) \eqdef f^{-1}(\tau)$.
+Adapting Lemma~\ref{lem:opth_general_arrival}, a $\Gamma$-competitive algorithm needs a function $h$ satisfying the following condition:
+\[
+	\forall 0\le \tau_v \le \theta_v \le 1 \text{ and } \tau_u \ge 1-\theta_v:\quad  \theta_v \cdot h(\theta_v) - \int_{\tau_v}^{\theta_v} h(y_v) dy_v + \tau_u \cdot h(\tau_u) \ge \Gamma~,
+\] 
+where $\tau_v$ corresponds to the price of $v$ after the arrival of $v$, $\theta_v$ corresponds to the price of $v$ after the arrival of $u$, and $\tau_u$ corresponds to the price of $u$ after the arrival of $u$.
+
+Consider the special case when $\tau_v=0$ and $\tau_u = 1-\theta_v$. The above family of conditions become:
+\[
+\forall 0\le \theta_v \le 1:\quad  \theta_v \cdot h(\theta_v) - \int_{0}^{\theta_v} h(y_v) dy_v + (1-\theta_v) \cdot h(1-\theta_v) \ge \Gamma~.
+\]
+Unfortunately, factor revealing lp shows that the largest feasible $\Gamma$ is $0.5$ for all functions of $h$.

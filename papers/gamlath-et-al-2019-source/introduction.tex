@@ -1,0 +1,106 @@
+%!TEX root = ./main.tex
+\section{Introduction}\label{sec:intro}
+Matching theory has played a prominent role in the area of combinatorial optimization, with many applications \cite{lovasz2009matching,schrijver2003combinatorial}. Moreover, many fundamental techniques and concepts in combinatorial optimization can trace their origins to its study, including the primal-dual framework \cite{kuhn1955hungarian}, proofs of polytopes' integrality beyond total unimodularity \cite{edmonds1965maximum}, and even the equation of efficiency with polytime computability \cite{edmonds1965paths}.
+
+Given the prominence of matching theory in combinatorial optimization, it comes as little surprise that the maximum matching problem was one of the first problems studied from the point of view of online algorithms and competitive analysis. 
+In 1990, \citet*{karp1990optimal} introduced the online matching problem, and studied it under one-sided bipartite arrivals. For such arrivals, 
+Karp et al.~noted that the trivial $\nicefrac{1}{2}$-competitive greedy algorithm (which matches any arriving vertex to an arbitrary unmatched neighbor, if one exists) is optimal among deterministic algorithms for this problem. 
+More interestingly, they provided an elegant randomized online algorithm for this problem, called \textsc{ranking}, which achieves an optimal $(1-\nicefrac{1}{e})$ competitive ratio. (This bound has been re-proven many times over the years \cite{birnbaum2008line,goel2008online,devanur2013randomized,eden2018economic,feige2018tighter}.)
+Online matching and many extensions of this problem under one-sided bipartite vertex arrivals were widely studied over the years, both under adversarial and stochastic arrival models.
+See recent work \cite{huang2018match,huang2018online,huang2019tight,cohen2018randomized} and the excellent survey of \citet{mehta2013online} for further references on this rich literature.
+
+Despite our increasingly better understanding of one-sided online bipartite matching and its extensions, the problem of online matching under more general arrival models, including edge arrivals and general vertex arrivals, has remained staunchly defiant, resisting attacks. In particular, the basic questions of whether the trivial $\nicefrac{1}{2}$ competitive ratio is optimal for the adversarial edge-arrival and general vertex-arrival models have remained tantalizing open questions in the online algorithms literature. In this paper, we answer both of these questions.
+
+\subsection{Prior Work and Our Results}
+Here we outline the most relevant prior work, as well as our contributions. Throughout, we say an algorithm (either randomized or fractional) has \emph{competitive ratio} $\alpha$, or equivalently is \emph{$\alpha$-competitive}, if the ratio of the algorithm's value (e.g., expected matching size, or overall value, $\sum_e x_e$) to OPT is at least $\alpha\leq 1$ for all inputs and arrival orders. As is standard in the online algorithms literature on maximization problems, we use upper bounds (on $\alpha$) to refer to hardness results, and lower bounds to positive results.
+
+\vspace{-0.1cm}
+\paragraph{Edge Arrivals.} Arguably the most natural, and the least restricted, arrival model for online matching is the edge arrival model. In this model, edges are revealed one by one, and an online matching algorithm must decide immediately and irrevocably whether to match the edge on arrival, or whether to leave both endpoints free to be possibly matched later.
+
+On the hardness front, the problem is known to be strictly harder than the one-sided vertex arrival model of \citet{karp1990optimal}, which admits a competitive ratio of $1-\nicefrac1e \approx 0.632$.
+In particular, \citet{epstein2013improved} gave an upper bound of $\frac{1}{1+\ln2} \approx 0.591$ for this problem,
+recently improved by \citet{huang2019tight} to $2-\sqrt{2}\approx 0.585$. (Both bounds apply even to online algorithms with preemption; i.e., allowing edges to be removed from the matching in favor of a newly-arrived edge.)
+On the positive side, as pointed out by \citet{buchbinder2018online}, the edge arrival model has proven challenging, and results beating the $\nicefrac{1}{2}$ competitive ratio were only achieved under various relaxations, including: random order edge arrival 
+\cite{guruganesh2017online}, bounded number of arrival batches \cite{lee2017maximum}, on trees, either with or without preemption \cite{tirodkar2017maximum,buchbinder2018online}, and for bounded-degree graphs \cite{buchbinder2018online}.
+The above papers all asked whether there exists a randomized $(\nicefrac{1}{2}+\Omega(1))$-competitive algorithm for adversarial edge arrivals (see also Open Question 17 in Mehta's survey \cite{mehta2013online}).
+
+In this work, we answer this open question, providing it with a strong negative answer. In particular, we show that no online algorithm for \emph{fractional} matching (i.e., an algorithm which immediately and irrevocably assigns values $x_e$ to edge $e$ upon arrival such that $\vec{x}$ is in the fractional matching polytope $\mathcal{P}=\{\vec{x}\geq \vec{0}\mid \sum_{e\ni v}x_e \leq 1\,\, \forall v\in V\}$) is better than $\nicefrac{1}{2}$ competitive. As any randomized algorithm induces a fractional algorithm with the same competitive ratio, this rules out any randomized online matching algorithm which is better than deterministic algorithms.
+
+\begin{thm}\label{thm:edge-intro}
+	No fractional online algorithm is $\nicefrac{1}{2}+\Omega(1)$ competitive for online matching under adversarial edge arrivals, even in bipartite graphs.
+\end{thm}
+
+This result shows that the study of relaxed variants of online matching under edge arrivals is not only justified by the difficulty of beating the trivial bound for this problem, 
+but rather by its \emph{impossibility}.
+
+\vspace{-0.1cm}
+\paragraph{General Vertex Arrivals.} In the online matching problem under vertex arrivals, 
+vertices are revealed one at a time, together with their edges to their previously-revealed neighbors. An online matching algorithm must decide immediately and irrevocably upon arrival of a vertex whether to match it (or keep it free for later), and if so, who to match it to.
+The one-sided bipartite problem studied by \citet{karp1990optimal} is precisely this problem when all vertices of one side of a bipartite graph arrive first. As discussed above, for this one-sided arrival model, the problem is thoroughly understood (even down to lower-order error terms \cite{feige2018tighter}). 
+\citet{wang2015two} proved that general vertex arrivals are strictly harder than one-sided bipartite arrivals, providing an upper bound of $0.625 < 1-\nicefrac{1}{e}$ for the more general problem, later improved by \citet{buchbinder2018online} to $\frac{2}{3+\phi^2}\approx 0.593$. 
+Clearly, the general vertex arrival model is no harder than the online edge arrival model
+but is it \emph{easier}? The answer is ``yes'' for \emph{fractional} algorithms, as shown by combining our \Cref{thm:edge-intro} with the $0.526$-competitive fractional online matching algorithm under general vertex arrivals of \citet{wang2015two}. For \emph{integral} online matching, however, the problem has proven challenging, and the only positive results for this problem, too, are for various relaxations, such as 
+restriction to trees, either with or without preemption \cite{tirodkar2017maximum,chiplunkar2015randomized,buchbinder2018online}, for bounded-degree graphs \cite{buchbinder2018online}, or (recently) allowing vertices to be matched during some known time interval \cite{huang2018match,huang2019tight}.
+	
+We elaborate on the last relaxation above. In the model recently studied by \citet{huang2018match,huang2019tight} vertices have both arrival and departure times, and edges can be matched whenever both their endpoints are present. (One-sided vertex arrivals is a special case of this model with all online vertices departing immediately after arrival and offline vertices departing at $\infty$.) 
+We note that any $\alpha$-competitive online matching under general vertex arrivals is $\alpha$-competitive in the less restrictive model of Huang et al.
+As observed by Huang et al., for their model an optimal approach might as well be greedy; i.e., an unmatched vertex $v$ should always be matched at its departure time if possible. In particular, \citet{huang2018match,huang2019tight}, showed that the \textsc{ranking}  algorithm of Karp et al.~is optimal in this model, giving a competitive ratio of $\approx 0.567$.
+For general vertex arrivals, however, \textsc{ranking} (and indeed any maximal matching algorithm) is no better than $\nicefrac{1}{2}$ competitive, as is readily shown by a path on three edges with the internal vertices arriving first. Consequently, new ideas and algorithms are needed.
+
+The  natural open question for general vertex arrivals is whether a competitive ratio of $(\nicefrac{1}{2}+\Omega(1))$ is achievable by an \emph{integral} randomized algorithm, without any assumptions (see e.g., \cite{wang2015two}).
+In this work, we answer this question in the affirmative: 
+
+\begin{thm}\label{thm:vertex-intro}
+	There exists a $\left(\nicefrac{1}{2}+\Omega(1)\right)$-competitive randomized online matching algorithm for 
+	general adversarial vertex arrivals.
+\end{thm}
+
+\subsection{Our Techniques}
+\label{sec:techniques}
+
+\paragraph{Edge Arrivals.}
+All prior upper bounds in the online literature \cite{karp1990optimal,epstein2013improved,huang2019tight,buchbinder2018online,feige2018tighter} can be rephrased as upper bounds for \emph{fractional} algorithms; i.e., algorithms which immediately and irrevocably assign each edge $e$ a value $x_e$ on arrival, so that $\vec{x}$ is contained in the fractional matching polytope, $\mathcal{P}=\{\vec{x}\geq \vec{0} \mid \sum_{e\ni v} x_e \leq 1\,\,\forall v\in V\}$. 
+With the exception of \cite{buchbinder2018online}, the core difficulty of these hard instances is uncertainty about ``identity'' of vertices (in particular, which vertices will neighbor which vertices in the following arrivals). 
+Our hardness instances rely on uncertainty about the ``time horizon''. In particular, the underlying graph, vertex identifiers, and even arrival order are known to the algorithm, but the number of edges of the graph to be revealed (to arrive) is uncertain. Consequently, an $\alpha$-competitive algorithm must accrue high enough value up to each arrival time to guarantee a high competitive ratio at all points in time. As we shall show, for competitive ratio  $\nicefrac{1}{2}+\Omega(1)$, this goal is at odds with the fractional matching constraints, and so such a competitive ratio is impossible.
+In particular, we provide a family of hard instances and formulate their prefix-competitiveness and matching constraints as linear constraints to obtain a linear program whose objective value bounds the optimal competitive ratio. Solving the obtained LP's dual, we obtain by weak duality the claimed upper bound on the optimal competitive ratio.
+%See, e.g., \cite{azar2017online} for more examples of this approach.
+
+
+\paragraph{General Vertex Arrivals.}
+Our high-level approach here will be to round online a fractional online matching algorithm's output, specifically that of \citet{wang2015two}. While this approach sounds simple, there are several obstacles to overcome. First, the fractional matching polytope is not integral in general graphs, where a fractional matching may have value, $\sum_e x_e$, some $\nicefrac{3}{2}$ times larger than the optimal matching size. (For example, in a triangle graph with value $x_e=\nicefrac{1}{2}$ for each edge $e$.)
+Therefore, any general rounding scheme must lose a factor of $\nicefrac{3}{2}$ on the competitive ratio compared to the fractional algorithm's value, and so to beat a competitive ratio of  $\nicefrac{1}{2}$ would require an online fractional matching with competitive ratio $> \nicefrac{3}{4} > 1-\nicefrac{1}{e}$, which is impossible. To make matters worse, even in bipartite graphs, for which the fractional matching polytope is integral and offline lossless rounding is possible  \cite{ageev2004pipage,gandhi2006dependent}, \emph{online} lossless rounding of fractional matchings is impossible, even under one-sided vertex arrivals  \cite{cohen2018randomized}. 
+
+Despite these challenges, we show that a slightly better than $\nicefrac{1}{2}$-competitive fractional matching computed by the algorithm of \cite{wang2015two} can be rounded online without incurring too high a loss, yielding $(\nicefrac{1}{2}+\Omega(1))$-competitive randomized algorithm for online matching under general vertex arrivals.
+
+To outline our approach, we first consider a simple method to round matchings online. When vertex $v$ arrives, we pick an edge $\{u,v\}$ with probability $z_u = x_{uv}/\Pr[u \mbox{ free when $v$ arrives}]$, and add it to our matching if $u$ is free.
+
+If $\sum_u z_u \leq 1$, this allows us to pick at most one edge per vertex and have each edge $e=\{u,v\}$ be in our matching with the right marginal probability, $x_e$, resulting in a lossless rounding. Unfortunately, we know of no better-than-$\nicefrac12$-competitive fractional algorithm for which this rounding guarantees $\sum_u z_u \leq 1$.
+
+However, we observe that, for the correct set of parameters, the fractional matching algorithm of
+Wang and Wong~\cite{wang2015two} makes $\sum_u z_u$ close to one, while still ensuring a better-than-$\nicefrac{1}{2}$-competitive fractional solution. 
+Namely, as we elaborate later in \Cref{sec:imrpoved-algorithm}, we set the parameters of their algorithm so that $\sum_u z_u \leq 1 + O(\e)$, while retaining a competitive ratio of $1/2 + O(\e)$.
+Now consider the same rounding algorithm with normalized probabilities: I.e., on $v$'s 
+arrival, sample a neighbor $u$ with probability $z'_u = z_u/\max\{1, \sum_u z_u\}$ and match if $u$ is free. 
+As the sum of $z_u$'s is slightly above one in the worst case, this approach does not drastically reduce the 
+competitive ratio. 
+But the normalization factor is still too significant compared to the competitive ratio of the fractional solution, 
+driving the competitive ratio of the rounding algorithm slightly below $1/2$.
+
+To account for this minor yet significant loss, we therefore augment the simple algorithm by allowing it, 
+with small probability (e.g., say $\sqrt{\e}$), to sample a second neighbor $u_2$ for each arriving vertex $v$, 
+again with probabilities proportional to $z'_{u_2}$:
+If the first sampled choice, $u_1$, is free, we match $v$ to $u_1$. Otherwise, if the second choice, $u_2$, 
+is free, we match $v$ to $u_2$. 
+What is the marginal probability that such an approach matches an incoming vertex $v$ to a given neighbor $u$? Letting $F_u$ denote the event that  $u$ is free when $v$ arrives, this probability is precisely
+\begin{equation}\label{eq:03hg329hg}
+  \Pr[F_u] \cdot \left(z'_{u} + z'_u\cdot \sqrt{\e} \cdot \sum_{w} z'_w \cdot (1-\Pr[F_w \mid F_u])  \right).
+\end{equation}
+Here the first term in the parentheses corresponds to the probability that $v$ matches to $u$ via the first choice, 
+and the second term corresponds to the same happening via the second choice (which is only taken when the first choice 
+fails). 
+
+Ideally, we would like \eqref{eq:03hg329hg} to be at least $x_{uv}$ for all edges, which would imply a lossless rounding.
+However, as mentioned earlier, this is difficult and in general impossible to do, even in much more restricted settings including one-sided bipartite vertex arrivals. We therefore settle for showing  that~\eqref{eq:03hg329hg} is at least $x_{uv} = \Pr[F_u]\cdot z_u$ for \emph{most} edges (weighted by $x_{uv}$). Even this goal, however, is challenging and requires a nontrivial understanding of the correlation structure of the random events $F_u$. To see this, note that for example if the $F_w$ events are perfectly positively correlated, i.e., $\Pr[F_w \mid F_u]=1$, then the possibility of picking $e$ as a second edge does not increase this edge's probability of being matched \emph{at all} compared to if we only picked a single edge per vertex. This results in $e$ being matched with probability $\Pr[F_u]\cdot z'_u = \Pr[F_u]\cdot z_u / \sum_w z_w = x_{uv} / \sum_w z_w$, which does not lead to any gain over the $\nicefrac1{2}$ competitive ratio of greedy. 
+Such problems are easily shown not to arise if all $F_u$ variables are independent or negatively correlated. Unfortunately, positive correlation does arise from this process, and so we the need to control these positive correlations.
+
+The core of our analysis is therefore dedicated to showing that even though positive correlations do arise, they are by and large rather weak. Our main technical contribution consists of developing techniques for bounding such positive correlations. The idea behind the analysis is to consider the primary choices and secondary choices of vertices as defining a graph, and showing that after a natural pruning operation that reflects the structure of dependencies, most vertices are most often part of a very small connected component in the graph. The fact that connected components are typically very small is exactly what makes positive correlations weak and results in the required lower bound on~\eqref{eq:03hg329hg} for most edges (in terms of $x$-value), which in turn yields our $\nicefrac{1}{2}+\Omega(1)$ competitive ratio.

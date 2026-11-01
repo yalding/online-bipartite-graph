@@ -1,0 +1,55 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage[margin=1in]{geometry}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{natbib}
+
+\title{A Tight Bound on Online Vertex Cover under Edge Arrivals}
+\author{
+Zhihao Gavin Tang\thanks{
+Email: \url{tang.zhihao@mail.shufe.edu.cn}
+}\\
+Shanghai University of Finance and Economics
+\and
+Yuhao Zhang\thanks{
+Email: \url{zhang_yuhao@sjtu.edu.cn}
+}\\
+Shanghai Jiao Tong University
+}
+\date{}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}[section]
+\newtheorem{claim}[lemma]{Claim}
+\newtheorem{fact}[lemma]{Fact}
+\newtheorem{proposition}[lemma]{Proposition}
+\newtheorem{corollary}[lemma]{Corollary}
+\newtheorem{definition}[lemma]{Definition}
+% reset theorem numbering for each chapter
+\newcommand{\ALG}{\textsc{Alg}}
+\newcommand{\OPT}{\textsc{Opt}}
+\newcommand{\revision}[1]{\textcolor{red}{#1}}
+
+\renewcommand{\L}{\mathcal{L}}
+\newcommand{\R}{\mathcal{R}}
+\newcommand{\E}{\mathcal{E}}
+
+\begin{document}
+
+\maketitle
+
+\input{05abstract}
+\input{10introduction}
+\input{20preliminary}
+\input{30proof}
+\input{90declaration}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

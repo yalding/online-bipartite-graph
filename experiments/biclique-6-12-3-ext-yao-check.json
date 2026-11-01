@@ -1,0 +1,9 @@
+{
+  "distribution": "experiments\\biclique-6-12-3-ext-yao.json.gz",
+  "instances": 624,
+  "prefixes": 1249,
+  "optimal_expected_ratio": 1.7647672509580976,
+  "certified_lower_ratio": 1.7647667789562282,
+  "max_primal_residual": 0.0,
+  "scope": "Independent float optimization of actual inputs; no continuation-budget constraints"
+}

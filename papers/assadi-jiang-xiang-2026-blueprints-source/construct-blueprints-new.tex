@@ -1,0 +1,225 @@
+% !TeX root = main.tex
+%!TEX root = main.tex
+
+
+
+
+
+\section{The Blueprint Construction}\label{sec:construct-blueprint}
+
+We provide our blueprint construction in this section, proving the following theorem. 
+\begin{theorem*}[Restatement of~\Cref{thm:blueprint}]
+	For any sufficiently large integer $m$, there exists a proper blueprint $\bG_m$ with parameters $P=\poly(m)$ and $C=m^{O(m)}$ such that 
+	\[
+		value(\bG_m) = \frac{2}{3} - \Theta\!\paren{\frac{1}{m}}. 
+	\]
+\end{theorem*}
+
+We start by presenting the setup needed for this construction, followed by the construction itself and its properness proof, and finally calculate its value to conclude the proof of~\Cref{thm:blueprint}. 
+
+\subsection{Setup} 
+Let $m$ be a large integer that is used to define all our other parameters for the blueprint. We define a blueprint $\bG := \bG(m)$ in this section. 
+Define: 
+\begin{align*}
+L &:= m^4, \tag{used to determine the \emph{length} of random walks} \\
+D &:= 2m \cdot L, \tag{used to determine the (range of) \emph{delays} in random walks} \\
+P &:= L+D+1 \tag{parameter $P$ of the blueprint} \\
+C &:= \text{sufficiently large as function of $m$ to be fixed later} \tag{parameter $C$ of the blueprint}. 
+\end{align*}
+Recall that vertices of $\bG$ are $\bL,\bR$ and they are labeled by $[C]^{P}$. We partition indices of $P$ as follows: 
+\begin{gather*}
+	P := (\pstart , \pdelay , \pwalk) \quad \text{where} \\ 
+	\pstart=1, \quad \pdelay=2, \quad \text{and,} \quad {\pwalk} = [3: P]. 
+\end{gather*}
+
+We use these indices to associate a delayed random walk to vertices of the blueprint as follows. 
+
+\begin{definition}\label{def:W(x)}
+Sample $x \in [C]^P$ uniformly at random and define a \textbf{delayed random walk} $W = W(x) = w_1,w_2,\cdots,w_T$ for some $T \leq D+L$ as follows\footnote{It is possible that the walk does not terminate and in that case we only consider its $D+L$ first states.}.
+\begin{enumerate}[itemsep=3pt]
+\item\label{line:pstart} $x_{\pstart}$ determines the start state $w_1$ of the random walk $W$: we partition $[C]$ into intervals of proportional length $\mu(1),\mu(2),\ldots,\mu(m)$ (as defined in~\Cref{lem:start-state}), 
+and pick $w_1$ depending on which interval $x_{\pstart}$ lands in. 
+\item\label{line:pdelay} $x_{\pdelay}$ determines the delay of the delayed random walk $W$: we partition $[C]$ into $D$ equal-length intervals and the delay of the random walk $d(x)=d$
+if $x_{\pdelay}$ lands in $d$-th interval.  
+\item\label{line:reflection} $x_{\pwalk}$ determines the inner walk: for any time $t \geq d(x)$, $x_{t+2}$ determines the transition from $w_t$ to $w_{t+1}$ in $W$, where
+$w_{t+1} = w_t -1$ if $x_{t+2} \in [1:{C}/{2}]$ and $w_{t+1}=w_t + 1$ otherwise.
+The walk terminates whenever it hits $0$ or $2m$ and the subsequent states remain the same. 
+\end{enumerate}
+
+We also define the \textbf{reflection walk} of $x$, denoted by $\barW(x)$, exactly as $W(x)$ except for Line~\eqref{line:reflection}: we now increase the state if $x_i \in [1:C/2]$ and decrease it otherwise (the exact opposite rule as in the definition of $W$).  
+\end{definition}
+See~\Cref{fig:W(x)} for an illustration of this definition and further help with parsing it. 
+
+\clearpage
+Before getting to the main part, a quick remark is in order. 
+\begin{remark}
+We pick $C$ such that 
+\begin{itemize}
+	\item $\mu(i) \cdot C$ is an integer for all $i \in [2m-1]$ (so the distribution of the start point in Line~\eqref{line:pstart} 
+	matches $\mu$);  
+	\item $D | C$ (so the distribution of the delay in Line~\eqref{line:pdelay} is uniform over $[D]$); 
+	\item $C$ is even (so the distribution of the inner walk in Line~\eqref{line:reflection} is a standard random walk).  
+\end{itemize}
+	We can thus set 
+	\[
+		C = 2D \cdot \prod_{i=1}^{m} \textnormal{denominator of $\mu(i)$}
+	\]
+	and given the values of parameters $\mu(i)$ in~\Cref{lem:start-state} and since $D= \poly(m)$, we have $C=m^{O(m)}$. 
+\end{remark}
+
+\input{Figures/fig-P.tex}
+
+
+We use walks $W(x)$ for defining subsets of $\bL$ and reflection walks $\barW(x)$ for subsets in $\bR$. Specifically, for any integer $j \in [2m-1]$ and time $t \in [D+L]$, we define
+\begin{align*}
+	\bL_{j,t} &:= \set{\bL(x) : \text{$W(x)$ is $L$-restricted, $W(x)$ reaches $0$, $\maxwalk{W(x)}=j$, and $\timemax{W(x)} = t$}}, \\
+	\bR_{j,t} &:= \set{\bR(x) : \text{$\barW(x)$ is $L$-restricted, $\barW(x)$ reaches $0$, $\maxwalk{\barW(x)}=j$, and $\timemax{\barW(x)} = t$}}. 
+\end{align*}
+These sets will play the key role in the definition of edges of the blueprint (they are essentially the endpoints of the edges). 
+
+We have the following immediate relation between the sizes of these sets. 
+
+\begin{claim}\label{obs:bjt-direct}
+	For all $j \in [2m-1]$ and $t \in [D+L]$, $\card{\bL_{j,t}} = \card{\bR_{j,t}}$.
+\end{claim}
+\begin{proof}
+	The only difference between $\bL_{j,t}$ and $\bR_{j,t}$ is in Line~\eqref{line:reflection} of~\Cref{def:W(x)}: we thus have $\bL(x) \in \bL_{j,t}$ iff $\bR(\overline{x}) \in \bR_{j,t}$, where
+	$\overline{x}$ is defined to be the same as $x$ in $[P] \setminus \pwalk$ and for $i \in \pwalk$, $\overline{x}_i := C - x_i + 1$. Using the bijection between $x$'s and $\overline{x}$'s, we can conclude the proof. 
+\end{proof}
+
+The more interesting property is the near-equality of the sizes of $\bL_{j,t}$ and $\bR_{2m-j,t}$ (whenever $t \in [L:D]$); this is where we use most of the properties we incorporated in our random walks. 
+\begin{lemma}\label{lem:bjt-reflect}
+	For all $j \in [2m-1]$ and $t \in [L:D]$, 
+	\[
+	\card{\bR_{2m-j,t}} - 2^{-m} \cdot \frac{C^P}{D} \leq \card{\bL_{j,t}} \leq \card{\bR_{2m-j,t}} + 2^{-m} \cdot \frac{C^P}{D}. 
+	\]
+\end{lemma}
+\begin{proof}
+	Define $W_{in}(x)$ as the inner walk of $W(x)$, which is the walk that starts at time $d(x)$ (the delay) and continues the same as $W$; we define $\barW_{in}(x)$ similarly. 
+	In the following, when clear from the context, we drop $(x)$ and write $W$ to denote $W(x)$ (similarly for $W_{in},\barW$, etc.). 
+	
+	We first have 
+	\begin{align*}
+		\frac{\card{\bL_{j,t}}}{C^P} &= \Pr_{x}\Paren{\text{$W$ $L$-restricted, $W$ reaches $0$, $\maxwalk{W}=j$, $\timemax{W} = t$}} \tag{by~\Cref{def:W(x)}}\\
+		&=  \Pr_{x}\Paren{\text{$W_{in}$ $L$-restricted, $W_{in}$ reaches $0$, $\maxwalk{W_{in}}=j$,  $\timemax{W} = t$}} \tag{$L$-restrictedness, reaching $0$, and the max-states are all the same 
+		between $W_{in}$ and $W$}  \\
+		&= \Pr_{x}\Paren{\text{$W_{in}$ $L$-restricted, $W_{in}$ reaches $0$, $\maxwalk{W_{in}}=j$, $\timemax{W_{in}} = t-(d(x)-1)$}} \tag{by the definition of $\timemax{W}$ in~\Cref{eq:timemaxW}} \\
+		&= \frac1D \cdot \Pr_{x}\Paren{\text{$W_{in}$ $L$-restricted, $W_{in}$ reaches $0$, $\maxwalk{W_{in}}=j$}} 
+	\end{align*}
+	as $d(x)$ is independent of $W_{in}$ and is uniform over $[D]$, 
+	and so the event $d(x) = t-\timemax{W_{in}}+1$ (conditioned on $W_{in}$) happens with probability $1/D$ as the RHS is in $[D]$ as well; this is because $\timemax{W_{in}} \leq L$ (by $L$-restrictedness) and $t \in [L:D]$. 
+	
+	We can do the same exact analysis for $\bR_{2m-j,t}$ and $\barW$ as well to have 
+	\[
+		\frac{\card{\bR_{2m-j,t}}}{C^P} = \frac{1}{D} \cdot \Pr_{x}\Paren{\text{$\barW_{in}$ $L$-restricted, $\barW_{in}$ reaches $0$, $\maxwalk{\barW_{in}}=2m-j$}}. 
+	\]
+	Consider the expression in the RHS of either of these two terms. The distribution of $W_{in}$ or $\barW_{in}$ is exactly the same as the distribution of a random walk $\widetilde{W} \sim \dist_m$ defined in~\Cref{lem:start-state}. Hence,  
+	\begin{align*}
+		\frac{\card{\bL_{j,t}}}{C^P} &=  \frac{1}{D} \cdot \Pr_{\widetilde{W}}\Paren{\text{$\widetilde{W}$ $L$-restricted, $\widetilde{W}$ reaches $0$, $\maxwalk{\widetilde{W}}=j$}} \\
+		&\geq \frac{1}{D} \cdot \paren{\Pr_{\widetilde{W}}\Paren{\text{$\widetilde{W}$ reaches $0$, $\maxwalk{\widetilde{W}}=j$}} - \Pr_{\widetilde{W}}\Paren{\text{$\widetilde{W}$ not $L$-restricted}}} \tag{as $\Pr(A \wedge B) \geq \Pr(B) - \Pr(\overline{A})$} \\
+		&\geq \frac{1}{D} \cdot \paren{\Pr_{\widetilde{W}}\Paren{\text{$\widetilde{W}$ reaches $0$, $\maxwalk{\widetilde{W}}=j$}} - 2^{-m}} \tag{as $L=m^4$ and by~\Cref{clm:walk-length}} \\ 
+		&= \frac{1}{D} \cdot \paren{\Pr_{\widetilde{W}}\Paren{\text{$\widetilde{W}$ reaches $0$, $\maxwalk{\widetilde{W}}=2m-j$}} - 2^{-m}} \tag{by the symmetry property of~\Cref{lem:start-state}} \\
+		&\geq \frac{1}{D} \cdot \paren{\Pr_{\widetilde{W}}\Paren{\text{$\widetilde{W}$ $L$-restricted, $\widetilde{W}$ reaches $0$, $\maxwalk{\widetilde{W}}=2m-j$}} - 2^{-m}} \tag{as $\Pr(A) \geq \Pr(A \wedge B)$} \\
+		&= \frac{\card{\bR_{2m-j,t}}}{C^P} - \frac{2^{-m}}{D}. 
+	\end{align*}
+	Applying the same argument starting from $\bR_{2m-j,t}$ then implies that 
+	\[
+		\card{\bR_{2m-j,t}} - 2^{-m} \cdot \frac{C^P}{D} \leq \card{\bL_{j,t}} \leq \card{\bR_{2m-j,t}} + 2^{-m} \cdot \frac{C^P}{D} \qed
+	\]
+	
+\end{proof}
+
+\subsection{The Construction} 
+
+We are now ready to define the edges of the blueprint $\bG=(\bL,\bR,\bE)$ and prove its properness. As stated earlier, both vertex-sets $\bL$ and $\bR$ are labeled by $[C]^P$. The edges in $\bE$ are defined as follows: 
+\begin{itemize}
+	\item For any $j \in [2m-1]$ and $t \in [L:D]$, we add a matching $\bM_{j,t}$ of size $s_{j,t} := \min\paren{\card{\bL_{j,t}},\card{\bR_{2m-j,t}}}$ between two arbitrarily-chosen $s_{j,t}$-subsets of $\bL_{j,t}$ and $\bR_{2m-j,t}$. Moreover, 
+	the matching $\bM_{j,t}$ is added as part of $\bEE{p}$ for $p=t+2$.
+\end{itemize}
+
+We need to check that the blueprint $\bG$ is proper, which is handled by the following two claims. 
+
+\begin{claim}[``Matching constraint'']\label{clm:bG-matching}
+	The edge-set $\bE$ is a matching. 
+\end{claim}
+\begin{proof}
+	By definition, the sets $\bL_{j,t}$ are disjoint for different values of $j$ (the maximum of a random walk is a unique state) as well as $t$ (the \emph{first} time reaching the eventual maximum is unique). Same is true for $\bR_{2m-j,t}$ as well, 
+	thus $\bE = \cup_{p \in [P]} \bEE{p}$ itself is a matching also.  
+\end{proof}
+
+\input{Figures/fig-W.tex}
+
+\begin{claim}[``Ban constraint'']\label{clm:bG-ban}
+	The edge-set $\bE$ respects the ban constraint. 
+\end{claim}
+\begin{proof}
+
+	Consider an edge $\be \in \bEE{p}$ for  $p=t+2$ for some arbitrary $t \in [L:D]$ and suppose $\be$ is between some $\bL(x) \in \bL_{j,t}$ and $\bR(y) \in \bR_{2m-j,t}$ for $x,y \in [C]^P$. Recall all edges of $\bG$ are of this form. 
+	
+	By~\Cref{def:proper-blueprint}, the ban constraint requires that for all $z \in [C]^{P-p+1}$, at most one of $\bL(x_{<p} \circ z)$ and $\bR(y_{<p} \circ z)$ is matched in $\bE$. We show that this is the case for every fixed $z \in [C]^{P-p+1}$. 
+	\Cref{fig:W} can be helpful with providing an illustration of this step of the proof. 
+	
+
+
+	
+	Consider the walk $W(x_{<p} \circ z)$. Fixing $x_{<p}$ fixes the starting state of the walk (by fixing $x_{\pstart}$), the delay of the walk (by fixing $x_{\pdelay}$) and the states until time $t$ of the walk. 
+	By the definition of $\bL(x) \in \bL_{j,t}$, we know that at the time $t$, the walk $W(x_{<p} \circ z)$ will also be at the state $j$. 
+	Thus, for $\bL(x_{<p} \circ z)$ to be matched, we need the walk $W(x_{<p} \circ z)$ to reach the state $0$ or equivalently, we need the walk $W_z := w_t(=j),w_{t+1},\cdots,$ to reach $0$ starting from $j$. 
+	 Note that the entire movement of the walk $W_z$ is determined by $z$.  
+	
+	On the other hand, consider the reflection walk $\barW(y_{<p} \circ z)$. Again, fixing $y_{<p}$ and the fact $\bR(y) \in \bR_{2m-j,t}$, in particular means that this walk is at state $2m-j$ at time $t$. 
+	Consider the continuation of this walk as $\barW_z := \bar{w}_t (=2m-j), \bar{w}_{t+1},\cdots,$ starting from $2m-j$ which is fully determined by $z$. 
+	Given $\barW_z$ is a reflection of $W_z$, if $W_z$ starting from $j$ reaches $0$, then, $\barW_z$ starting from $2m-j$ will reach $2m$. 
+	But, that means that the walk $\barW(y_{<p} \circ z)$ ends in the state $2m$ which forces $\bR(y_{<p} \circ z)$ to never be matched in the blueprint. 
+	
+	Combining the above, we have that between the two vertices $\bL(x_{<p} \circ z)$ and $\bR(y_{<p} \circ z)$, at most one is matched in the blueprint, respecting the ban constraint. 
+\end{proof}
+
+	
+
+
+We thus established that the blueprint $\bG$ is indeed a proper blueprint. 
+
+\subsection{Value Calculation} 
+
+The last step is to calculate the value of the blueprint which is $\card{\bE}/C^P$. 
+
+\begin{lemma}\label{lem:value}
+	The value of blueprint $\bG=\bG_m$ is 
+	\[
+		value(\bG) \geq \paren{1-\frac{1}{m}} \cdot \frac{2m}{3m+1}-3m \cdot 2^{-m}, 
+	\]
+\end{lemma}
+\begin{proof}
+	Given $\bE$ is a matching, and by construction, 
+	\begin{align*}
+		value(\bG) &= \frac{\card{\bE}}{C^P} \tag{by~\Cref{def:blueprint-value-approx}} \\
+		&= \sum_{j=1}^{2m-1} \sum_{t = L}^{D} \frac{\min\paren{\card{\bL_{j,t}},\card{\bR_{2m-j,t}}}}{C^P} \tag{by the definition of edges} \\
+		&\geq \sum_{j=1}^{2m-1} \sum_{t = L}^{D} \paren{\frac{\card{\bL_{j,t}}}{C^P} - 2^{-m} \cdot \frac{1}{D}} \tag{by~\Cref{lem:bjt-reflect}} \\
+		&\geq \paren{\sum_{j=1}^{2m-1} \sum_{t = L}^{D} \frac{\card{\bL_{j,t}}}{C^P}} - 2m \cdot 2^{-m}. 
+	\end{align*}
+	We can now bound the inner sum separately as follows:
+	\begin{align*}
+		\sum_{j=1}^{2m-1} \sum_{t = L}^{D} \frac{\card{\bL_{j,t}}}{C^P} &= \sum_{j=1}^{2m-1} \sum_{t = L}^{D} \Pr\Paren{\text{$W$ $L$-restricted, $W$ reaches $0$, $\maxwalk{W}=j$, $\timemax{W} = t$}} \tag{by the definition of $\bL_{j,t}$} \\
+		&= \sum_{j=1}^{2m-1} \Pr\Paren{\text{$W$ $L$-restricted, $W$ reaches $0$, $\maxwalk{W}=j$, $\timemax{W} \in [L:D]$}} \tag{as the events in the sum are all disjoint} \\
+		&\geq \sum_{j=1}^{2m-1} \Pr\Paren{\text{$W$ $L$-restricted, $W$ reaches $0$, $\maxwalk{W}=j$, $d(x) \in [L:D-L]$}} \tag{since $W$ is $L$-restricted, having delay in $[L:D-L]$ ensures $\timemax{W} \in [L:D]$} \\
+		&\geq \frac{D-2L}{D} \cdot \sum_{j=1}^{2m-1} \Pr\Paren{\text{$W$ $L$-restricted, $W$ reaches $0$, $\maxwalk{W}=j$}} \tag{as $d(x)$ is uniform independently on $[D]$ and $\card{[L:D-L]} = D-2L+1 > D-2L$} \\
+		&= \frac{D-2L}{D} \cdot \Pr\Paren{\text{$W$ $L$-restricted, $W$ reaches $0$}} \tag{the sum is over all disjoint possibilities of reaching $0$} \\
+		&\geq \frac{D-2L}{D} \cdot  \paren{\Pr\Paren{\text{$\widetilde W$ reaches $0$}}-2^{-m}} \tag{by~\Cref{clm:walk-length} and using $\widetilde W$ as a generic random walk} \\
+		&= \frac{D-2L}{D} \cdot \paren{\frac{2m}{3m+1}-2^{-m}} \tag{by~\Cref{lem:start-state}} \\
+		&\geq \paren{1-\frac{1}{m}} \cdot \frac{2m}{3m+1}-2^{-m} \tag{as $D = 2m \cdot L$}. 
+	\end{align*}
+	By plugging in this into the earlier bound, we have, 
+	\[
+		value(\bG) \geq \paren{1-\frac{1}{m}} \cdot \frac{2m}{3m+1}- 3m \cdot 2^{-m}, 
+	\]
+	concluding the proof. 
+\end{proof}
+
+The lower bound in \Cref{thm:blueprint} now follows immediately from~\Cref{lem:value} and the properness of the blueprint  established in~\Cref{clm:bG-matching,clm:bG-ban}. The upper bound is simply because 
+\[
+	value(\bG_m) \leq \Pr_{W \sim \dist_m}\paren{\text{$W$ reaches $0$}} = \frac{2m}{3m+1}, 
+\]
+by~\Cref{lem:start-state}, as every matched vertex in $\bL$ belongs to some $\bL_{j,t}$ and hence its walk has reached $0$. 
+
+This concludes the proof of~\Cref{thm:blueprint}. 

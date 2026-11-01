@@ -1,0 +1,62 @@
+%!TEX root = ./main.tex
+\subsection{Warmup: a \texorpdfstring{$\nicefrac{1}{2}$}{(1/2)}-competitive randomized algorithm}\label{sec:warmup}
+
+In this section we will round the $\nicefrac{1}{2}$-competitive fractional algorithm obtained by running \cref{algo:TOBVC} with function $f(\theta) = f_1 (\theta) = 1-\theta$ and $\beta = \beta^{*} (f) = 2$. We will devise a lossless rounding of this fractional matching algorithm, by including each edge $e$ in the final matching with a probability equal to the fractional value $x_e$ assigned to it by \cref{algo:TOBVC}. 
+Note that if $v$ arrives after $u$, then if $F_u$ denotes the event that $u$ is free when $v$ arrives, then edge $\{u,v\}$ is matched by an online algorithm with probability $\Pr[\{u,v\}\in M] = \Pr[\{u,v\}\in M \mid F_u] \cdot \Pr[F_u]$. Therefore, to match each edge $\{u,v\}$ with probability $x_{uv}$, we need $\Pr[\{u,v\} \in M \mid F_u] = x_{uv} / \Pr[F_u]$.
+That is, we must match $\{u,v\}$ with probability $z_u = x_{uv}/\Pr[F_u]$ conditioned on $u$ being free. The simplest way of doing so (if possible) is to pick an edge $\{u,v\}$ with the above probability $z_u$ always, and to match it only if $u$ is free.
+\Cref{algo:warmup_algorithm} below does just this, achieving a lossless rounding of this fractional algorithm.
+As before, $N_v(u)$ denotes the set of neighbors of $u$ that arrive before $v$. 
+
+\begin{algorithm}[h]
+  \DontPrintSemicolon
+  \SetKwInOut{Input}{Input}
+  \SetKwInOut{Output}{Output}
+  \Input{A stream of vertices $v_1, v_2, \dots , v_n$. At step $i$, vertex $v_i$ and $N_{v_i}(v_i)$ are revealed.}
+  \Output{A matching $M$.}
+  Let $y_u \gets 0$ for all $u$, let $x_{uv} \gets 0$ for all $u, v$. \;
+  Let $M \gets \emptyset$. \;
+  \ForEach{$v$ in the stream}{ 
+    Update $y_u$'s and $x_{uv}$'s using~\Cref{algo:TOBVC} with $\beta = 2$ and $f = f_{1}$. \;
+    \ForEach{$u \in N_v (v) $}{
+      $z_u \gets \frac{x_{u v}}{\Pr[\text{$u$ is free when $v$ arrives}]}.$ \tcp*{$z_u$ is $x_{uv} / (1 - y_u)$ as shown later} \label{line:zu}
+        }
+    Sample (at most) one neighbor $u\in N_v(v)$ according to $z_u$. \label{line:sample}\;
+    \If{a free neighbor $u$ is sampled}{
+        Add $\{u,v\}$ to $M$.
+    }
+  }    
+    \caption{Online vertex arrival warmup randomized fractional matching}
+    \label{algo:warmup_algorithm}
+\end{algorithm}
+
+\Cref{algo:warmup_algorithm} is well defined if for each vertex $v$'s arrival, $z$ is a probability distribution; i.e., $\sum_{u\in N_v(v)} z_u\leq 1$. The following lemma asserts precisely that. Moreover, it asserts that \Cref{algo:warmup_algorithm} matches each edge with the desired probability.
+
+\begin{lem}\label{lem:z-distribution}
+\Cref{algo:warmup_algorithm} is well defined, since for every vertex $v$ on arrival, $z$ is a valid probability distribution. Moreover, for each $v$ and $u\in N_v(v)$, it matches edge $\{u,v\}$ with probability $x_e$.
+\end{lem}
+\begin{proof}
+	We prove both claims in tandem for each $v$, by induction on the number of arrivals. 
+	For the base case ($v$ is the first arrival), the set $N_v(v)$ is empty and thus both claims are trivial. Consider the arrival of a later vertex $v$.
+	By the inductive hypothesis we have that each vertex $u\in N_v(v)$ is previously matched with probability $\sum_{w\in N_v(u)} x_{wu}$.
+	But by our choice of $f(\theta)=f_1(\theta)=1-\theta$ and $\beta=2$, if $w$ arrives after $u$, then $y_u$ and $\theta$ at arrival of $w$ satisfy $x_{uw} = \frac{(\theta - y_u)^{+}}{\beta}\cdot \left(1+\frac{1-\theta}{f(\theta)}\right) = (\theta - y_u)^{+}$. 
+	That is, $x_{uw}$ is precisely the increase in $y_u$ following arrival of $w$.
+	On the other hand, when $u$ arrived we have that its dual value $y_u$ increased by $1-\theta = \sum_{v'\in N_u(u)} (\theta - y_{v'})^+ = \sum_{v'\in N_u(u)} x_{uv'}$. 
+	To see this last step, we recall first that by definition of \Cref{algo:TOBVC} and our choice of $f(\theta)=1-\theta$, the value $\theta$ on arrival of $v$ is chosen to be the largest $\theta\leq 1$ satisfying  
+	\begin{align}\label{eq:theta-constraint}
+		\sum_{\forall u \in N_v(v)} (\theta - y_u)^{+}\leq 1-\theta.
+	\end{align}
+	But the inequality \eqref{eq:theta-constraint} is an equality whether or not $\theta=1$ (if $\theta=1$, both sides are zero).
+	We conclude that $y_u = \sum_{v'\in N_v(u)} x_{uv'}$ just prior to arrival of $v$. 
+	But then, by the inductive hypothesis, this implies that $\Pr[\mbox{$u$ free when $v$ arrives}] = 1-y_u$ (yielding an easily-computable formula for $z_u$).
+	Consequently, by \eqref{eq:theta-constraint} we have that when $v$ arrives $z$ is a probability distribution, as
+	\begin{align*}
+	\sum_{u\in N_v(v)} z_u & = \sum_{u\in N_v(v)} \frac{(\theta - y_u)^{+}}{1-y_u} \leq \sum_{u\in N_v(v):\, y_u\leq \theta} \frac{(\theta - y_u)^{+}}{1-\theta} = \sum_{u\in N_v(v)} \frac{(\theta - y_u)^{+}}{1-\theta} \leq 1.
+	\end{align*}
+	
+	Finally, for $u$ to be matched to a latter-arriving neighbor $v$, it must be picked and free when $v$ arrives, and so $\{u,v\}$ is indeed matched with probability
+	\begin{align*}
+	\Pr[\{u,v\}\in M] & = \frac{x_{uv}}{\Pr[\mbox{$u$ is free when $v$ arrives}]} \cdot \Pr[\mbox{$u$ is free when $v$ arrives}] = x_{uv}.\qedhere
+	\end{align*}
+\end{proof}
+
+In the next section we present an algorithm which allows to round better-than-$\nicefrac{1}{2}$-competitive algorithms derived from \Cref{algo:TOBVC}.

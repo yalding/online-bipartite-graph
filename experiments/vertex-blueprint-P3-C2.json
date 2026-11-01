@@ -1,0 +1,90 @@
+{
+  "blueprint_value": "1/2",
+  "average_forced_hidden_weight": "2",
+  "vertex_arrival_lower_bound": "5/4",
+  "decimal_ratio": 1.25,
+  "properness_verified": true,
+  "independence_verified_all_shifts": true,
+  "per_shift": [
+    {
+      "shift": 0,
+      "forcing_credit": "2",
+      "retained_edges": 8,
+      "illegal_edges_discarded": 8
+    },
+    {
+      "shift": 1,
+      "forcing_credit": "2",
+      "retained_edges": 8,
+      "illegal_edges_discarded": 8
+    },
+    {
+      "shift": 2,
+      "forcing_credit": "2",
+      "retained_edges": 8,
+      "illegal_edges_discarded": 8
+    },
+    {
+      "shift": 3,
+      "forcing_credit": "2",
+      "retained_edges": 8,
+      "illegal_edges_discarded": 8
+    },
+    {
+      "shift": 4,
+      "forcing_credit": "2",
+      "retained_edges": 8,
+      "illegal_edges_discarded": 8
+    },
+    {
+      "shift": 5,
+      "forcing_credit": "2",
+      "retained_edges": 8,
+      "illegal_edges_discarded": 8
+    },
+    {
+      "shift": 6,
+      "forcing_credit": "2",
+      "retained_edges": 8,
+      "illegal_edges_discarded": 8
+    },
+    {
+      "shift": 7,
+      "forcing_credit": "2",
+      "retained_edges": 8,
+      "illegal_edges_discarded": 8
+    }
+  ],
+  "phases": 3,
+  "alphabet": 2,
+  "edges": [
+    [
+      1,
+      2,
+      4
+    ],
+    [
+      1,
+      3,
+      5
+    ],
+    [
+      2,
+      6,
+      1
+    ],
+    [
+      2,
+      7,
+      0
+    ]
+  ],
+  "solver": {
+    "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+    "upper_bound_on_edge_count": 4.00000000000001,
+    "mip_gap": 0.0,
+    "variables": 136,
+    "constraints": 720
+  },
+  "scope": "Small blueprint cleanup experiment; not an improved universal bound"
+}

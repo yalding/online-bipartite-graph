@@ -1,0 +1,730 @@
+%!TEX root = ./main.tex
+\subsection{Analysis}\label{sec:analysis}
+\newcommand{\EventEQ}[1]{\ensuremath{\mathrm{EQ}_{#1}}}
+\newcommand{\EventIN}[1]{\ensuremath{\mathrm{IN}_{#1}}}
+
+
+In this section, we analyze the competitive ratio of~\Cref{algo:wwrounding}. We start with an outline of the analysis where we highlight the main ideas.
+
+\subsubsection{High-Level Description of Analysis}
+As described in~\Cref{sec:imrpoved-algorithm}, the main difference compared to the simpler $\nicefrac{1}{2}$-competitive algorithm is the change of the construction of the fractional solution, which in turn makes the rounding more complex. In particular, we may have at the arrival of a vertex $v$ that $\sum_{u\in N_v(v)} z_u > 1$.  The majority of the analysis is therefore devoted to such ``problematic'' vertices since otherwise, if $\sum_{u\in N_v(v)} z_u \leq 1$, the rounding is lossless due to the same reasons as described in the simpler setting of~\Cref{sec:warmup}. We now outline the main ideas in analyzing a vertex $v$ with $\sum_{u\in N_v(v)} z_u > 1$. Let $F_w$ be the event that vertex $w$ is free (i.e., unmatched) at the arrival of $v$. Then, as described in~\Cref{sec:imrpoved-algorithm}, the probability that we select edge $\{u,v\}$ in our matching is the minimum of $x_{uv}$  (because of the pruning in \Cref{line:second-pick-drop}), and
+\begin{align*}
+\Pr[F_u] \cdot \left(z'_{u} + z'_u \sqrt{\varepsilon} \cdot \sum_{w\in N_v(v)} z'_w \cdot (1-\Pr[F_w \mid F_u])  \right).
+\end{align*}
+ By definition, $\Pr[F_u] \cdot z_u = x_{uv}$, and the expression inside the parentheses is at least $z_u$ (implying $\Pr[\{u,v\}\in M]= x_{uv})$ if
+\begin{align}
+1 + \sqrt{\varepsilon} \cdot \sum_{w\in N_v(v)} z'_w \cdot (1-\Pr[F_w \mid F_u])  \geq \frac{z_u}{z'_{u}}.
+\label{eq:enough}
+\end{align}
+To analyze this inequality, we first use the structure of the selected function
+$f= f_{1+2\e}$ and the selection of $\beta = 2-\e$ to show that if $\sum_{u\in
+N_v(v)} z_u > 1$ then several structural properties hold (see~\Cref{lem:propertiesWW} and~\Cref{cor:ww} in~\Cref{sec:propertiesWW}). In particular, there are absolute constants $0<c<1$ and $C>1$ (both independent of $\e$) such that 
+\begin{enumerate}
+  \item $\sum_{u\in
+    N_v(v)} z_u \leq 1+ C\e$;
+  \item $z_u \leq C\sqrt{\e}$ for every $u\in N_v(v)$; and
+  \item $c \leq \Pr[F_w]  \leq 1-c$ for every $w\in N_{v}(v)$.
+\end{enumerate}
+The first property implies that the right-hand-side of~\eqref{eq:enough} is at most $1 + C\e$; and the second property implies that $v$ has at least $\Omega(1/\sqrt{\e})$ neighbors and that each neighbor $u$ satisfies $z'_u \leq z_u \leq C\sqrt{\e}$. 
+
+For simplicity of notation, we assume further in the high-level  overview  that $v$ has exactly $1/\sqrt{\e}$ neighbors and each $u\in N_v(v)$ satisfies $z'_u = \sqrt{\e}$. Inequality~\eqref{eq:enough} would then be implied by
+\begin{align}
+ \sum_{w\in N_v(v)}   (1-\Pr[F_w \mid F_u])  \geq  C\,.
+ \label{eq:enough_simple}
+\end{align}
+To get an intuition why we would expect the above inequality to hold, it is instructive to consider the unconditional version:
+\begin{align*}
+  \sum_{w\in N_v(v)}   (1-\Pr[F_w ]) \geq c |N_v(v)| = c/\sqrt{\eps} \gg C \,,
+\end{align*}
+where the first inequality is from the fact that  $\Pr[F_w] \leq 1-c$ for any neighbor $w\in N_v(v)$. The large slack  in the last inequality, obtained by selecting $\e>0$ to be a sufficiently small constant, is used to bound the impact of conditioning on the event $F_u$. Indeed, due to the large slack, we  have that~\eqref{eq:enough_simple} is satisfied if the quantity  $\sum_{w \in N_v(v)}\Pr[F_w|F_u]$ is not too  far away from the same summation with unconditional 
+probabilities, i.e., $\sum_{w \in N_v(v)} \Pr[F_w]$.  Specifically, it is sufficient to show
+\begin{align}
+  \sum_{w \in N_v(v)}\left(\Pr[F_w|F_u] - \Pr[F_w]\right) \leq c/\sqrt{\eps} - C \,.
+  \label{eq:simpleFsum}
+\end{align}
+We do so by bounding the correlation between the events $F_u$ and $F_w$ in a highly non-trivial manner, 
+which constitutes the heart of our analysis.
+The main challenges are that  events $F_u$  and $F_w$ can be positively correlated and that, by conditioning on $F_u$, the primary and secondary choices of different vertices are no longer independent. 
+
+\begin{figure}[t]
+  \centering
+  \begin{tikzpicture}
+
+         \draw[rounded corners] (-1.25, -1.0) rectangle (8.0, 2.5);
+    \node[sgvertex] (u) at (0,0) {};
+    \node[sgvertex] (u1) at (1.5,0) {};
+    \node[sgvertex] (u2) at (3,0) {};
+    \node[sgvertex] (u3) at (4.5,0) {};
+    \node[sgvertex] (u4) at (6,0) {};
+    \node[sgvertex] (u5) at (7.5,0) {};
+
+%    \node[sgvertex] (a1) at (2.25,1.5) {};
+    \node[sgvertex] (a2) at (3.75,1.5) {};
+    \node[sgvertex] (a3) at (5.25,1.5) {};
+    \node[sgvertex] (a4) at (6.75,1.5) {};
+    \node[sgvertex] (b4) at (7.10,0.8) {};
+    
+    \node[sgvertex] (l1) at (-0.75,1.5) {};
+    \node[sgvertex] (l2) at (0.75,1.5) {};
+
+    \draw (u) edge[-> ] (u1)
+          (u1) edge[->, ultra thick] (u2)
+          (u2) edge[->] (u3)
+          (u3) edge[->] (u4)
+          (u4) edge[->, ultra thick] (u5) edge[->, dashed] (b4)
+          (a2) edge[->, dashed, ultra thick] (u3)
+          (a2) edge[->] (a3)
+          (a3) edge[->, ultra thick] (a4)
+          (l1) edge[->, dashed] (u) edge[->, ultra thick] (l2);
+
+    \node[below =0.06cm of u] {$u$};
+          
+       \begin{scope}[xshift=9cm]
+         \draw[rounded corners] (-0.5, -1.0) rectangle (6.5, 2.5);
+    \node[sgvertex] (u) at (0,0) {};
+    \node[sgvertex] (u1) at (1.5,0) {};
+    \node[sgvertex] (u2) at (3,0) {};
+    \node[sgvertex] (u3) at (4.5,0) {};
+    \node[sgvertex] (u4) at (6,0) {};
+    \draw (u) edge[->] (u1)
+          (u1) edge[->, ultra thick] (u2)
+          (u2) edge[->] (u3)
+          (u3) edge[->, ultra thick] (u4);
+    \node[below =0.06cm of u] {$u$};
+      \end{scope}
+
+
+  \end{tikzpicture}
+  \caption{Two examples of the component of $H_\tau$ containing $u$. Vertices are depicted from right to left in the arrival order. Primary and secondary arcs are solid and dashed, respectively. The edges that take part in the matching are thick.}
+  \label{fig:component}
+\end{figure}
+We overcome the last difficulty by replacing the conditioning on $F_u$ by a conditioning on the component in $H_\tau$ (at the time of $v$'s arrival) that includes $u$. As explained in~\Cref{sec:imrpoved-algorithm}, the matching output by our algorithm is equivalent to the greedy matching constructed in $H_\tau$ and so the component containing $u$ (at the time of $v$'s arrival) determines $F_u$. But how can this component look like, assuming the event $F_u$? First, $u$ cannot have any incoming primary arc since then $u$ would be matched (and so the event $F_u$ would be false). However, $u$ could have incoming secondary arcs, assuming that the tails of those arcs are matched using their primary arcs. Furthermore, $u$ can have an outgoing primary and possibly a secondary arc if the selected neighbors are already matched. These neighbors can in turn have incoming secondary arcs, at most one incoming primary arc (due to the pruning in the definition of $H_\tau$),  and outgoing primary and secondary arcs; and so on. In~\Cref{fig:component}, we give two examples  of the possible structure, when conditioning on $F_u$,  of $u$'s component in $H_\tau$  (at the time of  $v$'s arrival).
+The left example contains secondary arcs, whereas the component on the right is arguably simpler and only contains primary arcs. 
+
+An important step in our proof is to prove that, for most vertices $u$, the component is of the simple form depicted to the right  with probability almost one. That is, it is a path $P$ consisting of primary arcs, referred to as a primary path (see~\Cref{def:primarypath}) that further satisfies:
+\begin{enumerate}[(i)]
+  \item it has length $O(\ln(1/\e))$; and
+  \item the total $z$-value of the arcs in the blocking set of $P$ is $O(\ln(1/\e))$. The blocking set is defined in~\Cref{def:blocking}. Informally, it contains those arcs that if appearing as primary arcs in $G_\tau$ would cause  arcs of $P$ to be pruned  (or blocked) from $H_\tau$. 
+\end{enumerate}
+Let $\mathcal{P}$ be the primary paths of above type that appear with positive probability as $u$'s component in $H_\tau$. Further let $\EventEQ{P}$ be the event that $u$'s component equals $P$. Then we show (for most vertices) that $\sum_{P \in \mathcal{P}} \Pr[\EventEQ{P} \mid F_u]$ is almost one. For simplicity, let us assume here that the sum is equal to one. Then by the law of total probability and since $\sum_{P \in \mathcal{P}} \Pr[\EventEQ{P} \mid F_u] =1$, 
+\begin{align*}
+  \sum_{w \in N_v(v)}\left(\Pr[F_w \mid F_u] - \Pr[F_w]\right) & = \sum_{P\in \mathcal{P}} \Pr[\EventEQ{P} \mid F_u]\left( \sum_{w \in N_v(v)}\left(\Pr[F_w \mid F_u, \EventEQ{P}] - \Pr[F_w]\right) \right) \\
+  & = \sum_{P\in \mathcal{P}} \Pr[\EventEQ{P} \mid F_u]\left( \sum_{w \in N_v(v)}\left(\Pr[F_w \mid \EventEQ{P}] - \Pr[F_w]\right) \right),
+\end{align*}
+where the last equality is because the component $P$ determines $F_u$. The proof is then completed by analyzing the term inside the parentheses for each  primary path $P\in \mathcal{P}$ separately. 
+As we prove in~\Cref{lm:conditional-product}, the independence of primary and secondary arc choices of vertices is maintained after conditioning on $\EventEQ{P}$.\footnote{To be precise, conditioning on a primary path $P$ with a so-called termination certificate $T$, see~\Cref{def:primarypath}. In the overview, we omit this detail and consider the event $\EventEQ{P,T}$ (instead of $\EventEQ{P}$) in the formal proof.} Furthermore, we show  that there is a bijection between the outcomes of the  unconditional and the conditional distributions, so that the expected number of vertices that make different choices under this pairing can be upper bounded  by roughly the length of the path plus the $z$-value of the edges in the blocking set. So, for a path $P$ as above, we have that the expected number of vertices that make different choices in the paired outcomes is $O(\ln(1/\e))$  which, by~\Cref{lem:freevertices}, implies that the expected number of vertices that change matched status is also upper bounded by $O(\ln(1/\e))$.  In other words,
+we have for every $P\in \mathcal{P}$ that
+\begin{align*}
+  \sum_{w \in N_v(v)}\left(\Pr[F_w|\EventEQ{P}] - \Pr[F_w]\right) \leq \sum_{w \in V}\left(\Pr[F_w|\EventEQ{P}] - \Pr[F_w]\right) = O(\ln(1/\e)),
+\end{align*}
+which implies~\eqref{eq:simpleFsum} for a small enough choice of $\eps$. This completes the overview of the main steps in the analysis. The main difference in the formal proof is that not all vertices satisfy that their component is a short primary path  with probability close to $1$. To that end, we define the notion of \emph{good} vertices in~\Cref{sec:boundvar}, which are the vertices that are very unlikely 
+to have long directed paths of primary arcs rooted at them. These are exactly the vertices $v$ for which we can perform the above analysis for most neighbors $u$ (in the proof of the ``key lemma'') implying that the rounding is almost lossless for $v$. Then, in~\Cref{sec:bad-is-ok}, we show using a rather simple charging scheme that most of the vertices in the graph are good. Finally, in~\Cref{sec:competitive}, we put everything together and prove~\Cref{thm:vertex-intro}.
+
+
+\subsubsection{Useful Properties of \texorpdfstring{$W$}{W} Functions and \Cref{algo:wwrounding}}
+\label{sec:propertiesWW}
+For the choice of $f=f_{1+2\epsilon}$ as we choose, we have $f(\theta) = \left(1+ \varepsilon - \theta\right) \cdot \left(\frac{\theta+\varepsilon}{1+\varepsilon-\theta}
+\right)^{\frac{\varepsilon}{1+2\varepsilon}}$. In \Cref{app:WW-functions} we give a more manageable upper bound for $f(\theta)$ which holds for sufficiently small $\epsilon$. Based on this simple upper bound on $f$ and some basic calculus, we obtain the following useful structural properties for the conditional probabilities, $z_u$, of \Cref{algo:wwrounding}. See \Cref{app:WW-functions}.
+
+
+\begin{restatable}{lem}{WWproperties}(Basic bounds on conditional probabilities $z_u$)\label{lem:propertiesWW}
+There exist absolute constants $c\in (0, 1)$  and $C>1/c>1$ and $\epsilon_0\in (0, 1)$ such that for every $\epsilon\in (0, \epsilon_0)$ the following holds: for every vertex $v\in V$, if $y_u$ is the dual variable of a neighbor $u\in N_v(v)$ before $v$'s arrival and $\theta$ is the value chosen by \Cref{algo:TOBVC} on $v$'s arrival, then for $z_u$ as defined in~\Cref{algo:wwrounding}, we have:
+	
+	\begin{description}
+		\item[(1)] If $\theta\not\in (c, 1-c)$, then $\sum_{u\in N_v(v)} z_u\leq 1$,
+		\item[(2)] If $\theta\in [0, 1]$, then $\sum_{u\in N_v(v)} z_u           \leq 1+C\e$,
+		\item[(3)] If $\sum_{u\in N_v(v)} z_u>1$, then 
+%		$\sum_{u\in N_v(v)} z_u^2\leq C\e$. In particular, 
+		$z_u\leq C\sqrt{\e}$ for every $u\in N_v(v)$,
+		\item[(4)] If $\sum_{u\in N_v(v)} z_u>1$, then for every $u\in N_v(v)$ such that $z_u>0$, one has $y_u\in [c/2, 1-c/2]$, and
+		\item[(5)] For all $u \in N_v(v)$, one has $z_u \leq 1/2 + O(\sqrt{\e})$.
+	\end{description}
+\end{restatable}
+
+The following corollary will be critical to our analysis:
+\begin{restatable}{cor}{probfree}\label{cor:ww}
+There exist absolute constants $c>0$ and $\epsilon_0>0$ such that for all $\epsilon\in (0,\eps)$, on arrival of any vertex $v\in V$, if $z$ as defined in~\Cref{algo:wwrounding} satisfies $\sum_{u\in N_v(v)} z_u > 1$, then for every $u\in N_v(v)$ we have 
+$$
+c\leq \Pr[\mbox{$u$ is free when $v$ arrives}] \leq 1-c.
+$$
+\end{restatable}
+
+\begin{proof}
+	By~\Cref{lem:propertiesWW}, {\bf (1)} and {\bf (4)} we have that if $\sum_{u\in N_v(v)} z_u> 1$, then $\theta\in (c, 1-c)$ ($c$ is the constant from~\Cref{lem:propertiesWW}), and for every $u\in N_v(v)$ one has 
+	\begin{equation}\label{eq:924hg9gfd}
+	y_u\in [c/2, 1-c/2].
+	\end{equation} 
+	On the other hand, by~\Cref{refined-ww-xu-bound} one has 
+	\begin{equation}\label{eq:23g24g43g43g}
+	\frac{y_u}{\beta} \leq	x_u  \leq \frac{y_u + f(1-y_u)}{\beta},
+	\end{equation}
+	where $x_u$ is the fractional degree of $u$ when $v$ arrives.
+	
+	We now note that by~\Cref{lem:propertiesWW}, {\bf (2)}, we have that \Cref{algo:wwrounding} matches every vertex $u$ with probability at least $x_u/(1+C\e)$ (due to choices of primary arcs), and thus
+	\begin{equation*}
+	\begin{split}
+	\Pr[\mbox{$u$ is free when $v$ arrives}]&\leq 1-\frac{x_u}{1+C\e}\\
+	&\leq 1-\frac{y_u}{\beta(1+C\e)}\text{~~~~~~~(by~\eqref{eq:23g24g43g43g})}\\
+	&\leq 1-\frac{c/2}{2(1+C\e)}\text{~~~~~~~(by~\eqref{eq:924hg9gfd} and the setting $\beta=2-\e\leq 2$)}\\
+	&\leq 1 - c/5,
+	\end{split}
+	\end{equation*}
+	as long as $\e$ is sufficiently small.
+	
+	For the other bound we will use two facts. The first is that the since $f(y)$ is monotone decreasing by \Cref{f-non-increasing} and since we picked $\beta>\beta^*(f) = 1+f(0)$, we have that for any $y\leq 1-c/2\leq 1$, 
+	\begin{equation}\label{eq:5r435trdgtr4w}
+	y+f(1-y)\leq 1-c/2+f(0) < \beta - c/2.
+	\end{equation}
+	Then, using the fact that by \Cref{line:second-pick-drop}, \Cref{algo:wwrounding} matches every vertex $u$ with probability at most $x_u$, we obtain the second bound, as follows.
+	\begin{align*}
+	\Pr[\mbox{$u$ is free when $v$ arrives}]&\geq 1-x_u && \\
+	&\geq 1-\frac{y_u + f(1-y_u)}{\beta} && \mbox{(by~\eqref{eq:23g24g43g43g})}\\
+	&\geq 1-\frac{\beta-c/2}{\beta} && \mbox{(by~\eqref{eq:924hg9gfd} and \eqref{eq:5r435trdgtr4w})}\\
+	& \geq c/5. && \mbox{($\beta=2-\e<2.5$)}
+	\end{align*}
+	
+	Choosing $c/5$ as the constant in the statement of the lemma, we obtain the result.
+\end{proof}
+
+Finally, for our analysis we will rely on the competitive ratio 
+of the fractional solution maintained in \Cref{line:fractional-to-round} being $1/\beta$.
+This follows by \Cref{ww-approx} and the fact that for our choices of $\beta=2-\epsilon$ and $f=f_{1+2\epsilon}$ we have that $\beta\geq \beta^*(f)$. See \Cref{app:WW-functions} for a proof of this fact.
+
+\begin{restatable}{fact}{betafine}\label{beta-fine}
+	For all sufficiently small $\epsilon>0$, we have that $2-\epsilon \geq \beta^*(f_{1+2\epsilon})$.
+\end{restatable}
+
+\subsubsection{Structural Properties of \texorpdfstring{$G_\tau$}{G-tau} and \texorpdfstring{$H_\tau$}{H-tau}}
+\label{sec:structural}
+
+In our analysis later, we focus on maximal primary paths (directed paths made of primary arcs) in $H_\tau$, 
+in the sense that the last vertex along the primary path has no outgoing primary arc in $H_\tau$. 
+The following definition captures termination certificates of such primary paths.
+\begin{Def}[Certified Primary Path]
+	A tuple $(P, T)$ is a certified primary path in $H_\tau$ if $P$ is a directed path of primary arcs in $H_\tau$ and either
+	\begin{enumerate}
+	  \item[{\bf (a)}] the last vertex of $P$ does not have an outgoing primary arc in $G_\tau$ and $T=\emptyset$, or 
+	  \item[{\bf (b)}] the last vertex $u$ of $P$ has an outgoing primary arc $(u, w)$ in $G_\tau$ and $T=(u', w)$ is a primary arc in $H_\tau$ such that $u'$ precedes $u$ in the arrival order. 
+	\end{enumerate}
+  \label{def:primarypath}
+\end{Def}
+To elaborate, a certified primary path $(P,T)$ is made of a (directed) path $P$ of primary arcs in $H_\tau$ and $T$ is a certificate of $P$'s termination in $H_\tau$ that ensures the last vertex $u$ in $P$ has no outgoing primary arc in $H_\tau$, either due to $u$ not picking a primary arc with $T=\emptyset$, or due to the picked primary arc $(u,w)$ being blocked by another primary arc $T=(u',w)$ which appears in $H_\tau$.
+
+As described, $G_\tau$ and $H_\tau$ differ in arcs $(u,w)$ that are \emph{blocked} by previous primary arcs to their target vertex $w$. We generally define sets of arcs which can block an edge, or a path, or a certified path from appearing in $H_\tau$ as in the following definition:
+\begin{Def}[Blocking sets]  \label{def:blocking}
+	For an arc $(u,w)$, define its \emph{blocking set}
+	\begin{align*}
+	B(u,w) := \{(u', w) \mid \mbox{$\{u',w\}$ is an edge and $u'$ arrived before $u$}\}
+	\end{align*}
+	to be those arcs, the appearance of any of which as primary arc in $G_\tau$ blocks $(u,v)$ from being in $H_\tau$. In other words, an arc $(u,v)$ is in $H_\tau$ as primary or secondary arc if and only if $(u,v)$ is in $G_\tau$ and none of the arcs in its blocking set $B(u,v)$ is in $G_\tau$ as a primary arc. 
+	
+	The blocking set of a path $P$ is simply the union of its arcs' blocking sets, 
+	\begin{align*}
+	B(P) := \bigcup_{(u,v) \in P} B(u,v)\,.
+	\end{align*}	
+
+	The blocking set of a certified primary path $(P,T)$ is the union of blocking sets of $P$ and $T$,
+	\begin{align*}
+	B(P, T) := B(P \cup T).
+	\end{align*}
+\end{Def}
+The probability of an edge, or path, or certified primary path appearing in $H_\tau$ is governed in part by the probability of arcs in their blocking sets appearing as primary arcs in $G_\tau$. As an arc $(v,u)$ is picked as primary arc by when $v$ arrives with probability roughly $z_u$ (more precisely, $z'_u \in[z_{vu}/(1+C\epsilon), z_{vu}]$, by \Cref{lem:propertiesWW}), it will be convenient to denote by $z(v,u)$ and $z'(v,u)$ the values $z_u$ and $z'_u$ when $v$ arrives, and by $z(S)=\sum_{s\in S} z(s)$ and $z'(S)=\sum_{s\in S} z(s)$ the sum of $z$- and $z'$-values of arcs in a set of arcs $S$.
+
+\textbf{Product distributions.} 
+Note that by definition the distribution over primary and secondary arc choices of vertices are product distributions (they are independent). As such, their joint distribution is defined by their marginals.
+Let $p_w$ and $s_w$ denote the distribution on primary and secondary arc choices of $w$, respectively. That is, for every $u\in N_w(w)$, $p_w(u)$ is the marginal probability that $w$ 
+selects $(w, u)$ as its primary arc, and $s_w(u)$ is the marginal probability that $w$ selects $(w,u)$ as its secondary arc. 
+Given our target bound \eqref{eq:enough}, it would be useful to show that conditioning on $F_u$ preserves the independence of these arc choices. Unfortunately, conditioning on $F_u$ does not preserve this independence. We will therefore refine our conditioning later on the existence of primary paths in $H_\tau$, which as we show below maintains independence of the arc choices.
+
+
+\begin{lem}\label{lm:conditional-product}
+For a certified primary path $(P,T)$ let $\EventEQ{(P,T)}$ be the event that the path $P$ equals a maximal connected component in $H_\tau$ and the termination of $P$ is certified by $T$.
+Then the conditional distributions of primary and secondary choices conditioned on $\EventEQ{(P,T)}$ are product distributions; i.e., these conditional choices are independent. Moreover, if we let $\tilde{p}_w$ and $\tilde{s}_w$ denote the conditional distribution on primary and secondary choices of $w$, respectively, then 
+    \begin{align*}
+      \TV(p_w, \tilde{p}_w) \leq z(R(w)) \qquad \mbox{and} \qquad \TV(s_w, \tilde{s}_w) \leq z(R(w)),
+    \end{align*}
+	where $R(w) \subseteq \{w\}\times N_w(w)$ is the set of arcs leaving $w$ whose existence as primary arcs in $G_\tau$ is ruled out by conditioning on $\EventEQ{(P,T)}$, and the union of these $R(w)$, denoted by $R(P,T)$, satisfies
+	\begin{equation}\label{eq:ruled-out-sets-ub}
+	R(P,T):= \bigcup_w R(w) \subseteq B(P,T) \cup \{(w,r) \mid r \mbox{ is root of } P\} \cup \bigcup_{w\in P\cup\{w:\, T=(w,w')\}} \{w\}\times N_w(w).
+	\end{equation}
+\end{lem}
+
+\begin{proof}
+	We first bound the total variation distance between the conditional and unconditional distributions. For primary choices, conditioning on $\EventEQ{(P,T)}$ rules out the following sets of primary arc choices.
+	For vertex $w\notin P$ arriving before the root $r$ of $P$ this conditioning rules out $w$ picking any edge in $B(P,T)$ as primary arc.
+	For vertices $w\notin P$ with $w$ arriving after the root $r$ of $P$ this conditioning rules out picking arcs $(w,r)$. 
+	Finally, this conditioning rules out 
+	some subset of arcs leaving vertices in $P\cup \{w:\, T=(w,w')\}$.
+	Taking the union over these supersets of $R(w)$, we obtain \eqref{eq:ruled-out-sets-ub}.
+	Now, the probability of each ruled out primary choice $(w,u)\in R(w)$ is  zero under $\tilde{p}_w$ and $z'(w,u)$ under $p_w$, and all other primary choices have their probability increase, with a total increase of $\sum_{(w,u)\in R(w)} z'(w,u)$, from which we conclude that $$\TV(p_w,\tilde{p}_w) = \frac{1}{2}\sum_{u\in N_w(w)} |p_w(u) - \tilde{p}_w(u)| = z'(R(w)) \leq z(R(w)).$$
+	The proof for secondary arcs is nearly identical, the only differences being that the sets of ruled out secondary arcs can be smaller (specifically, secondary arcs to $w'$ such that $T=(u,w')$ are not ruled out by this conditioning), and the probability of any arc $(w,u)$ being picked as secondary arc of $w$ is at most $\sqrt{\epsilon}\cdot z'(w,u) \leq z(w,u)$.
+	
+	Finally, we note that primary and secondary choices for different vertices are independent. Therefore, conditioning on each vertex $w$ not picking a primary arc in its ruled out set $R(w)$ still yields a product distribution, and similarly for the distributions over secondary choices.
+\end{proof}
+
+It is easy to show that a particular certified primary path $(P,T)$ with high value of $z(B(P,T))$ is unlikely to appear in $H_\tau$, due to the high likelihood of arcs in its breaking set being picked as primary arcs. The following lemma asserts that the probability of a vertex $u$ being the root of \emph{any} primary certified path $(P,T)$ with high $z(B(P,T))$ value is low.
+\begin{lem}\label{lem:fat}
+	For any $k\geq 0$ and any vertex $u$, we have the following
+	\[
+	\Pr[\mbox{$H_\tau$ contains any certified primary path $(P, T)$ with $P$ rooted at $u$ and $z(B(P, T)) \geq k$}] \leq e^{-k/2},
+	\]
+	\[
+	\Pr[\mbox{$H_\tau$ contains any primary path $P$ rooted at $u$ with $z(B(P)) \geq k$}] \leq e^{-k/2}.
+	\]
+\end{lem}
+\begin{proof}
+  We first prove the bound for certified primary paths.
+  For a certified primary path $(P,T)$ where the last vertex of $P$ is $w$, define $P^\ast$ as follows:
+  	\begin{align*}
+	P^\ast = 	\begin{cases} P & \text{if $T = \emptyset$} \\
+	  \text{$P \cup \{(w,w'')\}$} & \text{if $T = (w',w'')$}.
+	\end{cases}
+\end{align*}
+
+Observe that $z(B(P^\ast)) \geq k$ whenever $z(B(P,T)) \geq k$. This is trivial when $T = \emptyset$.	
+To see this for the case
+ $T = (w',w'')$, let $w$ be the last vertex of $P$, and note that $B(w', w'') \subseteq B(w, w'')$, 
+as $w$ arrives after $w'$.
+Also note that for $(P,T)$ to be in $H_\tau$, we have that $P^\ast$ must be in $G_\tau$.
+ 
+We say a directed primary path $P' = u \to u_1 \to \cdots \to u_{\ell - 1} \to u_\ell$ is \emph{$k$-minimal} if $z(B(P')) \geq k$ 
+and $z(B(P' \setminus \{(u_{\ell - 1}, u_\ell) \})) < k$. 
+For such a path $P'$, define $B^\ast(P')$ as follows: Initially set $B^\ast(P') = B(P \setminus \{(u_{\ell - 1}, u_\ell )\})$.
+Then from $B(u_{\ell - 1}, u_\ell)$, the breaking set of the last arc of $P'$, add arcs to $B^\ast(P')$ in reverse order of their sources' arrival until $z(B^\ast(P')) \geq k$.
+
+Consider a certified primary path $(P,T)$ with $P$ rooted at $u$. If a $k$-minimal path rooted at $u$ which is not a prefix of $P^\ast$ is contained in $G_\tau$, then $(P,T)$ does not appear in $G_\tau$, and therefore it does not appear in $H_\tau$. On the other hand, 
+if $z(B(P,T))\geq k$ then for $(P,T)$ to appear in $H_\tau$, we must have that the (unique) $k$-minimal prefix $P'$ of $P^\ast$ must appear in $G_\tau$, and that none of the edges of $B^\ast(P')$ appear in $G_\tau$. Moreover, for any certified primary path with $z(B(P,T))$, conditioning on the existence of $P'$ in $G_\tau$ does not affect random choices of vertices with outgoing arcs in $B^\ast(P')$, as these vertices are not in $P'$. Since by \Cref{lem:propertiesWW} each arc $(w,w')$ appears in $G_\tau$ with probability $z'(v,u) \geq z(v,u)/(1+C\epsilon)\geq z(v,u)/2$, we conclude that for any $k$-minimal primary path $P'$ rooted at $u$, we have
+	\begin{align*}
+	  &\Pr[H_\tau \text{ contains any certified primary path $(P,T)$ with $z(B(P,T)) \geq k$} \mid \text{$P'$ is in $G_\tau$}  ]\\ 
+	\leq &\Pr[\text{No edge in $B^\ast(P')$ is in $G_\tau$} \mid  \text{$P'$ is in $G_\tau$}] \\
+	= &\prod_{w \notin P'} (1 - \Pr[\text{Some primary edge in $B^\ast(P') \cap (\{w\} \times N_w(w))$ \text{ is in } $G_\tau$}]) \\
+	\leq &\prod_{w \notin P'} \exp\left(\text{$-\textstyle\sum_{(w,w') \in B(P,T) \times N_w(w)} z(w,w')/2$}\right) \\
+	\leq &\exp(-z(B^\ast(P'))/2) \leq e^{-k/2}.
+	\end{align*}
+
+	Taking total probability $\mathcal{P}_u$, the set of all $k$-minimal primary paths $P'$ rooted at $u$, we get that indeed, since $u$ is the root of at most one $k$-minimal primary path in any realization of $G_\tau$, 
+	\begin{align*}
+	  & \Pr[H_\tau \mbox{ contains a certified primary path $(P, T)$ rooted at $u$ with $z(B(P, T)) \geq k$}] \\
+	 \leq & \sum_{P' \in \mathcal{P}_u} \underbrace{\Pr[\text{$H_\tau$ contains a $(P,T)$ with $z(B(P,T))\geq k$} \mid \text{$P'$ is in $G_\tau$}]}_{\leq \,\, e^{-k/2}} \cdot \Pr[\text{$P'$ is in $G_\tau$}]
+	\leq e^{-k/2}.
+	\end{align*}
+
+	The proof for primary path is essentially the same as the above, taking $P^*=P$.
+\end{proof}
+
+
+\subsubsection{Analyzing Good Vertices}
+\label{sec:boundvar}
+Consider the set of vertices that are unlikely to be roots of long directed paths of primary arcs in $H_\tau$. 
+In this section, we show that~\Cref{algo:wwrounding} achieves almost lossless rounding for such vertices, and hence we
+call them \emph{good} vertices.
+We start with a formal definition:
+\begin{Def}[Good vertices]
+We say that a vertex $v$ is \emph{good} if
+\begin{align*}
+\Pr_{\tau}[\mbox{$H_\tau$ has a primary path rooted at $v$ of length at least $2000 \cdot \ln(1/\varepsilon)$}]& \leq \varepsilon^6.
+\end{align*}
+Otherwise, we say $v$ is \emph{bad}.
+\end{Def}
+
+As the main result of this section, for good vertices, we prove the following:
+\begin{thm}
+	\label{thm:good_vertices}
+	Let $v$ be a good vertex. Then 
+	\begin{align*}
+	\Pr[\mbox{$v$ is matched on arrival}] \geq (1-\eps^2) \cdot \sum_{u\in N_v(v)} x_{uv}.
+	\end{align*}
+\end{thm}
+\paragraph{Notational conventions.} Throughout this section, we fix $v$ and let $z, z'$ be as in \Cref{algo:wwrounding}. Moreover, for simplicity of notation, we suppose that the stream of vertices ends just before $v$'s arrival and so quantities, such as  $G_\tau$ and  $H_\tau$, refer to their values when $v$ arrives. For a vertex $u$, we let $F_u$ denote the event that $u$ is free (i.e., unmatched) when $v$ arrives. In other words, $F_u$ is the event that $u$ is free in the stream that ends just before $v$'s arrival. 
+
+To prove the theorem, first note that it is immediate if $\sum_{u\in N_v(v)} z_u \leq 1$: in that case, we have $z' = z$ and so the probability to match $v$ by a primary edge, by definition of $z_u$, is simply
+\begin{align*}
+\sum_{u\in N_v(v)} z_u \cdot \Pr[F_u] = \sum_{u\in N_v(v)} x_{uv}.
+\end{align*}
+
+
+From now on we therefore assume $\sum_{u\in N_v(v)} z_u >1$, which implies 
+\begin{enumerate}[(I)]
+\item $\sum_{u\in N_v(v)} z'_u = 1$,\label{en:d0}
+\end{enumerate} 
+and moreover, by~\Cref{lem:propertiesWW} and~\Cref{cor:ww}, for every $u\in N_v(v)$:
+\begin{enumerate}[(I)]
+    \addtocounter{enumi}{1}
+	\item $z_u \leq C \sqrt{\eps}$, \label{en:d1}
+	\item $z_u \leq (1+C\eps) \cdot z'_u$, and \label{en:d2}
+	\item $c \leq \Pr[F_u] \leq 1- c$\,, \label{en:d3}
+\end{enumerate}
+where $c$ is the constant of \Cref{cor:ww} and $C$ is the constant of \Cref{lem:propertiesWW}. 
+
+We now state the key technical lemma in the proof of~\cref{thm:good_vertices}: 
+\begin{lem}	\label{lem:variance}
+	Consider a neighbor $u\in N_v(v)$ such that 
+	\begin{align}
+	\Pr_{\tau}[\mbox{$H_\tau$  has a primary path rooted at $u$ of length at least $2000 \cdot \ln(1/\varepsilon)$} \mid F_u]\leq \eps^2\,.
+	\label{eq:key_lemma}
+	\end{align}
+	Then,
+	\begin{align}
+	\sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w \mid F_u] - \sum_{w\in N_v(v)} z'_w  \cdot \Pr[F_w]    \leq \eps^{1/3}\,.
+	\label{eq:variance}
+	\end{align}
+\end{lem}
+Note that the above lemma bounds the quantity $\sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w \mid F_u]$, which will allow us to show that~\eqref{eq:enough} holds and thus the edge $\{u,v\}$ is picked in the matching with probability very close to $x_{uv}$. Before giving the proof of the lemma, we give the formal argument why the lemma implies the theorem.
+
+\begin{proof}[Proof of~\cref{thm:good_vertices}]
+	Define $S$ to be the neighbors $u$ in $N_{v}(v)$ satisfying
+	\begin{align*}
+	\Pr_{\tau}[\mbox{$H_\tau$ has a primary path rooted at $u$ of length at least $2000 \cdot \ln(1/\varepsilon)$} \mid F_u] > \eps^2\,.
+	\end{align*}
+	In other words, $S$ is the set of neighbors of $v$ that violate~\eqref{eq:key_lemma}.
+	As $v$ is good, we have 
+	\begin{align*}
+	\eps^6 &\geq \Pr_{\tau}[\mbox{$H_\tau$ has a primary path rooted at $v$ of length at least $2000 \cdot \ln(1/\varepsilon)$}] \\
+	&  \geq \sum_{u\in N_v(v)} z_u' \cdot \Pr[F_u] \cdot \Pr_{\tau} [\mbox{$H_\tau$ has a primary path rooted at $u$ of length at least $2000 \cdot \ln(1/\varepsilon)-1$} \mid F_u] \\ 
+	&  \geq \sum_{u\in N_v(v)} z_u' \cdot \Pr[F_u] \cdot \Pr_{\tau} [\mbox{$H_\tau$ has a primary path rooted at $u$ of length at least $2000 \cdot  \ln(1/\varepsilon)$} \mid F_u] \\
+	& \geq \sum_{u\in S} z_u' \cdot \Pr[F_u] \cdot \eps^2.
+	\end{align*}
+	The second inequality holds because $v$ selects the primary arc $(u,v)$ with probability $z'_u$ and, conditioned on $F_u$, $u$ cannot already have an incoming primary arc, which implies that $(u,v)$ is present in $H_\tau$. The last inequality follows from the choice of $S$.
+	
+	By Property~\eqref{en:d2}, $z_u \leq (1+C\eps) \cdot z'_u$ and so by rewriting we get
+	\begin{align*}
+	\sum_{u\in S} x_{uv} = \sum_{u\in S} z_u \cdot \Pr[F_u] \leq  (1+C\eps) \cdot \sum_{u\in S} z'_u \cdot \Pr[F_u] \leq (1+C\eps) \cdot \eps^4 \leq \eps^3.
+	\end{align*}
+	
+	In other words, the contribution of the neighbors of $v$ in $S$ to $\sum_{u\in N_v(v)} x_{uv}$ is insignificant compared to the contribution of all neighbors, 
+	\begin{align}
+	\sum_{u\in N_v(v)} x_{uv}  = \sum_{u\in N_v(v)} z_u  \cdot \Pr[F_u] \geq c, 
+	\label{eq:total_large}
+	\end{align}
+	where the inequality follows by the assumption $\sum_{u\in N_v(v)} z_u \geq 1$ and $\Pr[F_u] \geq c$ by Property~\eqref{en:d3}.
+	
+	We proceed to analyze a neighbor $u\in N_v(v) \setminus S$.  Recall that it is enough to verify~\eqref{eq:enough} to  conclude that edge $\{u,v\}$ is picked in the matching with probability $x_{uv}$. We have that
+	\begin{align*}
+	%	& \geq 1 + \sqrt{\varepsilon} \sum_{w\in N_v(v)} z'_w (1-\Pr[F_w|F_v]) - c\eps  & \mbox{($z'_u \leq z_u \leq c\sqrt{\eps}$ by~\eqref{en:d1}) }\\
+	& ~~~~ 1 + \sqrt{\varepsilon} \sum_{w\in N_v(v)} z'_w \cdot (1-\Pr[F_w \mid F_u]) \\
+	& \geq 1 + \sqrt{\varepsilon} \sum_{w\in N_v(v)} z'_w \cdot (1-\Pr[F_w]) -  \sqrt{\eps}\cdot\eps^{1/3} & \mbox{(by~\cref{lem:variance})}\\
+	& \geq 1 + \sqrt{\varepsilon} \sum_{w\in N_v(v)} z'_w \cdot c -  \sqrt{\eps}\cdot\eps^{1/3} & \mbox{($\Pr[F_w] \leq 1- c$ by~\eqref{en:d3})}\\	
+	& = 1 + \sqrt{\varepsilon} c - \sqrt{\eps}\cdot\eps^{1/3}  & \left(\sum_{w\in N_v(v)} z'_w = 1 \text{ by \eqref{en:d0}}\right)\\
+	& \geq 1 + C \eps  & \left(\mbox{for $\eps$ small enough}\right)\\
+	& \geq z_u/z'_u. & \left(\mbox{by \eqref{en:d2}}\right)
+	\end{align*}
+	Therefore, by definition of $S$ and \Cref{lem:variance}, we thus have that for every $u\in N_{v}(v)\setminus S$, the edge $\{u,v\}$ is taken in the matching with probability $x_{uv}$. Thus, the probability that $v$ is matched on arrival is, as claimed, at least
+	\begin{align*}
+	\sum_{u \in N_v(v) \setminus S} x_{uv}
+	= \sum_{u\in N_v(v)} x_{uv} - \sum_{u\in S} x_{uv}
+	\geq \sum_{u\in N_v(v)} x_{uv} - \eps^3  
+	\geq (1-\eps^2) \sum_{u\in N_v(v)} x_{uv}\,,
+	\end{align*}
+	where the last inequality holds because  we have $\sum_{u\in N_v(v)} x_{uv} \geq c$, as calculated in~\eqref{eq:total_large}. 
+\end{proof}
+
+\subsubsection{Proof of the Key Lemma}
+It remains to prove the key lemma, \Cref{lem:variance}, which we do here.
+
+\begin{proof}[Proof of \Cref{lem:variance}] For a certified primary path $(P,T)$ let $\EventEQ{(P,T)}$ be the event as defined in~\cref{lm:conditional-product}, and let $\EventIN{(P,T)}$ be the event that $P$ is a maximal \emph{primary} path in $H_\tau$ and the termination of $P$ is certified by $T$. Further, let 
+	\begin{align*}
+	\mathcal{C} = \{(P,T) : \mbox{$(P,T)$ is a certified primary path rooted at $u$ with $\Pr[ \EventIN{(P,T)} ] > 0$}\}
+	\end{align*}
+	be the set of certified primary paths rooted at $u$  that have a nonzero probability of being maximal in $H_\tau$.  Then, by the law of total probability and since $\sum_{(P,T)\in \mathcal{C}} \Pr[\EventIN{(P,T)} \mid F_u] = 1$ 
+	(since conditioning on $F_u$ implies in particular that $u$ has no incoming primary arc),
+	we can rewrite the expression to bound, $\sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w \mid F_u] - \sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w]$, as
+	\begin{align}
+	\label{eq:large_variance_expression}
+	\sum_{(P,T)\in \mathcal{C}}\Pr[\EventIN{(P,T)} \mid F_u] \left(\sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w \mid F_u, \EventIN{(P,T)}] - \sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w] \right).
+	\end{align}
+	We analyze this expression in two steps. First, in the next claim, we show that we can focus on the case when the certified path $(P,T)$ is very structured and equals the component of $u$ in $H_\tau$. We then analyze the sum in that structured case.
+	
+	\begin{claim}\label{claim:focus-on-EQ} Let  
+		$\mathcal{P} \subseteq \mathcal{C}$ contain those certified primary paths $(P,T)$ of $\mathcal{C}$ that satisfy:  $P$ has length less than $2000 \cdot  \ln(1/\eps)$ and  $z(B(P,T)) \leq 2\ln(1/\eps)$. Then, we have
+		\begin{align*}
+		\eqref{eq:large_variance_expression} \leq 
+		\sum_{(P,T)\in \mathcal{P}}\Pr[\EventEQ{(P,T)} \mid F_u] \left(\sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w \mid \EventEQ{(P,T)}] - \sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w] \right) + \eps^{1/3}/2.
+		\end{align*}
+	\end{claim}
+	\begin{proof}
+		Define the following subsets of certified primary paths rooted at  $u$:
+		\begin{align*}
+		\mathcal{C}_1 &= \{(P,T)\in \mathcal{C} \mid \mbox{$P$ is of length at least $2000 \cdot \ln(1/\eps)$}\} \\
+		\mathcal{C}_2 &= \{(P,T)\in \mathcal{C} \setminus \mathcal{C}_1 \mid \mbox{$z(B(P,T)) > 2\ln(1/\eps)$}\}
+		\end{align*}
+		Note that $\mathcal{P} = \mathcal{C} \setminus \left( \mathcal{C}_1 \cup \mathcal{C}_2 \right)$.
+		Since $u$ satisfies~\eqref{eq:key_lemma}, we have that
+		\begin{align*}
+		\sum_{(P,T)\in \mathcal{C}_1} \Pr[\EventIN{(P,T)} \mid F_u] \leq \eps^2 \leq \eps^{1/3}/6.
+		\end{align*}
+		On the other hand, by~\cref{lem:fat} and $\Pr[F_u] \geq c$ (by Property~\eqref{en:d3}), we have that
+		\begin{align*}
+		\sum_{(P,T)\in \mathcal{C}_2} \Pr[\EventIN{(P,T)} \mid F_u] \leq c^{-1}\cdot \sum_{(P,T)\in \mathcal{C}_2} \Pr[\EventIN{(P,T)}] \leq c^{-1} \cdot \eps \leq \eps^{1/3}/6.
+		\end{align*}
+		In other words, almost all probability mass lies in those outcomes where one of the certified paths $(P,T)\in \mathcal{P}$ is in $H_\tau$. It remains to prove that, in those cases, we almost always have that the component of $u$ in $H_\tau$ equals the path $P$ (whose termination is certified by $T$). Specifically, let $\overline{\EventEQ{(P,T)}}$ denote the complement of $\EventEQ{(P,T)}$. We show
+		\begin{align}
+		\label{eq:notequal}
+		\Pr\left[\overline{\EventEQ{(P,T)}}\mid \EventIN{(P,T)}\right] \leq \eps^{1/3}/7\,.
+		\end{align}
+		To see this, note that by the definition of the event $\EventIN{(P,T)}$, if we restrict ourselves to primary edges then the component of $u$ in $H_\tau$ equals $P$. We thus have that for the event $\overline{\EventEQ{(P,T)}}$ to be true at least one of the vertices in $P$ must have an incoming or outgoing \emph{secondary} edge. Hence  the expression
+		$\Pr\left[\overline{\EventEQ{(P,T)}}\mid \EventIN{(P,T)}\right]$ can be upper bounded by
+		\begin{align}
+		\Pr[\mbox{a vertex in $P$ has an incoming or outgoing secondary arc in $G_\tau$} \mid \EventIN{(P,T)}]
+		\label{eq:secondary}
+		\end{align}
+		Note that event $\EventIN{(P,T)}$ is determined solely by choices of primary arcs. By independence of these choices and choices of secondary arcs, conditioning on $\EventIN{(P,T)}$ does not affect the distribution of secondary arcs. So the probability that any of the nodes in $P$ selects a secondary edge is at most $\sqrt{\epsilon}$. Thus, by union bound, the probability that any of the $|P|\leq 2000 \cdot \ln(1/\epsilon)$ vertices in $P$ pick a secondary arc is at most $\sqrt{\epsilon}\cdot 2000 \cdot \ln(1/\epsilon)$. We now turn our attention to incoming secondary arcs. First, considering the secondary arcs that go into $u$, we have 
+		\begin{align*}
+		c\leq \Pr[F_u] \leq  \prod_{(w,u)\in B(v,u)} \left( 1- z(w,u)/2 \right) \leq \exp(-z(B(v,u))/2),
+		\end{align*}
+		because any arc $(w,u)\in B(v,u)$ appears as a primary arc in $G_\tau$ independently with probability at least $z(w,u)/2$ and the appearance of such an arc implies that $u$ has an incoming primary arc in $H_\tau$ and is therefore matched; i.e., the event $F_u$ is false in this case. 
+		We thus have $z(B(v,u)) \leq 2\ln(1/c)$.  Further, since $(P,T) \not \in \mathcal{C}_2$, we have $z(B(P)) \leq z(B(P,T)) \leq 2\ln(1/\eps)$. Again using that the conditioning on $\EventIN{(P,T)}$ does not affect the distribution of secondary edges, we have that the probability of an incoming secondary arc to any vertex in $P$ is at most $\sqrt{\eps} \cdot \left( 2\ln(1/c) + 2\ln(1/\eps) \right).$
+		Thus, by union bound, the probability that any vertex in $P$ has an incoming or outgoing secondary arc conditioned on $\EventIN{(P,T)}$ is at most 
+		\begin{align*}
+		\sqrt{\epsilon}\cdot 2000 \cdot \ln(1/\epsilon) +  \sqrt{\eps} \cdot \left( 2\ln(1/c) + 2\ln(1/\eps) \right) \leq \eps^{1/3}/7,
+		\end{align*}
+		for sufficiently small $\epsilon$, which implies~\eqref{eq:notequal} via~\eqref{eq:secondary}.
+		
+		We now show how  the above concludes the proof of the claim.  We have shown that each one of the two sets $\mathcal{C}_1, \mathcal{C}_2$  contributes at most $\eps^{1/3}/6$ to~\eqref{eq:large_variance_expression} (where we use that  $\sum_{w\in N_v(v)} z'_w = 1$). Hence,
+		\begin{align*}
+		\eqref{eq:large_variance_expression} &\leq 
+		\sum_{(P,T)\in \mathcal{P}}\Pr[\EventIN{(P,T)} \mid F_u] \left(\sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w \mid \EventIN{(P,T)}, F_u] - \sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w] \right) + 2\eps^{1/3}/6.
+		\end{align*}
+		This intuitively concludes the proof of the claim as~\eqref{eq:notequal} says that $\Pr[\EventEQ{(P,T)}| \EventIN{(P,T)}]$ is almost $1$. The formal calculations are as follows.
+		Since the event $\EventEQ{(P,T)}$ implies the event $\EventIN{(P,T)}$, we have that
+		\begin{align*}
+		\Pr[\EventEQ{(P,T)}] = \Pr[\EventEQ{(P,T)} \wedge \EventIN{(P,T)}]  = \Pr[\EventIN{(P,T)} ] - \Pr[\overline{\EventEQ{(P,T)}} \wedge \EventIN{(P,T)}], 
+		\end{align*}
+		which by~\eqref{eq:notequal} implies
+		\begin{align}
+		\Pr[\EventEQ{(P,T)} ] = \Pr[\EventIN{(P,T)} ]\left( 1- \Pr\left[\overline{\EventEQ{(P,T)}}\mid \EventIN{(P,T)} \right]\right) \geq \Pr[\EventIN{(P,T)} ] \left(1- \eps^{1/3}/7   \right).\label{eq:EQ-in-terms-of-IN}
+		\end{align}
+		We use this to rewrite $\Pr[\EventIN{(P,T)} \mid F_u] \left(\sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w \mid \EventIN{(P,T)}, F_u] - \sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w] \right)$. Specifically, by law of total probability, it can be rewritten as the sum of the expressions~\eqref{eq:first_express} and~\eqref{eq:second_express} below:
+		\begin{align}
+		 \Pr[\EventEQ{(P,T)} \wedge \EventIN{(P,T)} \mid F_u] & \left(\sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w \mid \EventEQ{(P,T)}, \EventIN{(P,T)}, F_u] - \sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w] \right) \nonumber\\
+		 = \Pr[\EventEQ{(P,T)}  \mid F_u] & \left(\sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w \mid \EventEQ{(P,T)}] - \sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w] \right) 		\label{eq:first_express}
+		\end{align}
+		and
+		\begin{align}\label{eq:second_express}
+		\Pr[\overline{\EventEQ{(P,T)}} \wedge \EventIN{(P,T)} \mid F_u] \left(\sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w \mid \overline{\EventEQ{(P,T)}}, \EventIN{(P,T)}, F_u] - \sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w] \right), 
+		\end{align}
+		where \eqref{eq:second_express} can be upper bounded as follows: 
+		\begin{align*}
+		\eqref{eq:second_express} & \leq \Pr[\overline{\EventEQ{(P,T)}} \wedge \EventIN{(P,T)} \mid F_u] && \text{(by $\sum_{w\in N_v(v)} z'_w \leq 1$)}\\
+		 & \leq c^{-1}\cdot \Pr[\overline{\EventEQ{(P,T)}} \wedge \EventIN{(P,T)} ] && \text{(by $c\leq \Pr[F_u]$)}\\
+		 & = c^{-1}\cdot \Pr[\EventIN{(P,T)}  ] \cdot \Pr\left[\overline{\EventEQ{(P,T)}}\mid \EventIN{(P,T)}\right]\\
+		 & \leq c^{-1}\cdot \frac{\Pr[\EventEQ{(P,T)} ]}{1-\eps^{1/3}/7}\cdot (\eps^{1/3}/7) && \text{(by \eqref{eq:notequal} and \eqref{eq:EQ-in-terms-of-IN})}\\
+		 & \leq \Pr[\EventEQ{(P,T)}] \cdot \eps^{1/3}/6. && \text{(for $\epsilon$ small enough)}
+		\end{align*}
+		
+		As at most one of the events $\{\EventEQ{(P,T)}\}_{(P,T) \in \mathcal{P}}$ is true in any realization of $G_\tau$, we have that $\sum_{(P,T) \in \mathcal{P}} \Pr[\overline{\EventEQ{(P,T)}} \wedge \EventIN{(P,T)} \mid F_u] \leq \sum_{(P,T) \in \mathcal{P}} \left( \Pr[\EventEQ{(P,T)}] \cdot \eps^{1/3}/6\right) \leq \eps^{1/3}/6$.
+		Thus, again using that $\sum_{w\in N_v(v)} z_w \leq 1$, we have that
+		\begin{align*}
+		\eqref{eq:large_variance_expression} &\leq 
+		\sum_{(P,T)\in \mathcal{P}}\Pr[\EventIN{(P,T)} \mid F_u] \left(\sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w \mid \EventIN{(P,T)}, F_u] - \sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w] \right) + 2\eps^{1/3}/6  \\
+		& \leq \sum_{(P,T)\in \mathcal{P}}\Pr[\EventEQ{(P,T)} \mid F_u] \left(\sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w \mid \EventEQ{(P,T)}] - \sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w] \right) + 3\eps^{1/3}/6,
+		\end{align*}
+		as claimed.    
+	\end{proof}
+
+
+	The previous claim bounded the contribution of certified primary paths in $\mathcal{C}\setminus \mathcal{P}$ to \eqref{eq:large_variance_expression}. The following claim bounds the contribution of paths in $\mathcal{P}$.
+	\begin{claim}\label{claim:bound-for-EQ}
+		Let $\mathcal{P} \subseteq \mathcal{C}$ contain those certified primary paths $(P, T)$ of $\mathcal{C}$ that satisfy:  $P$ has length less than $2000 \cdot \ln(1/\eps)$ and  $z(B(P, T)) \leq 2\ln(1/\eps)$. Then, we have
+		\begin{align*}
+		\sum_{(P,T)\in \mathcal{P}}\Pr[\EventEQ{(P,T)}] \left(\sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w \mid \EventEQ{(P,T)}] - \sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w] \right)\leq \epsilon^{1/3}/2.
+		\end{align*}
+	\end{claim}
+	
+\begin{proof}	
+We prove the claim in two steps: first we construct a chain of distributions that interpolates between the unconditional distribution of $H_\tau$ and its conditional distribution, and then bound the expected number of vertices that change their matched status along that chain. For the remainder of the proof we fix the certified primary path $(P,T)$.
+
+\paragraph{Constructing a chain of distributions.} Let $H_\tau^{(0)}$ denote the unconditional distribution of $H_\tau$ when $v$ arrives, and let $H_\tau^{(n)}$ denote the distribution of $H_\tau$ conditioned on $\EventEQ{(P,T)}$ when $v$ arrives. Here $n=|V|$ is the number of vertices in the input graph. For every $w\in V$ let $F^{(0)}_w$ denote the indicator of $w$ being free when $v$ arrives (unconditionally) and let $F^{(n)}_w$ denote the indicator variables of $w$ being free when $v$ arrives conditioned on $\EventEQ{(P,T)}$. Note that $F^{(0)}$ is determined by $H^{(0)}_\tau$ and $F^{(n)}$ is determined by $H^{(n)}_\tau$.  For $t=0,\ldots, n$, we define distributions $H^{(t)}_\tau$ that interpolate between $H_\tau^{(0)}$ and $H_\tau^{(n+1)}$ as follows. 
+
+As in Lemma~\ref{lm:conditional-product}, for every $w\in V$ we denote the unconditional distribution of its primary choice by $p_w$, and the unconditional distribution of its secondary choice by $s_w$. Similarly, we denote the conditional distribution given $\EventEQ{(P,T)}$ of the primary choice by $\wt{p}_w$ and the conditional distribution of the secondary choice by $\wt{s}_w$. For every $t=0,\ldots, n$ the primary choice of vertices $w_j, j=1,\ldots, t$ are sampled independently from $\wt{p}_{w_j}$, and the primary choices of vertices $w_j, j=t+1,\ldots, n$ are sampled independently from the unconditional distribution $p_{w_t}$. Similarly, secondary choices of vertices $w_j, j=1,\ldots, t$ are sampled independently from $\wt{s}_{w_j}$ and secondary choices of vertices $w_j,j=t+1,\ldots, n$ are sampled independently from $s_{w_j}$. Note that $H^{(0)}_\tau$ is sampled from the unconditional distribution of $H_\tau$, and $H_\tau^{(n)}$ is sampled from the conditional distribution (conditioned on $\EventEQ{(P,T)}$), as required, due to the independence of the conditional probabilities $\tilde{p}_{w_j}$ and $\tilde{s}_{w_j}$, by \Cref{lm:conditional-product}. For $t=0,\ldots, n$ let $M_t$ denote the matching constructed by our algorithm on $H_\tau^{(t)}$, and let $F^{(t)}_w$ be the indicator variable for $w$ being free when $v$ arrives in the DAG sampled from $H^{(t)}_\tau$.
+
+\paragraph{Coupling the distributions of $H_\tau^{(t)}$.} We now exhibit a coupling between the $H_\tau^{(t)},t=0,\ldots, n$. Specifically, we will show that for every such $t$ the following holds.
+\begin{equation}\label{eq:9243hg9h9234g}
+\expect\left[\sum_{q\in V} |F^{(t+1)}_q-F^{(t)}_q|\right]\leq 4z(R(w_{t+1})),
+\end{equation}
+where $R(w_{t+1})$ is as defined in Lemma~\ref{lm:conditional-product} with regard to the certified primary path $R(P,T)$.
+Recall that $z(R(w_{t+1}))$ is the total probability assigned to arcs leaving $w_{t+1}$ which are ruled out from being primary arcs in $G_\tau$ by conditioning on $\EventEQ{(P, T)}$.
+
+We construct the coupling by induction. The base case corresponds to $t=0$ and is trivial. We now give the  inductive step ($t\to t+1$). We write $w:=w_{t+1}$ to simplify notation. Let $Z^p\in N_w(w)$ denote the primary choice of $w$ in $H_\tau^{(t)}$, and let $Z^s\in N_w(w)$ denote the secondary choice of $w$ in $N_w(w)$ (they are sampled according to the unconditional distributions $p_w$ and $s_w$ respectively). Let $\wt{Z}^p\in N_w(w)$ and $\wt{Z}^s\in N_w(w)$ be sampled from the conditional distributions $\wt{p}_w$ and $\wt{s}_w$ respectively, such that that the joint distributions $(Z^p, \wt{Z}^p)$ and $(Z^s, \wt{Z}^s)$ satisfy
+\begin{equation}\label{eq:923y9th23t32}
+\Pr[Z^p\neq \wt{Z}^p]=\TV(p_w, \wt{p}_w)\text{~~and~~}\Pr[Z^s\neq \wt{Z}^s]=\TV(s_w, \wt{s}_w).
+\end{equation}
+
+
+First, we note that if $Z^p=\wt{Z}^p$ and $Z^s = \wt{Z}^s$, then $w=w_{t+1}$ is matched to the same neighbor under $H_\tau^{(t)}$ and $H_\tau^{(t+1)}$, and so $M_t=M_{t+1}$, due to the greedy nature of the matching constructed. Otherwise, by Lemma~\ref{lem:freevertices}, at most two vertices have different matched status in $M_t$ and $M_{t+1}$ in the latter case (in the former case every vertex has the same matched status). To summarize, we have, for $R(w)$ determined by $(P,T)$ as in \Cref{lm:conditional-product}, that 
+\begin{equation}\label{eq:239hg92hg932g}
+\begin{split}
+\expect\left[\sum_{q\in V} |F^{(t+1)}_q-F^{(t)}_q|\right]&\leq 2\cdot \Pr[Z^p\neq \wt{Z}^p\text{~or~}Z^s\neq \wt{Z}^s]\\
+&\leq 2(\TV(p_w, \wt{p}_w)+\TV(s_w, \wt{s}_w))\text{~~~~(by~\eqref{eq:923y9th23t32} and union bound)}\\
+&\leq 4z(R(w)).\text{~~~~~~~~~~~~~~~~~~~~~~~~~~~~(by~Lemma~\ref{lm:conditional-product})}
+\end{split}
+\end{equation}
+This concludes the proof of the inductive step, and establishes~\eqref{eq:9243hg9h9234g}. In particular, we get
+\begin{equation}\label{eq:239hg23g}
+\begin{split}
+\expect\left[\sum_{q\in V} |F^{(n)}_q-F^{(0)}_q|\right]&\leq \sum_{t=0}^{n-1} \expect\left[\sum_{q\in V} |F^{(t+1)}_q-F^{(t)}_q|\right]\\
+&\leq \sum_{t=0}^{n-1} 4z(R(w_{t+1})) \text{~~~~~~~(by~\eqref{eq:239hg92hg932g})}\\
+&= 4z(R(P,T)),
+\end{split}
+\end{equation}
+by the definition of $R(P,T) = \bigcup_w R(w)$ in \Cref{lm:conditional-product}.
+
+
+We now finish the claim. First note that for any $(P,T)$ such that $P$ has length at most $2000 \cdot \ln(1/\eps)$ and  $z(B(P,T)) \leq 2\ln(1/\eps)$ one has $\sum_w z(R(w)) =  z(R(P,T))=O(\ln(1/\eps))$. Indeed, by Lemma~\ref{lm:conditional-product} and linearity of $z$, recalling that $u$ is the root of $P$ and that no vertex appears after $v$ (and thus $B(v,u)=\{(w,u) \mid w \mbox{ arrives between $u$ and $v$}\}$), we have
+\begin{align}\label{eq:ub-zRPT}
+z(R(P, T)) & \leq z(B(P,T)) + z(B(v,u)) +  \sum_{w\in P\cup\{w:\, T=(w,w')\}} z\left( \{w\}\times N_w(w)\right).
+\end{align}
+We now bound the contribution to the above upper bound on $\sum_w z(R(w)) = z(R(P,T))$ in \eqref{eq:ub-zRPT}. First,
+we have that $z(B(P, T))\leq 2\ln(1/\eps)$ by assumption of the lemma. 
+To bound the contribution of  $z(B(v,u))$, we note that by Property~\ref{en:d3}, we have
+    \begin{align*}
+      c\leq \Pr[F_u] = \prod_{e\in B(v,u)} \left( 1- z_e \right) \leq \exp\left(-\sum_{(w,u)\in B(v,u)} z(w,u)/2\right) \leq \exp(-z(B(v,u))/2),
+    \end{align*}
+    because any arc $e = (w,u)$ appears as a primary arc in $G_\tau$ with probability $z'(w,u)\geq z(w,u)/2$, independently of other such arcs, and the appearance of any such an edge implies that $u$ has an incoming primary edge in $H_\tau$ when $v$ arrives and is therefore matched; i.e., the event $F_u$ is false in this case. We thus have $z(B(v,u)) \leq 2\ln(1/c)$. Finally, it remains to note that for every one of the at most $2000 \cdot \ln(1/\epsilon)+1$ vertices $w\in P\cup\{w:\, T=(w,w')\}$ the contribution of $z(\{w\}\times N_w(w))$ to 
+    the right hand side of \eqref{eq:ub-zRPT} is at most $1+C\e\leq 2$, by \Cref{lem:propertiesWW}, \textbf{(2)}. Putting these bounds together, we get that for sufficiently small $\e$,
+	\begin{equation}\label{eq:923hg92hg}
+		z(R(P, T))\leq 2\ln(1/\eps)+2\ln(1/c)+2 \cdot 2000 \cdot \ln(1/\e)+2=O(\ln(1/\e)).
+	\end{equation} 
+
+
+	The term we wish to upper bound is at most 
+	\begin{align*}
+		& \sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w \mid \EventEQ{(P,T)}] - \sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w] && \\
+		\leq & \left(\max_{w\in N_v(v)} z'_w\right)\cdot \sum_{w\in N_v(v)} \left|\Pr[F_w \mid \EventEQ{(P,T)}] - \Pr[F_w]\right| && \\
+		\leq & C\sqrt{\e}\cdot \sum_{w\in N_v(v)} \left|\Pr[F_w \mid \EventEQ{(P,T)}] - \Pr[F_w]\right| && \text{(by Lemma~\ref{lem:propertiesWW}, {\bf (3)})}\\
+		= & C\sqrt{\e}\cdot \expect\left[ \sum_{w\in N_v(v)} |F^{(n)}_w-F^{(0)}_w|\right] && \text{(by definition of $F^{(0)}$ and $F^{(n)}$)}
+	\end{align*}
+	then, using \eqref{eq:239hg23g} and \eqref{eq:923hg92hg}, we find that the term we wish to upper bound is at most
+	\begin{align*}
+		\leq & C\sqrt{\e}\cdot \expect\left[ \sum_{w\in V}|F^{(n)}_w-F^{(0)}_w|\right] && \\
+		\leq & C\sqrt{\e}\cdot z(R(P,T)) && \text{(by ~\eqref{eq:239hg23g})}\\
+		= & O(\sqrt{\e}\cdot \log(1/\e)) && \text{(by ~\eqref{eq:923hg92hg})} \\
+		\leq  & \epsilon^{1/3}/2,
+	\end{align*}
+	completing the proof.
+\end{proof}
+	Finally, we obtain \Cref{lem:variance} by combining \Cref{claim:focus-on-EQ} and \Cref{claim:bound-for-EQ}, to find that, as claimed
+		\begin{align*}
+		\eqref{eq:large_variance_expression} & \leq 
+		\sum_{(P,T)\in \mathcal{P}}\Pr[\EventEQ{(P,T)} \mid F_u] \left(\sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w \mid \EventEQ{(P,T)}] - \sum_{w\in N_v(v)} z'_w \cdot \Pr[F_w] \right) + \eps^{1/3}/2 \\
+		& \leq \epsilon^{1/3}/2 + \epsilon^{1/3}/2 = \epsilon^{1/3}. \qedhere
+	\end{align*}
+\end{proof}
+
+
+
+
+
+\subsubsection{Bounding the Impact of Bad Vertices}
+\label{sec:bad-is-ok}
+
+In this section, we show that we can completely ignore the bad vertices without losing too much. 
+From the definition of good vertices, for a bad vertex $v$, we have that 
+$$\Pr_{\tau}[\mbox{$H_\tau$ has a primary path rooted at $v$ of length at least 
+$2000 \cdot \ln(1/\varepsilon)$}] \geq \varepsilon^6.$$ 
+As the main result of this section, we prove the following theorem:
+\begin{thm}
+  \label{lem:bad-is-ok}
+  The number of bad vertices is at most $ \varepsilon^{3} \cdot \sum_{e \in E} x_{e}$.
+\end{thm}
+
+To prove this, we first describe a charging mechanism in which, for each bad vertex, a charge of one is distributed 
+among a subset of other vertices. 
+Then, using the following supplementary lemma, we show that the total distributed charge over all vertices in the graph is at most $\varepsilon^{3} \cdot \sum_{(u,v) \in E} x_{uv}$.
+
+\begin{lem}
+  \label{lem:thin-long-path}
+  We call a primary path $P$ a \emph{primary predecessor path} of $v$ if it ends at $v$. That is, $P = v_\ell \to v_{\ell-1} \to \dots \to v_{1} = v$. 
+  We have
+  \begin{align*}
+	\Pr_\tau [\mbox{$v$ has any primary predecessor path $P$ with $z(B(P)) \leq 20 \cdot \ln(1/\e)$ and $|P| \geq 1000 \cdot \ln(1/\e)$}] \leq \epsilon^{10}.
+  \end{align*}
+\end{lem}
+\begin{proof}
+  We use the principle of deferred decisions and traverse the path backwards. Let $b$ be the current vertex, which is initially set to $v$. 
+  Consider all incoming arcs to $b$, say $(a_1, b), \ldots, (a_k, b)$ where we index $a$'s by time of arrival; i.e., $a_i$ arrives before $a_j$ if $i<j$ (and $b$ arrived before any $a_i$).
+  
+  First consider the random choice of $a_1$ and  see if it selected the arc $(a_1, b)$. 
+  \begin{itemize}
+    \item If it does, then the path including $b$ in $H_\tau$ will use the arc $(a_1, b)$. 
+    \item Otherwise, if $a_1$ does not select the arc $(a_1, b)$, then go on to consider $a_2$ and so on.
+  \end{itemize}
+  If no $a_1, \ldots, a_k$ selects $b$, then the process stops; i.e., the primary path starts at this vertex since $b$ has no incoming primary arc. 
+  Otherwise let $i$ be the first index so that $(a_i, b)$ was selected. Then $(a_i, b)$ is in the primary path ending at $v$ in $H_\tau$. 
+  Now, observe that \emph{no} $a_1, \ldots, a_{i-1}$ may be in the path in this case, because these vertices arrived before $a_i$ and after $b$. 
+  Moreover, we have not revealed any randomness regarding $a_{i+1}, \ldots, a_{k}$ that may appear later in the path. 
+  We can therefore repeat the above process with $b$ now set to $a_i$ and ``fresh'' randomness for all vertices we consider, as the random choices of arcs of all vertices are independent. 
+  We now show that this process, with good probability, does not result in a long predecessor path $P$ of low $z(B(P))$ value.
+
+  Recall from \Cref{lem:propertiesWW}, {\bf (5)}, that $z(u,v) \leq 3/5$ for all $(u,v) \in V\times V$. 
+  Suppose that $\sum_{i = 1}^k z(a_i, b) \geq 4/5$.
+  Let $j$ be the first index such that $\sum_{i = 1}^j z(a_i, b) \geq 1/5$. 
+  Thus $\sum_{i=1}^{j} z(a_i, b) \leq 4/5$, and hence the probability that none of the first $j$ vertices select $b$ is at least $\prod_{i=1}^j(1 - z(a_i, b)) \geq  1 - \sum_{i=1}^j z(a_i, b) \geq 1/5$. 
+  Consequently, with probability at least $1/5$, vertex $b$ either has no predecessor or the increase to $z(B(P))$ is at least $1/5$.
+
+  In the other case, we have $\sum_{i=1}^k z(a_i, b)\leq 4/5$. Then the probability that $b$ has \emph{no} predecessor is 
+  $\prod_{i=1}^k (1 - z(a_i, b)) \geq  1 - \sum_{i=1}^k z(a_i, b) \geq 1/5$.
+
+  Therefore, at any step in the above random process, with probability at least $1/5$, we either stop or increase $z(B(P))$ by $1/5$.  
+  Let $Z_i$ be an indicator variable for the random process either stopping or increasing $z(B(P))$ by at least $1/5$ at step $i$, and notice that according 
+  to the above random process, each $Z_i$ is lower bounded by an independent Bernoulli variable with probability $1/5$.
+  Thus if we define $Z = \sum_{i \in [1000 \cdot \ln (1/\e)]} Z_i$, we have $\expect[Z] \geq 200 \cdot \ln (1/\e)$, and thus by 
+  standard coupling arguments and Chernoff bounds, we have that
+    $$\Pr[Z \leq 100 \cdot \ln (1/\e)] \leq \Pr \left[Z \leq (1 - 1/2) \cdot \expect[Z] \right] \leq e^{-(1/2) \cdot (1/2)^2 \cdot 200 \cdot \ln (1/\e)} \leq \e^{10}.$$ 
+ But if the path does not terminate within $1000 \cdot \ln (1/\e)$ steps and $Z \geq 100 \cdot \ln(1/\varepsilon)$, 
+ then $z(B(P)) \geq 20 \cdot \ln(1/\e)$. 
+\end{proof}
+
+We now prove \Cref{lem:bad-is-ok}.
+
+
+
+\begin{proof}[Proof of \Cref{lem:bad-is-ok}]
+By \Cref{lem:fat}, the probability that $H_\tau$ has a primary path $P$ with $z(B(P)) \geq 20 \cdot \ln (1/\varepsilon)$ 
+starting at $v$ is at most $\varepsilon^{10}$.
+Thus, for a bad vertex $u$, the probability that $H_\tau$ has some primary  path $P$ rooted at $u$ with  $|P| \geq 2000 \cdot \ln (1 / \varepsilon)$ and $z(B(P)) \leq 20 \cdot \ln(1/\epsilon)$ is at least $\varepsilon^6 - \varepsilon^{10} \geq \varepsilon^6/2$.
+
+Let $k = 20 \cdot \ln(1/\varepsilon)$ and $\ell = 2000 \cdot \ln(1/\varepsilon)$.
+Let $\mathcal{P}_u$ be the set of all primary paths $P$ rooted at $u$ such that $z(B(P)) \leq k$ and $|P| = \ell$ starting at $u$.
+Since all such primary paths with length more than $\ell$ are extensions of those with length exactly $\ell$, we have
+$\sum_{P \in \mathcal{P}_u} \Pr[P \text{ is in } H_\tau]  \geq \e^6/2$. 
+For each such path $P \in \mathcal{P}_u$, consider the two vertices $w^P_\ell$ and $w^P_{\ell - 1}$ at distances $\ell$ and $\ell - 1$ respectively from $u$. 
+For each such vertex $w^P_j$ ($j \in \{\ell-1,\ell\}$), charge $(2/\varepsilon^6) \cdot \Pr[P \text{ is in } H_\tau] \cdot y_{w^P_j}$.
+Then the sum of these charges is 
+$$\sum_{P \in \mathcal{P}_u}  (2/\varepsilon^6) \cdot \Pr[P \text{ is in } H_\tau] \cdot \underbrace{(y_{w^P_\ell} + y_{w^P_{\ell-1}})}_{\geq 1} \geq (2/\e^6) \cdot \sum_{P \in \mathcal{P}_u} \Pr[P \text{ is in } H_\tau]  \geq 1.$$
+Notice that the fact $(y_{w^P_\ell} + y_{w^P_{\ell-1}}) \geq 1$ follows because $y_w$'s form a feasible dual solution (to the vertex cover problem).
+
+On the other hand, consider how many times each vertex is charged. 
+For this, for every vertex $w$, let $\mathcal{Q}_w$ be the set of primary predecessor paths $Q$ of $u$ such that $|Q| = \ell - 1$ and $z(B(P)) \leq k$. 
+As $|Q| = \ell - 1 \geq 1000 \cdot \ln(1/\e)$ for all $Q \in \mathcal{Q}_w$, by~\Cref{lem:thin-long-path}, $\sum_{Q \in \mathcal{Q}_w} \Pr[Q \text{ is in } H_\tau] \leq \e^{10}$ . 
+For a primary predecessor path $Q \in \mathcal{Q}_w$ (or one of its extensions), the vertex $w$ can be charged at most twice according to the above charging mechanism. Since any predecessor path of $w$ with length more than $\ell - 1$ must be an extension of one with length exactly $\ell - 1$, we have that the amount $w$ is charged is at most
+$$\sum_{Q \in \mathcal{Q}_w} 2 \cdot 2 \cdot \Pr[Q \text{ is in } H_\tau] \cdot y_w/ \e^6 \leq 4 \cdot (\e^{10}/\e^6) \cdot y_w \leq 4 \cdot \e^4 \cdot y_w.$$
+Summing over all $w \in V$ and using \Cref{refined-ww-xu-bound}, the total charge is at most
+\begin{equation*}\sum_{w \in v} 4 \cdot \e^4 \cdot y_w \leq 4 \cdot \e^4 \cdot \beta \cdot \sum_{e \in E} x_{e} \leq \e^3 \sum_{e \in E} x_{e}. \qedhere
+\end{equation*}
+\end{proof}
+
+\subsubsection{Calculating the Competitive Ratio of \Cref{algo:wwrounding}}\label{sec:competitive}
+
+We now show that the competitive ratio of~\Cref{algo:wwrounding} is indeed $(1/2 + \alpha)$ competitive for some sufficiently small absolute constant
+$\alpha > 0$, thus proving~\Cref{thm:vertex-intro}. This essentially combines the facts that for good vertices, the matching probability is very close to the fractional values of incident edges, and that the number of bad vertices is very small compared to the total value of the fractional algorithm (over the entire graph).
+
+\begin{proof}[Proof of~\Cref{thm:vertex-intro}]
+
+Let $\operatorname{OPT}$ denote the size of the maximum cardinality matching in the input graph $G$. Then, by~\Cref{ww-approx} and our choice of $f=f_{1+2\epsilon}$ and $\beta=2-\eps \geq \beta^*(f_{1+2\epsilon})$, we have that
+$\sum_{e} x_{e} \geq (1/\beta) \cdot \operatorname{OPT} \geq (1/2 + \e/4) \cdot \operatorname{OPT}$, where the $x_{e}$'s are the fractional values we compute in~\Cref{algo:wwrounding}.
+
+Now let $M$ be the matching output by~\Cref{algo:wwrounding}. We have
+  \begin{align*}
+	\expect[{|M|}] &= \sum_{e \in E} \Pr[e \text{  is matched}] \\
+	&\geq \sum_{\text{good } v \in V} (1 - \e^2) \cdot \sum_{u \in N_v(v)} x_{uv} & \text{(By~\Cref{thm:good_vertices})} \\
+	&\geq  (1 - \e^2) \cdot \left(\sum_{e \in E} x_e - \sum_{\text{bad } v \in V} \sum_{u \in N_v(v)} x_{uv} \right)
+	\\
+	&\geq  (1 - \e^2) \cdot \left(\sum_{e \in E} x_e - \sum_{\text{ bad } v \in V} 1 \right) 	& \text{($\sum_{u \in N_v(v)} x_{uv} \leq 1$)} \\	
+	&\geq  (1 - \e^2) \cdot \left(\sum_{e \in E} x_e - \e^3 \sum_{e \in E} x_{e} \right) 	& \text{(By~\Cref{lem:bad-is-ok})} \\
+	&\geq  (1 - 2\e^2) \cdot \sum_{e \in E} x_{e} \\
+	&\geq  (1 - 2\e^2) \cdot (1/2 + \e/4) \cdot \operatorname{OPT} \\
+	&\geq  (1/2 + \e/5) \cdot \operatorname{OPT}, 
+  \end{align*}
+  where the last line holds for a sufficiently small constant $\epsilon>0$.
+\end{proof}
+

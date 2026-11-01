@@ -1,0 +1,89 @@
+\documentclass[11pt, letterpaper]{article}
+
+\usepackage{comment}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[margin=1in]{geometry}
+
+% math
+\usepackage{amsthm, amsfonts}
+\usepackage{mathtools, thmtools}
+\usepackage{bbm}
+\usepackage{thm-restate}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{invariant}{Invariant}
+\usepackage[normalem]{ulem}
+\usepackage{multirow}
+
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\usepackage[numbers, sort]{natbib}
+
+% hyperlink
+\usepackage[dvipsnames,usenames]{xcolor}
+\usepackage[colorlinks=true,pdfpagemode=UseNone,urlcolor=RoyalBlue,linkcolor=RoyalBlue,citecolor=OliveGreen,pdfstartview=FitH]{hyperref}
+\usepackage{prettyref}
+
+\usepackage{graphicx}
+\usepackage{subcaption}
+
+\usepackage{tikz}
+\usetikzlibrary{shapes, patterns, decorations, fit, intersections}
+
+% typeset
+\usepackage{multicol}
+%%
+
+%\input{macro}
+
+\newcommand{\zhihao}[1]{\textcolor{red}{Zhihao: #1}}
+\newcommand{\yuhao}[1]{\textcolor{blue}{yuhao: #1}}
+\newcommand{\eqdef}{\overset{\mathrm{def}}{=\mathrel{\mkern-3mu}=}}
+
+\title{Improved Bounds for Fractional Online Matching Problems}
+%\title{Improved Fractional Fully online Matching: Fractional Algorithms and Stronger Upper Bound}
+
+\author{
+	Zhihao Gavin Tang\thanks{ITCS, Shanghai University of Finance and Economics. Email: \texttt{tang.zhihao@mail.shufe.edu.cn}}
+	\and
+    Yuhao Zhang\thanks{Shanghai Jiao Tong University. Email: \texttt{zhang\_yuhao@sjtu.edu.cn}}
+}
+\date{}
+
+%%
+
+\begin{document}
+
+\maketitle
+
+\input{abstract}
+
+\input{intro}
+
+\input{preliminary}
+
+\input{2d_price}
+
+\input{general_arrival}
+
+\input{hardness}
+
+\input{hardness_general}
+
+\bibliography{matching}
+\bibliographystyle{plain}
+
+\appendix
+\input{ratio}
+
+\input{app_general_hardness}
+
+\input{app_failed_general_arrival}
+
+\end{document}

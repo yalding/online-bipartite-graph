@@ -1,0 +1,400 @@
+\section{A Tight Lower Bound}
+\label{sec:lower-bound}
+
+In this section, we prove that no fractional online algorithm can achieve a competitive ratio strictly smaller than $2$ for the edge-arrival online vertex cover problem. By the equivalence discussed in the previous section, the same lower bound applies to randomized integral and fractional algorithms against an oblivious adversary.
+
+\begin{theorem}
+\label{thm:main}
+For every deterministic fractional online vertex cover algorithm $\ALG$ and every $\varepsilon>0$, there exists a finite input sequence $\sigma$ such that
+$$
+\frac{\ALG(\sigma)}{\OPT(\sigma)}
+\geq 2-\varepsilon.
+$$
+Moreover, the underlying graph of $\sigma$ is bipartite.
+\end{theorem}
+
+\subsection{Proof Overview}
+
+We prepare two vertex sets $L_0$ and $R_0$ with $|L_0|=|R_0|=n$, and reveal a bipartite edge set $E_0$ between them. The main part of the construction produces a hidden set
+$$
+I=L_I\cup R_I,
+$$
+where $L_I\subseteq L_0$, $R_I\subseteq R_0$, and $|L_I|=|R_I|=\phi$, with the following two properties:
+\begin{enumerate}
+    \item $I$ is an independent set in $(L_0\cup R_0,E_0)$.
+    \item After processing $E_0$, the fractional solution maintained by $\ALG$ satisfies
+    $$
+    \sum_{v\in I}x_v\geq \phi=\frac{|I|}{2}.
+    $$
+\end{enumerate}
+
+We say that the algorithm \emph{fully covers} a vertex set $U$ if $\sum_{v\in U}x_v\geq |U|/2$. Thus, the second property states that $I$ is fully covered.
+
+The term ``hidden'' means that the identities of the vertices in $I$ are concealed from the algorithm while the edges in $E_0$ arrive. Before the algorithm can determine the hidden set, it may have already assigned substantial irrevocable fractional weight to its vertices. This unnecessary weight is the main source of the lower bound.
+
+For every vertex $v\in L_0\cup R_0$, we reserve a distinct auxiliary vertex $v'$. All auxiliary vertices are included in the vertex set known to the algorithm from the beginning, but remain isolated while $E_0$ is revealed. Once the hidden set has been determined, we reveal a pendant edge $(v,v')$ for every $v\notin I$.
+
+The following lemma formalizes this completion step.
+
+\begin{lemma}
+\label{lem:completion}
+Suppose that $E_0$ is a bipartite edge set on $L_0\cup R_0$, where $|L_0|=|R_0|=n$. Suppose further that, after processing $E_0$, there exists an independent set $I=L_I\cup R_I$ satisfying
+$$
+|L_I|=|R_I|=\phi
+\qquad\text{and}\qquad
+\sum_{v\in I}x_v\geq \phi.
+$$
+Then the input can be extended, while preserving bipartiteness, so that
+$$
+\frac{\ALG}{\OPT}
+\geq
+\frac{2n-\phi}{2(n-\phi)}.
+$$
+\end{lemma}
+
+\begin{proof}
+For every $v\in(L_0\cup R_0)\setminus I$, reveal the pendant edge $(v,v')$. Let $E_1$ denote the set of these edges, and place each auxiliary vertex $v'$ on the side opposite to $v$.
+
+Since $I$ is independent in $(L_0\cup R_0,E_0)$, the set $(L_0\cup R_0)\setminus I$ covers every edge in $E_0\cup E_1$. Therefore,
+$$
+\OPT
+\leq
+|(L_0\cup R_0)\setminus I|
+=
+2(n-\phi).
+$$
+
+The edges in $E_1$ are pairwise vertex-disjoint, so their covering constraints force the algorithm to assign total weight at least $2(n-\phi)$ to their endpoints. Moreover, the fractional weight already assigned to $I$ cannot decrease. Since the endpoints of $E_1$ are disjoint from $I$, we obtain
+$$
+\ALG
+\geq
+2(n-\phi)+\phi
+=
+2n-\phi.
+$$
+Consequently,
+$$
+\frac{\ALG}{\OPT}
+\geq
+\frac{2n-\phi}{2(n-\phi)}.
+$$
+\end{proof}
+
+Thus, it remains to construct an independent set with $\phi$ close to $2n/3$ that is fully covered.
+
+\subsection{The Blueprint Construction}
+
+To construct such a hidden independent set, we use the blueprint technique introduced in \cite{AssadiJiangXiang26a}.
+
+\begin{definition}[Proper blueprint]
+Let $P\ge 1$ and $C\ge 2$ be integers. A \emph{blueprint} $\mathcal{B}=(\L,\R,\E)$ consists of two vertex sets
+$$
+\L=\{\L(a):a\in[C]^P\}
+\qquad\text{and}\qquad
+\R=\{\R(a):a\in[C]^P\},
+$$
+together with a bipartite edge set partitioned as
+$$
+\E
+=
+\E^{(1)}
+\mathbin{\dot{\cup}}
+\cdots
+\mathbin{\dot{\cup}}
+\E^{(P)}.
+$$
+For $a\in[C]^P$, let $a_{<p}$ denote the prefix consisting of its first $p-1$ coordinates, and let $\circ$ denote concatenation. \footnote{For two vectors $u=(u_1,\ldots,u_k)$ and $v=(v_1,\ldots,v_\ell)$, their concatenation is $u\circ v=(u_1,\ldots,u_k,v_1,\ldots,v_\ell)$.}
+
+The blueprint is \emph{proper} if the following conditions hold:
+\begin{enumerate}
+    \item $\E$ is a matching.
+    
+    \item For every edge $(\L(a),\R(b))\in\E^{(p)}$ and every $c\in[C]^{P-p+1}$, at least one of $\L(a_{<p}\circ c)$ and $\R(b_{<p}\circ c)$ is isolated in the blueprint.
+\end{enumerate}
+Here, a blueprint vertex is \emph{isolated} if it is not incident to any edge in $\E$. The \emph{value} of the blueprint is
+$$
+\nu(\mathcal{B})=\frac{|\E|}{C^P}.
+$$
+\end{definition}
+
+We use the following result.
+
+\begin{theorem}[Blueprint theorem~{\cite[Theorem~3]{AssadiJiangXiang26b}}]
+\label{thm:blueprint}
+There exists a sequence of finite proper blueprints whose values converge to $2/3$.
+\end{theorem}
+
+Fix a finite proper blueprint $\mathcal{B}=(\L,\R,\E)$ with parameters $P$ and $C$. We prepare two vertex sets
+$$
+L_0=\{L_0(a):a\in[C]^P\}
+\qquad\text{and}\qquad
+R_0=\{R_0(a):a\in[C]^P\}.
+$$
+Thus, $|L_0|=|R_0|=C^P$. The symbols $L_0(a)$ and $R_0(a)$ refer to vertices in the online instance, whereas $\L(a)$ and $\R(a)$ refer to vertices in the blueprint.
+
+We would like to use the endpoints of the blueprint edges as the hidden independent set. However, mapping $\L(a)$ directly to $L_0(a)$ and $\R(b)$ directly to $R_0(b)$ would reveal the hidden set from the beginning. To conceal this mapping, we use a cyclic shift.
+
+Throughout the construction, we identify $[C]$ with the cyclic group $\mathbb{Z}_C$, and use $\oplus$ and $\ominus$ to denote coordinate-wise addition and subtraction modulo $C$. For every shift $z\in[C]^P$, we map
+$$
+\L(a)\longmapsto L_0(a\oplus z)
+\qquad\text{and}\qquad
+\R(b)\longmapsto R_0(b\oplus z).
+$$
+The hidden set associated with $z$ is
+$$
+I(z)
+=
+\bigcup_{(\L(a),\R(b))\in\E}
+\{L_0(a\oplus z),R_0(b\oplus z)\}.
+$$
+Since $\E$ is a matching, $I(z)$ contains exactly $|\E|$ vertices from each side. In particular,
+$$
+|I(z)|=2|\E|.
+$$
+
+We next define the edge sequence associated with a fixed shift $z$. For every phase $t\in[P]$ and every blueprint edge
+$$
+e=(\L(a),\R(b))\in\E^{(t)},
+$$
+the adversary reveals the batch
+$$
+B_e^{(t)}(z)
+=
+\left\{
+\left(
+L_0\bigl((a\oplus z)_{<t}\circ c\bigr),
+R_0\bigl((b\oplus z)_{<t}\circ c\bigr)
+\right)
+:
+c\in[C]^{P-t+1}
+\right\}.
+$$
+Each batch forms a perfect matching between two corresponding subcubes. Notice that $B_e^{(t)}(z)$ depends only on the prefix $z_{<t}$.
+
+The phases are revealed in the order $1,2,\ldots,P$. Within each phase, the batches and their edges are revealed in an arbitrary fixed order. If an edge has already appeared in an earlier batch, it need not be revealed again. Let $E_0(z)$ denote the set of all distinct edges revealed during the construction.
+
+For the analysis, let $Z$ be chosen uniformly at random from $[C]^P$. Uppercase $Z$ always denotes this random shift, whereas lowercase $z$ denotes a fixed realization. Let $x^{(t)}$ denote the solution maintained by $\ALG$ after phase $t$, and let $x$ denote its solution after all $P$ phases. When $Z$ is random, these vectors are also random.
+
+\paragraph{The Toy Example.}
+We illustrate the construction using a simple example. Let $C=2$ and $P=1$, and identify $[2]$ with $\{0,1\}$. Consider the blueprint
+$$
+\E=\E^{(1)}=\{(\L(0),\R(1))\}.
+$$
+This blueprint is proper. For $c=0$, the vertex $\R(0)$ is isolated, while for $c=1$, the vertex $\L(1)$ is isolated. Its value is
+$$
+\nu(\mathcal{B})
+=
+\frac{|\E|}{C^P}
+=
+\frac{1}{2}.
+$$
+
+Since $P=1$, the batch associated with the only blueprint edge contains all possible labels in $[2]$. Therefore, regardless of the shift $z$, the adversary reveals
+$$
+B_e^{(1)}(z)
+=
+\{(L_0(0),R_0(0)),(L_0(1),R_0(1))\}.
+$$
+
+The shift determines which endpoints form the hidden set. If $z=0$, then
+$$
+I(0)=\{L_0(0),R_0(1)\},
+$$
+whereas if $z=1$, then
+$$
+I(1)=\{L_0(1),R_0(0)\}.
+$$
+Thus, the two possible shifts correspond exactly to the two candidate hidden independent sets.
+
+Moreover,
+$$
+\begin{aligned}
+\mathbb{E}_Z
+\left[
+\sum_{v\in I(Z)}x_v
+\right]
+&=
+\frac{1}{2}
+\left(
+x_{L_0(0)}
++x_{R_0(1)}
++x_{L_0(1)}
++x_{R_0(0)}
+\right) \\
+&=
+\frac{1}{2}
+\left(
+x_{L_0(0)}
++x_{R_0(0)}
++x_{L_0(1)}
++x_{R_0(1)}
+\right) \\
+&\geq 1.
+\end{aligned}
+$$
+The inequality follows from the covering constraints of the two revealed edges. Hence, one of the two shifts produces a hidden independent set that is fully covered.
+
+This example captures the two roles of a proper blueprint. The released batch forces sufficient fractional weight onto the hidden endpoints, while the properness condition guarantees that the hidden endpoints form an independent set.
+
+\subsection{Analysis}
+
+We first show that the batch corresponding to each blueprint edge forces one unit of expected fractional weight onto its two hidden endpoints.
+
+\begin{lemma}
+\label{lem:expected-mass}
+For every phase $t$ and every edge $(\L(a),\R(b))\in\E^{(t)}$,
+$$
+\mathbb{E}_Z
+\left[
+x^{(t)}_{L_0(a\oplus Z)}
++
+x^{(t)}_{R_0(b\oplus Z)}
+\right]
+\geq 1.
+$$
+\end{lemma}
+
+\begin{proof}
+Condition on the prefix $Z_{<t}$. All edges revealed through phase $t$ depend only on $Z_{<t}$. Hence, under this conditioning, the input observed by $\ALG$ and the resulting vector $x^{(t)}$ are fixed.
+
+The suffix $Z_{\geq t}$ remains uniformly distributed over $[C]^{P-t+1}$. Therefore, $a_{\geq t}\oplus Z_{\geq t}$ and $b_{\geq t}\oplus Z_{\geq t}$ are each uniformly distributed over $[C]^{P-t+1}$. Reindexing the two marginal sums separately and using linearity of expectation, we obtain
+\begin{align*}
+    &\mathbb{E}_{Z_{\geq t}}
+    \left[
+        x^{(t)}_{L_0(a\oplus Z)}
+        +
+        x^{(t)}_{R_0(b\oplus Z)}
+        \,\middle|\,
+        Z_{<t}
+    \right] \\
+    ={}&
+    \frac{1}{C^{P-t+1}}
+    \sum_{c\in[C]^{P-t+1}}
+    \left(
+        x^{(t)}_{L_0((a\oplus Z)_{<t}\circ c)}
+        +
+        x^{(t)}_{R_0((b\oplus Z)_{<t}\circ c)}
+    \right).
+\end{align*}
+For every $c\in[C]^{P-t+1}$, the pair
+$$
+\left(
+    L_0((a\oplus Z)_{<t}\circ c),
+    R_0((b\oplus Z)_{<t}\circ c)
+\right)
+$$
+belongs to the batch $B_e^{(t)}(Z)$. By the end of phase $t$, this edge has been revealed. Therefore, feasibility of the fractional vertex cover implies
+$$
+x^{(t)}_{L_0((a\oplus Z)_{<t}\circ c)}
++
+x^{(t)}_{R_0((b\oplus Z)_{<t}\circ c)}
+\geq 1.
+$$
+It follows that
+$$
+\mathbb{E}_{Z_{\geq t}}
+\left[
+    x^{(t)}_{L_0(a\oplus Z)}
+    +
+    x^{(t)}_{R_0(b\oplus Z)}
+    \,\middle|\,
+    Z_{<t}
+\right]
+\geq 1.
+$$
+Taking the expectation over $Z_{<t}$ proves the lemma.
+\end{proof}
+
+The properness condition ensures that the hidden set remains independent.
+
+\begin{lemma}
+\label{lem:hidden-independent}
+For every shift $z\in[C]^P$, the set $I(z)$ is independent in $(L_0\cup R_0,E_0(z))$.
+\end{lemma}
+
+\begin{proof}
+Consider an edge in the batch associated with $(\L(a),\R(b))\in\E^{(t)}$. It has the form
+$$
+\left(
+L_0\bigl((a\oplus z)_{<t}\circ c\bigr),
+R_0\bigl((b\oplus z)_{<t}\circ c\bigr)
+\right)
+$$
+for some $c\in[C]^{P-t+1}$.
+
+Under the inverse shift, its endpoints correspond to
+$$
+\L(a_{<t}\circ c')
+\qquad\text{and}\qquad
+\R(b_{<t}\circ c'),
+$$
+where $c'=c\ominus z_{\geq t}$. By properness, at least one of these two blueprint vertices is isolated. Its image under the shift is therefore not contained in $I(z)$.
+
+Hence, every revealed edge has at least one endpoint outside $I(z)$, and $I(z)$ is independent.
+\end{proof}
+
+We can now combine the expected contributions of all blueprint edges.
+
+\begin{lemma}
+\label{lem:hidden-covered}
+There exists a shift $z\in[C]^P$ such that, after all $P$ phases,
+$$
+\sum_{v\in I(z)}x_v
+\geq
+\frac{|I(z)|}{2}.
+$$
+\end{lemma}
+
+\begin{proof}
+Since $\E$ is a matching, different blueprint edges correspond to distinct vertices in $I(Z)$. Moreover, fractional variables can only increase. Lemma~\ref{lem:expected-mass} therefore gives
+$$
+\begin{aligned}
+\mathbb{E}_Z
+\left[
+\sum_{v\in I(Z)}x_v
+\right]
+&\geq
+\sum_{t=1}^P
+\sum_{(\L(a),\R(b))\in\E^{(t)}}
+\mathbb{E}_Z
+\left[
+x^{(t)}_{L_0(a\oplus Z)}
++
+x^{(t)}_{R_0(b\oplus Z)}
+\right] \\
+&\geq
+\sum_{t=1}^P|\E^{(t)}|
+=
+|\E|
+=
+\frac{|I(Z)|}{2}.
+\end{aligned}
+$$
+Since $|I(Z)|=2|\E|$ is independent of $Z$, some fixed shift $z$ satisfies the desired inequality.
+\end{proof}
+
+\subsection{Proof of the Main Theorem}
+
+We now complete the proof of the main theorem.
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+By Theorem~\ref{thm:blueprint}, there exists a finite proper blueprint whose value $\nu$ is arbitrarily close to $2/3$. Choose such a blueprint so that
+$$
+\frac{2-\nu}{2(1-\nu)}
+\geq
+2-\varepsilon.
+$$
+Let $n=C^P$ and $\phi=|\E|=\nu n$.
+
+By Lemma~\ref{lem:hidden-covered}, there exists a shift $z\in[C]^P$ for which $I(z)$ is fully covered. By Lemma~\ref{lem:hidden-independent}, the same set is independent. Lemma~\ref{lem:completion} therefore gives
+$$
+\frac{\ALG}{\OPT}
+\geq
+\frac{2n-\phi}{2(n-\phi)}
+=
+\frac{2-\nu}{2(1-\nu)}
+\geq
+2-\varepsilon.
+$$
+The chosen blueprint is finite, so the resulting input sequence is finite. The construction also preserves bipartiteness. This completes the proof.
+\end{proof}

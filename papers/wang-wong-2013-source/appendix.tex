@@ -1,0 +1,177 @@
+\appendix
+
+\section{Reduction from Multislope Ski Rental to Online weighted Bipartite Vertex Cover}
+\label{sec:multislope}
+There is a total of $n$ states $[n]$ in the multislope ski rental problem. Each state $i$ associated with buying cost $b_i$ and rental cost $r_i$. As argued in [.], we may assume that we start in state 1 and have $0=b_1\leq b_2\leq \ldots\leq b_n, r_1\geq r_2\geq \ldots\geq r_n\geq 0$. The game starts at time 0 and ends at some unknown time $t_{end}$ determined by the adversary.
+
+At each time $t\in [0,t_{end}]$, we can transition from the current state $i$ to some state $j>i$. Let state $f$ be the final state at time $t_{end}$. The total cost incurred is given by $$b_f+\sum_{i=1}^f x_i r_i,$$where $x_i$ is the amount of time spent in state $i$. The classical ski rental problem corresponds to $n=2$ and $b_1=0,b_2=B,r_1=1,r_2=0$.
+
+Consider now the discrete version of this problem. We discretize time into consecutive intervals of length $\epsilon$ for some small $\epsilon >0$. At the beginning of each interval, we can stay in the current state $i$ or transition from $i$ to some state $j>i$. Each of the two choices correspond to a cost of $r_i\epsilon$ or $b_j-b_i+r_j\epsilon$.
+
+%One may expect the second cost should be $b_j-b_i+r_j\epsilon$ instead of $b_j-b_i$. But for sufficiently small $\epsilon$, the term $r_j\epsilon$ does not really make a difference.
+
+We are ready to describe the reduction to online vertex-weighted bipartite vertex cover. Let $L=\{1,2,\ldots,n\}$ with weights $w_i=b_{i+1}-b_i$ for $i<n$ and $w_n=\infty$. The $(qn+r)$-th online vertex $v_{qn+k}\in R$, where $q$ is a nonnegative integer and $1\leq k\leq n$, has weight $(r_{k}-r_{k+1})\epsilon$ (with $r_{n+1}=0$) and is adjacent to the left vertices $1,\ldots,k$.
+
+Intuitively, the $(q+1)$-th time interval is represented by the online vertices $qn+1,\ldots,qn+n$. If we are in state $i$, (1) the left vertices $1,\ldots,i-1$ should be covered and have total weight $b_i-b_0=b_i$ and, (2) the online vertices $qn+i\ldots qn+n$ should be covered and have total weight $r_i\epsilon$. Thus when we transition from state $i$ to state $j>i$, the vertices $i,\ldots,j-1$ should be added to the cover. Moreover, the left vertex $n$, which has infinite weight, is used to ensure that the algorithm is forced to put the online vertex $qn+n$, which has weight $r_n$, into the cover.
+
+Finally, we show that a $c$-competitive algorithm for online vertex-weighted bipartite vertex cover gives a $c$-competitive algorithm for multislope ski rental under the above reduction. Consider the vertex cover maintained by the algorithm after processing online vertices $qn+1,\ldots,qn+n$. Suppose that $1,\ldots,i-1$ are in the cover but $i$ is not. Then the online vertices  $qn+i\ldots qn+n$ must also be in the cover. Thus we can simply stay in (or transition to if the previous state is smaller) state $i$. It is clear that this strategy is valid by the preceding discussion. Furthermore, the cost incurred by the algorithm for multislope ski rental is no greater than the counterpart for vertex cover.
+
+\section{Proof of Theorem 2}
+We modify GreedyAllocation as follows. The only difference is that $\sum_{u\in N(v)\cap T} \max\{y-y_u,0\} \leq f(y)$ is replaced by $\sum_{u\in N(v)\cap T} w_u\max\{y-y_u,0\} \leq w_vf(y)$.
+
+\begin{algorithm}[h!]
+\SetAlgoLined
+\caption{$GreedyAllocation$ with allocation function $y+\alpha$}
+\label{alg:general greedy}
+\KwIn{Online graph $G=(V,E)$ with offline vertices $U\subset V$}
+\KwOut{A fractional vertex cover of $G$}
+Initialize for each $u\in U$, $y_u = 0$\;
+Let $T$ be the set of known vertices. Initialize $T=U$\;
+\For{each online vertex $v$}
+{
+Maximize $y\le 1$, s.t., $\sum_{u\in N(v)\cap T} w_u\max\{y-y_u,0\} \leq w_v(y+\alpha)$\;
+For each $u\in N(v)\cap T$, $y_u \leftarrow \max\{ y_u, y\}$\;
+$y_v \leftarrow 1-y$\;
+$T\leftarrow T\cup \{v\}$\;
+}
+Output $\{y_v\}$ for all $v\in V$\;
+\end{algorithm}
+
+To analyze the algorithm, we need the following lemma which is an easy extension of Lemma~\ref{lem:charging}.
+
+\begin{lemma}
+\label{lem:weightedcharging}
+Let $f:[0,1]\longrightarrow\mathbb{R}_+$ be continuous such that $\frac{1-t}{f(t)}$ is decreasing, and $F(x)=\int_0^x  \frac{1-t}{f(t)}\mathrm{d}t$. If $\sum_{u\in X} w_u(y-y_u)= w_vf(y)$ for some set $X$ and $y\geq y_u$ for $u\in X$, then
+$$w_v(1-y)\leq \sum_{u\in X} w_u\left(F(y)-F(y_u)\right).$$
+\end{lemma}
+
+We only give a sketch of the charging scheme as it is very similar to the unweighted case.
+
+We charge the potentials used to the vertices of the minimum cover $C^*$. Let $v$ be an online vertex. The case $v\in C^*$ is trivial.
+
+Now consider the case $v\notin C^*$. We charge the potential spent on $u\in N(v)\subseteq C^*$ to $u$ itself. The potential spent on $v$ is $y_v = w_v(1-y)$ where $y$ is the final water level. 
+Let $X\subset N(v)$ be the set of vertices whose potentials increase when processing $v$.
+If $y =1$, we are done. If $y <1$, we have $\sum_{u\in X} w_u(y-y_u) = w_v(\alpha +y)$, where $y_u$ is the potential of $u$ before processing $v$. By Lemma~\ref{lem:weightedcharging}, $w_v(1-y) \leq \sum_{u\in X} w_u(G(y)-G(y_u))$.
+
+Now the charges to each $u\in C^*\cap R$ are at most $1+G(1)-G(0)=1+\alpha$.
+
+\section{ Proof of Theorem 6}
+The proof is an extension of the one for Theorem~\ref{thm:pdgeneral}. We analyze the following algorithm using the primal-dual method. It is also possible to give a charging-based analysis of the online vertex-weighted vertex cover part of the algorithm.
+
+The function $f$ below is the same as that for Theorem~\ref{thm:pdgeneral}. Recall that $\beta\geq 1+f(1-z)+\int_z^1 \frac{1-t}{f(t)}\mathrm{d}t$ for $z\in [0,1]$.
+
+\begin{algorithm}[h!]
+\SetAlgoLined
+\caption{$PrimalDual-Weighted$}
+\label{alg:general greedy weighted}
+\KwIn{Online graph $G=(V,E)$, weights/capacities $w_v,v\in V$}
+\KwOut{A fractional vertex cover $\{y_v\}$ of $G$ and a fractional capacitated matching $\{x_{uv}\}$.}
+Let $T$ be the set of known vertices. Initialize $T=\emptyset$\;
+\For{each online vertex $v$}
+{
+Maximize $y\le 1$, s.t., $\sum_{u\in N(v)\cap T} w_u\max\{y-y_u,0\} \leq w_vf(y)$\;
+Let $X = \{u \in N(v)\cap T \,\mid\, y_u < y\}$\;
+\For{each $u\in X$}
+{
+$y_u\leftarrow y$\;
+$x_{uv}\longleftarrow \frac{w_u(y-y_u)}{\beta}\left(1+\frac{1-y}{f(y)}\right)$\;
+}
+For each $u \in (N(v)\cap T)\setminus X$, $x_{uv}\longleftarrow 0$\;
+$y_v \leftarrow 1-y$\;
+$T\leftarrow T\cup \{v\}$\;
+}
+Output $\{y_v\}$ for all $v\in V$\;
+\end{algorithm}
+
+We claim that the following two invariants hold:
+
+\textbf{Invariant 1:} $$w_u\cdot\frac{y_{u}+f(1-z_u)+\int_{z_u}^{y_{u}}\frac{1-t}{f(t)}\mathrm{d}t}{\beta}\geq x_{u},$$ where $z_u$ is the potential of $u$ set upon its arrival, $y_u$ is the current potential of $u$ and $x_u = \sum_{v \in N(u)} x_{uv}$ is the sum of the potentials on the edges incident to $u$. Note that the LHS is at most 1  by the definition of $\beta$, which guarantees that the primal is feasible as long as the invariant holds.
+
+\textbf{Invariant 2:} $$\sum_{u\in T} w_uy_{u}=\beta\sum_{(u,v)\in E\cap (T\times T)} x_{uv}$$
+
+We sketch why these two invariants are preserved after processing each vertex $v$. The proof is almost identical to the unweighted case.
+
+Invariant 2: The dual increment is $$w_v(1-y)+\sum_{u\in X}w_u(y-y_u)$$ and the primal increment is $$\sum_{u\in X} \frac{w_u(y-y_u)}{\beta}\left( 1 + \frac{1-y}{f(y)}\right).$$
+Thus it suffices to show that $w_v(1-y)=\sum_{u\in X}w_u(y-y_u)\frac{1-y}{f(y)}$. 
+% Yajun: the current lemma 2 is not for this.
+When $y=1$, the statement trivially holds. On the other hand, when $y<1$, by construction, we have
+%This just follows from the extended version of Lemma~\ref{lem:charging}, which states that we have either $y=1$ or 
+$\sum_{u\in X}w_u(y-y_u)=w_vf(y)$.
+
+Invariant 1: We first show that Invariant 1 still holds for $x_v$. Note that $x_v=\sum_{u\in X}x_{uv}$ is just the increase in the primal objective value. By Invariant 2, we have
+$$x_v=\frac{w_v(1-y)+\sum_{u\in X}w_u(y-y_u)}{\beta}\le \frac{w_v}{\beta}(z_u + f(1-z_u)).$$
+
+We now show that Invariant 1 is preserved for each $u\in V$. By Invariant 1, the previous $x_u$ satisfies $$x_u-x_{uv}\leq w_u\frac{y_{u}+f(1-z_u)+\int_{z_u}^{y_{u}}\frac{1-t}{f(t)}\mathrm{d}t}{\beta}.$$
+This proof is finished by noticing that $$x_{uv}=\frac{w_u(y-y_u)}{\beta}\left( 1 + \frac{1-y}{f(y)}\right)\leq  \frac{w_u}{\beta} \left( y-y_u+ \int_{y_u}^y \frac{1-t}{f(t)}
+\mathrm{d}t\right),$$ as $\frac{1-t}{f(t)}$ is a decreasing function.
+
+%\section{2-alternation}
+%Recall that the algorithm is the same as before except that we use $f$ in phase 1 and $g$ in phase 2. The part of the algorithm for phase 1 is given below.
+%
+%\begin{algorithm}[h!]
+%\SetAlgoLined
+%\caption{$PrimalDual-2Alt-Weighted$}
+%\label{alg:general greedy alt weighted}
+%\KwIn{Online graph $G=(V,E)$, weights/capacities $w_v,v\in V$}
+%\KwOut{A fractional vertex cover $\{y_v\}$ of $G$ and a fractional capacitated matching $\{x_{uv}\}$.}
+%Let $T$ be the set of known vertices. Initialize $T=\emptyset$\;
+%\For{each online vertex $v$}
+%{
+%Maximize $y\le 1$, s.t., $\sum_{u\in N(v)\cap T} w_u\max\{y-y_u,0\} \leq w_vg(y)$ (or $h(y)$ if phase 2)\;
+%Let $X = \{u \in N(v)\cap T \,\mid\, y_u < y\}$\;
+%\For{each $u\in X$}
+%{
+%$y_u\leftarrow y$\;
+%$x_{uv}\longleftarrow \frac{w_u(y-y_u)}{\beta}\left(1+\frac{1-y}{g(y)}\right)$  (or $h(y)$ if phase 2)\;
+%}
+%For each $u \in (N(v)\cap T)\setminus X$, $x_{uv}\longleftarrow 0$\;
+%$y_v \leftarrow 1-y$\;
+%$T\leftarrow T\cup \{v\}$\;
+%}
+%Output $\{y_v\}$ for all $v\in V$\;
+%\end{algorithm}
+%
+%Recall that Lemma~\ref{lem:charging2alt} states that if $\gamma$ satisfies $\gamma\geq\int_0^1\frac{1-t}{g(t)}\mathrm{d}t$, $\gamma\geq g(1-z)+\int_z^1 \frac{1-t}{h(t)}\mathrm{d}t$ for all $z\in [0,1]$ and $\gamma\geq 1-z+h(z)$ for all $z\in [0,1]$, then our algorithm is $1+\gamma$-competitive. We give a proof based on the charging scheme below.
+%
+%\begin{proof}
+%Let $C^*$ be the minimum vertex cover. Consider the following charging scheme.
+%
+%Phase 1:
+%
+%If $v\in C^*$, charge $1-y+g(y)$ to $v$ itself. This is enough to account for the total potential increment in this step.
+%
+%If $N(u)\subseteq C^*$, charge $y-y_u+\int_{y_u}^y \frac{1-t}{g(t)}\mathrm{d}t$ to each $u\in X$. By Lemma ?, $\sum_{u\in X}\int_{y_u}^y \frac{1-t}{g(t)}\mathrm{d}t\geq 1-y$ which shows that all of the potential increment is accounted for.
+%
+%Phase 2:
+%
+%If $v\in C^*$, charge $1-y+h(y)$ to $v$ itself.
+%
+%If $N(u)\subseteq C^*$, charge $y-y_u+\int_{y_u}^y \frac{1-t}{h(t)}\mathrm{d}t$ to each $u\in X$.
+%
+%Now for a vertex in $L_0\cap C^*$, it is charged at most $1+\int_0^1\frac{1-t}{g(t)}\mathrm{d}t$ in phase 1 and 0 in phase 2. A vertex of $L_2\cap C^*$ is charged nothing in phase 1 and at most $1-y+h(y)$ in phase 2. Finally, a vertex of $R_1\cap C^*$ is charged at most $z+g(1-z)$ (where $z$ is the initial potential that it receives upon its arrival) in phase 1 and at most $1-z+\int_z^1\frac{1-t}{h(t)}\mathrm{d}t$ in phase 2.
+%
+%In all cases, a vertex in the optimal cover is charged at most $1+\gamma$, thus proving our claim.
+%\end{proof}
+%
+%By solving the optimization problem as given in the last lemma, we prove the first part of Theorem~\ref{thm:alt}. The solution to the optimization problem is deferred to the full version of this paper.
+%
+%Now we give a primal-dual analysis of the algorithm, which will establish the full theorem. It relies on the following two invariants. We omit the proof showing that these two invariants always hold as it is highly similar to the one in the last appendix.
+%
+%\textbf{Invariant 1:} 
+%
+%\begin{eqnarray*}
+%w_u\cdot\frac{y_{u}+\int_{z_u}^{y_{u}}\frac{1-t}{g(t)}\mathrm{d}t}{\gamma}&\geq& x_{u}\forall u\in L_0\\
+%w_u\cdot\frac{y_{u}+g(1-z_u)+\int_{z_u}^{y_{u}}\frac{1-t}{h(t)}\mathrm{d}t}{\gamma}&\geq& x_{u}\forall u\in R_1\\
+%w_u\cdot\frac{z_u+h(1-z_u)}{\gamma}&\geq& x_{u}\forall u\in L_2.
+%\end{eqnarray*}
+%
+%where $z_u$ is the potential of $u$ set upon its arrival, $y_u$ is the current potential of $u$ and $x_u = \sum_{v \in N(u)} x_{uv}$ is the sum of the potentials on the edges incident to $u$. Note that the LHS is at most 1, which guarantees that the primal is feasible as long as the invariant holds.
+%
+%\textbf{Invariant 2:} $$\sum_{u\in T} w_uy_{u}=\gamma\sum_{(u,v)\in E\cap T^2} x_{uv}$$
+
+
+%\section{Proof of Proposition 2}
+
+
+
+%\section{Proof of Proposition 3}

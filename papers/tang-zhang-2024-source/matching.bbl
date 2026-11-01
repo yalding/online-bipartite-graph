@@ -1,0 +1,172 @@
+\begin{thebibliography}{10}
+
+\bibitem{soda/AggarwalGKM11}
+Gagan Aggarwal, Gagan Goel, Chinmay Karande, and Aranyak Mehta.
+\newblock Online vertex-weighted bipartite matching and single-bid budgeted
+  allocations.
+\newblock In {\em SODA}, pages 1253--1264, 2011.
+
+\bibitem{ec/AshlagiBDJSS19}
+Itai Ashlagi, Maximilien Burq, Chinmoy Dutta, Patrick Jaillet, Amin Saberi, and
+  Chris Sholley.
+\newblock Edge weighted online windowed matching.
+\newblock In {\em EC}, pages 729--742, 2019.
+
+\bibitem{sigact/BenjaminM08}
+Benjamin Birnbaum and Claire Mathieu.
+\newblock On-line bipartite matching made simple.
+\newblock {\em ACM SIGACT News}, 39(1):80--87, 2008.
+
+\bibitem{blanc2021multiway}
+Guy Blanc and Moses Charikar.
+\newblock Multiway online correlated selection.
+\newblock {\em arXiv preprint arXiv:2106.05579}, 2021.
+
+\bibitem{esa/BuchbinderJN07}
+Niv Buchbinder, Kamal Jain, and Joseph Naor.
+\newblock Online primal-dual algorithms for maximizing ad-auctions revenue.
+\newblock In {\em {ESA}}, volume 4698 of {\em Lecture Notes in Computer
+  Science}, pages 253--264. Springer, 2007.
+
+\bibitem{algorithmica/BuchbinderST19}
+Niv Buchbinder, Danny Segev, and Yevgeny Tkach.
+\newblock Online algorithms for maximum cardinality matching with edge
+  arrivals.
+\newblock {\em Algorithmica}, 81(5):1781--1799, 2019.
+
+\bibitem{teco/DevanurHKMY16}
+Nikhil~R. Devanur, Zhiyi Huang, Nitish Korula, Vahab~S. Mirrokni, and Qiqi Yan.
+\newblock Whole-page optimization and submodular welfare maximization with
+  online bidders.
+\newblock {\em {ACM} Trans. Economics and Comput.}, 4(3):14:1--14:20, 2016.
+
+\bibitem{stoc/DevanurJ12}
+Nikhil~R. Devanur and Kamal Jain.
+\newblock Online matching with concave returns.
+\newblock In {\em {STOC}}, pages 137--144. {ACM}, 2012.
+
+\bibitem{soda/DevanurJK13}
+Nikhil~R. Devanur, Kamal Jain, and Robert~D. Kleinberg.
+\newblock Randomized primal-dual analysis of {RANKING} for online bipartite
+  matching.
+\newblock In {\em {SODA}}, pages 101--107. {SIAM}, 2013.
+
+\bibitem{orl/EcklKLS21}
+Alexander Eckl, Anja Kirschbaum, Marilena Leichter, and Kevin Schewior.
+\newblock A stronger impossibility for fully online matching.
+\newblock {\em Operations Research Letters}, to appear.
+
+\bibitem{stacs/EpsteinLSW13}
+Leah Epstein, Asaf Levin, Danny Segev, and Oren Weimann.
+\newblock Improved bounds for online preemptive matching.
+\newblock In {\em {STACS}}, volume~20 of {\em LIPIcs}, pages 389--399. Schloss
+  Dagstuhl - Leibniz-Zentrum fuer Informatik, 2013.
+
+\bibitem{ec/EzraFGT20}
+Tomer Ezra, Michal Feldman, Nick Gravin, and Zhihao~Gavin Tang.
+\newblock Online stochastic max-weight matching: Prophet inequality for vertex
+  and edge arrival models.
+\newblock In {\em {EC}}, pages 769--787. {ACM}, 2020.
+
+\bibitem{corr/EzraFGT20}
+Tomer Ezra, Michal Feldman, Nick Gravin, and Zhihao~Gavin Tang.
+\newblock Secretary matching with general arrivals.
+\newblock {\em CoRR}, abs/2011.01559, 2020.
+
+\bibitem{fahrbach2020edge}
+Matthew Fahrbach, Zhiyi Huang, Runzhou Tao, and Morteza Zadimoghaddam.
+\newblock Edge-weighted online bipartite matching.
+\newblock In {\em 2020 IEEE 61st Annual Symposium on Foundations of Computer
+  Science (FOCS)}, pages 412--423. IEEE, 2020.
+
+\bibitem{wine/FeldmanKMMP09}
+Jon Feldman, Nitish Korula, Vahab~S. Mirrokni, S.~Muthukrishnan, and Martin
+  P{\'a}l.
+\newblock Online ad assignment with free disposal.
+\newblock In {\em WINE}, pages 374--385, 2009.
+
+\bibitem{focs/GamlathKMSW19}
+Buddhima Gamlath, Michael Kapralov, Andreas Maggiori, Ola Svensson, and David
+  Wajc.
+\newblock Online matching with general arrivals.
+\newblock In {\em FOCS}, pages 26--37. IEEE, 2019.
+
+\bibitem{gao2021improved}
+Ruiquan Gao, Zhongtian He, Zhiyi Huang, Zipei Nie, Bijun Yuan, and Yan Zhong.
+\newblock Improved online correlated selection.
+\newblock {\em arXiv preprint arXiv:2106.04224}, 2021.
+
+\bibitem{soda/GoelM08}
+Gagan Goel and Aranyak Mehta.
+\newblock Online budgeted matching in random input models with applications to
+  adwords.
+\newblock In {\em SODA}, pages 982--991, 2008.
+
+\bibitem{jacm/HuangKTWZZ20}
+Zhiyi Huang, Ning Kang, Zhihao~Gavin Tang, Xiaowei Wu, Yuhao Zhang, and Xue
+  Zhu.
+\newblock Fully online matching.
+\newblock {\em J. {ACM}}, 67(3):17:1--17:25, 2020.
+
+\bibitem{soda/HuangPTTWZ19}
+Zhiyi Huang, Binghui Peng, Zhihao~Gavin Tang, Runzhou Tao, Xiaowei Wu, and
+  Yuhao Zhang.
+\newblock Tight competitive ratios of classic matching algorithms in the fully
+  online model.
+\newblock In {\em SODA}, pages 2875--2886. SIAM, 2019.
+
+\bibitem{talg/HuangTWZ19}
+Zhiyi Huang, Zhihao~Gavin Tang, Xiaowei Wu, and Yuhao Zhang.
+\newblock Online vertex-weighted bipartite matching: Beating 1-1/e with random
+  arrivals.
+\newblock {\em ACM Transactions on Algorithms}, 15(3):1--15, 2019.
+
+\bibitem{focs/HuangTWZ20}
+Zhiyi Huang, Zhihao~Gavin Tang, Xiaowei Wu, and Yuhao Zhang.
+\newblock Fully online matching {II:} beating ranking and water-filling.
+\newblock In {\em {FOCS}}, pages 1380--1391. {IEEE}, 2020.
+
+\bibitem{focs/HuangZZ20}
+Zhiyi Huang, Qiankun Zhang, and Yuhao Zhang.
+\newblock Adwords in a panorama.
+\newblock In {\em {FOCS}}, pages 1416--1426. {IEEE}, 2020.
+
+\bibitem{tcs/KalyanasundaramP00}
+Bala Kalyanasundaram and Kirk Pruhs.
+\newblock An optimal deterministic algorithm for online b-matching.
+\newblock {\em Theoretical Computer Science}, 233(1-2):319--325, 2000.
+
+\bibitem{stoc/KarandeMT11}
+Chinmay Karande, Aranyak Mehta, and Pushkar Tripathi.
+\newblock Online bipartite matching with unknown distributions.
+\newblock In {\em STOC}, pages 587--596, 2011.
+
+\bibitem{stoc/KarpVV90}
+Richard~M. Karp, Umesh~V. Vazirani, and Vijay~V. Vazirani.
+\newblock An optimal algorithm for on-line bipartite matching.
+\newblock In {\em STOC}, pages 352--358, 1990.
+
+\bibitem{wine/KorulaMZ13}
+Nitish Korula, Vahab~S. Mirrokni, and Morteza Zadimoghaddam.
+\newblock Bicriteria online matching: Maximizing weight and cardinality.
+\newblock In {\em {WINE}}, volume 8289 of {\em Lecture Notes in Computer
+  Science}, pages 305--318. Springer, 2013.
+
+\bibitem{stoc/MahdianY11}
+Mohammad Mahdian and Qiqi Yan.
+\newblock Online bipartite matching with random arrivals: an approach based on
+  strongly factor-revealing {LP}s.
+\newblock In {\em STOC}, pages 597--606, 2011.
+
+\bibitem{jacm/MehtaSVV07}
+Aranyak Mehta, Amin Saberi, Umesh~V. Vazirani, and Vijay~V. Vazirani.
+\newblock Adwords and generalized online matching.
+\newblock {\em J. {ACM}}, 54(5):22, 2007.
+
+\bibitem{icalp/WangW15}
+Yajun Wang and Sam~Chiu{-}wai Wong.
+\newblock Two-sided online bipartite matching and vertex cover: Beating the
+  greedy algorithm.
+\newblock In {\em ICALP}, pages 1070--1081, 2015.
+
+\end{thebibliography}

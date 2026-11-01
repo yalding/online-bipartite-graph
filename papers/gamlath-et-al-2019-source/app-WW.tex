@@ -1,0 +1,283 @@
+%!TEX root = ./main.tex
+\section{Deferred Proofs of \Cref{sec:imrpoved-algorithm}}\label{app:imrpoved-algorithm}
+Here we prove that a change of the realized arc choices of any vertex does not change the matched status of more than two vertices (at any point in time). This is \Cref{lem:freevertices}, restated below.
+
+\freevertices*
+\begin{proof}
+	We consider the evolution, following each vertex arrival, of the matchings $M_\tau$ and $M_{\tau'}$ computed in $H_\tau$ and $H_{\tau'}$, respectively, as well as the set of vertices with different matched status in these matchings, denoted by $D:=(M_{\tau} \setminus M_{\tau'})\cup (M_{\tau'} \setminus M_{\tau})$. 	
+	The set $D$ is empty before the first arrival and remains empty until the arrival of $v$, as all earlier vertices than $v$ have the same primary and secondary arcs and have the same set of free neighbors in $H_\tau$ and $H_{\tau'}$ (as $D=\emptyset$, by induction). Now, if immediately after $v$ arrives it remains free in both $M_\tau$ and $M_{\tau'}$, or it is matched to the same neighbor in both matchings, then clearly $D$ remains empty. Otherwise, either $v$ is matched to different neighbors in $M_\tau$ and $M_{\tau'}$, or $v$ is matched in one of these matchings but not in the other. Both these cases result in $|D|=2$. We now show by induction that the cardinality of $D$ does not increase following subsequent arrivals, implying the lemma.
+	
+	Let $u$ be some vertex which arrives after $v$. 
+	If when $u$ arrives $u$ is matched to the same neighbor $w$ in $M_\tau$ and $M_{\tau'}$ or if $u$ remains free in both matchings, then $D$ is unchanged.
+	If $u$ is matched to some $w$ on arrival in $M_\tau$, but not in $M_{\tau'}$, then since the arcs of $u$ are the same in $G_\tau$ and $G_{\tau'}$, this implies that $w$ must have been free in $M_\tau$ but not in $M_{\tau'}$, and so $D\ni w$. Therefore, after $u$ arrives, we have $D \leftarrow (D\setminus \{w\}) \cup \{u\}$, and so $D$'s cardinality is unchanged.
+	Finally, if $u$ is matched to two distinct neighbors, denoted by $w$ and $w'$, respectively, then one of $(u,w)$ and $(u,w')$ must be the primary arc of $u$ in both $G_\tau$ and $G_{\tau'}$. Without loss of generality, say $(u,w)$ is this primary arc. Since $u$ is matched to $w$ in $M_\tau$ but not in $M_{\tau'}$, then $w$ must be free in $M_\tau$ when $u$ arrives, but not in $M_{\tau'}$, and so $D\ni w$. Consequently, we have that after $u$ arrives we have $D \leftarrow S$ for some set $S \subseteq (D\setminus \{w\}) \cup \{w'\}$, and so $D$'s cardinality does not increase.
+\end{proof}
+
+\section{Deferred Proofs of \texorpdfstring{\Cref{sec:fractional-algo}}{Algorithm 1}}\label{app:fractional-algo}
+Here we prove the bound on the fractional degree $x_u$ in terms of its dual value, restated below.
+\refinedwwbound*
+\begin{proof}
+	Let $y_0$ be $u$'s potential after $u$'s arrival. For the lower bound, note that it suffices to prove that every increase in the fractional degree is bounded below by the increase in the potential divided by $\beta$. When vertex $u$ first arrived, we consider two cases.
+	
+	\begin{enumerate}
+		
+		\item  $y_0  > 0$ (thus $y_0 = 1 - \theta > 0$, and so $\theta< 1$), then  the increase in $u$'s fractional degree was:
+		\begin{align*}
+		\sum_{v \in N_u(u)} \frac{(\theta - y_v)^{+}}{\beta} \left(1 + \frac{1-\theta}{f(\theta)}\right) =  \frac{f(\theta) + 1 - \theta}{\beta} = \frac{f(1-y_0) + y_0}{\beta} \geq \frac{y_0}{\beta}.
+		\end{align*}
+		
+		\item  $y_0 = 0$ (thus $\theta = 1$), then the increase in $u$'s fractional degree was:
+		\begin{align*}	
+		\sum_{v \in N_u(u)} \frac{(\theta - y_v)^{+}}{\beta} \left(1 + \frac{1-\theta}{f(\theta)}\right) =  \sum_{v \in N_u(u)} \frac{(\theta - y_v)^{+}}{\beta}  \geq  0 = \frac{y_0}{\beta}.
+		\end{align*}
+		
+	\end{enumerate}
+	For every subsequent increase of the fractional degree due to a newly-arrived vertex we have that:
+	\begin{align*}
+	\frac{(\theta - y_u^{old})^+}{\beta} \left(1 + \frac{1-\theta}{f(\theta)}\right) & \geq \frac{(\theta - y_u^{old})^+}{\beta},
+	\end{align*}
+	Which concludes the proof for the lower bound.
+	
+	For the upper bound, by 
+	\cite[Invariant 1]{wang2015two}, we have that 
+	\begin{align}\label{eq:WW-bound-on-xu}
+	\beta \cdot x_u & \leq y_{c} + f(1 - y_{0})  + \int_{y_{0}}^{y_{c}} \frac{1-x}{f(x)}\, dx.
+	\end{align}
+	This upper bound can be simplified by using \Cref{WW-tight}, as follows.
+	Taking \eqref{eq:WW-bound-on-xu}, adding and subtracting $1 + f(1-y_u)$ and writing the integral $\int_{y_0}^{y_u} \frac{1-x}{f(x)}\, dx$ as the difference of two integrals  $\int_{y_0}^{1} \frac{1-x}{f(x)}\, dx$ - $\int_{y_u}^{1} \frac{1-x}{f(x)}\, dx$, and relying on \Cref{WW-tight}, we find that
+	\begin{align*}
+	\beta \cdot x_u & \leq y_{c} + f(1 - y_{0})  + \int_{y_{0}}^{y_{c}} \frac{1-x}{f(x)}\, dx \\
+	&=  
+	\left( 1 + f(1 - y_{0})  + \int_{y_{0}}^{1} \frac{1-x}{f(x)}\, dx \right)  -1  + y_{c} +
+	\int_{1}^{y_{c}} \frac{1-x}{f(x)}\, dx \\
+	&= \beta^*(f) + y_{c} - \left(  1 + f(1 - y_{c})  + \int_{y_{c}}^{1} \frac{1-x}{f(x)}\, dx  \right) + f(1-y_{c}) \\
+	&= \beta^*{(f)} + y_{c} - \beta^*(f) + f(1-y_{c})\\
+	& = y_{c} + f(1-y_{c}),
+	\end{align*}
+	from which the lemma follows.
+\end{proof}
+
+\section{Deferred Proofs of \Cref{sec:propertiesWW}}\label{app:WW-functions}
+
+In this section we present the proofs deferred from \Cref{sec:propertiesWW}. We start by presenting a more manageable form for the function $f=f_{1+2\epsilon}$ which we use. 
+
+A function in the WW family is determined by a parameter $k\geq 1$ and takes the following form
+\begin{align*}
+f_\kappa(\theta) = \left(\frac{1+\kappa}{2} - \theta\right)^{\frac{1+\kappa}{2\kappa}}\left(\theta+\frac{\kappa-1}{2}\right)^{\frac{\kappa-1}{2\kappa}}.
+\end{align*}
+Letting $\kappa= 1+2\varepsilon$, we get that $f:=f_\kappa$ is of the form
+\begin{align*}
+f(\theta) & = (1+\varepsilon - \theta)^{\frac{1+\varepsilon}{1+2\varepsilon}}\cdot \left(\theta + \varepsilon\right)^{\frac{\varepsilon}{1+2\varepsilon}} \\
+&= \left(1+ \varepsilon - \theta\right) \cdot \left(
+\frac{\theta+\varepsilon}{1+\varepsilon-\theta}
+\right)^{\frac{\varepsilon}{1+2\varepsilon}}.
+\end{align*}
+Clearly this is water filling when $\varepsilon = 0$ and otherwise we have that the first term is like water filling and then the second term is less than $1$ for $z\leq 1/2$ and greater than $1$ if $z > 1/2$.
+
+By Taylor expansion, we obtain the following more manageable form for $f$.
+\begin{lem}
+	\label{lm:taylor}
+	There exists $\e_0\in (0,1)$ such that for every $\e\in (0,\e_0)$ and every $\theta\in [0,1]$, we have
+	\begin{align*}
+	f(\theta) \leq (1 - \theta) \left(1+\varepsilon
+	\ln\left(\frac{\theta+\varepsilon}{1+\varepsilon-\theta} \right)\right) + 1.01\e.
+	\end{align*}
+\end{lem}
+\begin{proof} 
+	Taking the Taylor expansion of $e^x$, we find that
+	\begin{equation*}
+	\begin{split}
+	f(\theta) & = \left(1+ \varepsilon - \theta\right) \cdot \left(
+	\frac{\theta+\varepsilon}{1+\varepsilon-\theta}
+	\right)^{\frac{\varepsilon}{1+2\varepsilon}}\\
+	& = 
+	\left(1+ \varepsilon - \theta \right) \cdot \sum_{i=0}^\infty 
+	\frac{
+		\left( \ln \left(\frac{\theta + \varepsilon}{1+ \varepsilon - \theta}\right) 
+		\cdot \frac{\varepsilon}{1+2\varepsilon}
+		\right)^i
+	}{i!} \\
+	& = (1+\varepsilon - \theta) \left(1+ \ln \left(\frac{\theta+\varepsilon}{1+ \varepsilon - \theta} \right) \cdot\frac{\varepsilon}{1+2\varepsilon}\right)  +  o(\varepsilon) \\
+	& = (1+\varepsilon - \theta ) + (1-\theta) \ln \left(\frac{\theta+\varepsilon}{1+ \varepsilon - \theta} \right) \cdot\frac{\varepsilon}{1+2\varepsilon} + o(\varepsilon) \\
+	& = (1+\varepsilon - \theta ) + (1- \theta) \varepsilon
+	\ln\left(\frac{\theta+\varepsilon}{1+\varepsilon-\theta} \right) + o(\varepsilon)\\
+	& = (1 - \theta )\left(1 + \varepsilon
+	\ln\left(\frac{\theta+\varepsilon}{1+\varepsilon-\theta} \right)\right) +\e+ o(\varepsilon).	
+	\end{split}
+	\end{equation*}
+	To be precise, for $\theta\in [0,1]$ and $0 < \epsilon\leq \epsilon_0\leq 1$ (implying for example $\frac{\theta+\epsilon}{1+\epsilon-\theta} \leq \frac{2}{\epsilon}$), we will show that terms dropped in the third, fourth and fifth lines are all
+	at most some $O((\ln(\frac{1}{\epsilon})\cdot \epsilon)^2) = o(\epsilon)$, from which the lemma follows as the sum of these terms is at most $0.01\epsilon$ for $\e\leq \e_0$ and $\epsilon_0$ sufficiently small.
+	
+	Indeed, in the third line, we dropped 
+	\begin{align*}
+	\left(1+ \varepsilon - \theta\right) \cdot \sum_{i=2}^\infty 
+	\frac{
+		\left( \ln \left(\frac{\theta+\varepsilon}{1+ \varepsilon - \theta}\right) 
+		\cdot \frac{\varepsilon}{1+2\varepsilon}
+		\right)^i
+	}{i!} \leq 2\cdot \sum_{i=2}^\infty \frac{(\ln(\frac{2}{\epsilon})\cdot \eps)^i}{i!} \leq \cdot \sum_{i=2}^\infty \frac{\left(\ln\left(\frac{2}{\epsilon}\right)\cdot \eps\right)^i}{i^2} = O((\ln(1/\e)\cdot \eps)^2),
+	\end{align*} 
+	where the last step used that $\ln(1/\eps)\cdot \epsilon\leq 1$ holds for all $\epsilon\geq 0$.
+	In the fourth line, we dropped 
+	\begin{align*}\epsilon\cdot \ln\left(\frac{\theta+\epsilon}{1+\epsilon-\theta}\right)\cdot \frac{\epsilon}{1+2\epsilon} \leq \epsilon^2\cdot \ln\left(2/\e\right) = O((\ln(1/\e)\cdot \eps)^2).
+	\end{align*}
+	Finally, in the fifth line, we dropped 
+	\begin{align*}
+	(1-z)\cdot \left(\epsilon-\frac{\epsilon}{1+2\epsilon}\right)\cdot \ln\left(\frac{\theta+\epsilon}{1+\epsilon-\theta}\right) & \leq 1\cdot (\epsilon^2/(1+2\eps))\cdot \ln\left(2/\e\right) = O((\ln(1/\e)\cdot \eps)^2).\qedhere
+	\end{align*} 
+\end{proof}
+
+Given this more manageable form for $f$, we can now turn to prove \Cref{lem:propertiesWW}, restated below.
+
+\WWproperties*
+
+\begin{proof}
+	We begin by getting a generic upper bound for $z_u$. We note that each edge $e$ is matched by \Cref{algo:wwrounding} with probability at most $x_e$ by \Cref{line:second-pick-drop}. Therefore, $u$ is matched before $v$ arrives with probability at most $x_u := \sum_{w\in N_v(u)\setminus \{v\}} x_{wu}$, the fractional degree of $u$ before $v$ arrives.
+	Therefore, by \Cref{refined-ww-xu-bound}, the probability that $u$ is free is at least
+\begin{equation}
+\Pr[u \mbox{ free when $v$ arrives}] \geq 1-x_u \geq 1-\frac{y_u + f(1-y_u)}{\beta},
+\end{equation}
+from which, together with the definition of $x_{uv} = \frac{1}{\beta}(\theta - y_u)^+ \left(1 + \frac{1-\theta}{f(\theta)}\right)$, we obtain the following upper bound on $z_u$:
+\begin{equation}\label{eq:z-upper-bound}
+z_u = \frac{x_{uv}}{\Pr[\text{$u$ is free when $v$ arrive}]} \leq  \frac{\frac{1}{\beta}(\theta - y_u)^+ \left(1 + \frac{1-\theta}{f(\theta)}\right)}{1 - \frac{y_u+f(1-y_u)}{\beta}} = \frac{(\theta - y_u)\left(1 + \frac{1-\theta}{f(\theta)}\right)}{\beta - (y_u + f(1-y_u))}.
+\end{equation}
+		
+We start by upper bounding $\sum_{u\in N_v(v)} z_u$, giving a bound which will prove useful in the proofs of both {\bf (1)} and {\bf(2)}. Recall that $\theta$ is defined as the largest $\theta\leq 1$ such that 
+\begin{equation}\label{eq:def-theta}
+	\sum_{u\in N_v(v)} (\theta-y_u)^+ \leq f(\theta).
+\end{equation}
+
+Summing \eqref{eq:z-upper-bound} over all $u\in N_v(v)$, we find that
+	\begin{align*}
+	\sum_{u\in N_v(v)} z_u& 
+	\leq \sum_{u\in N_v(v)}\frac{(\theta-y_u)^+\cdot (1+\frac{1-\theta}{f(\theta)})}{\beta-(\theta+f(1-\theta))}&& \text{($f(\cdot)$ is non-increasing, by~\Cref{f-non-increasing})}\\
+	&\leq \frac{f(\theta)+1-\theta}{\beta-(\theta+f(1-\theta))} && \text{(by \eqref{eq:def-theta} and $\beta\geq \beta^*(f) = 1+f(0) \geq \theta+f(1-\theta)$)}
+	\end{align*}
+We therefore wish to upper bound $\frac{f(\theta) + 1-\theta}{\beta - \theta - f(1-\theta)}$. To this end let $\gamma(\theta, \e) :=\e \ln \left(\frac{\theta+\e}{1+\e-\theta}\right)$. Before proceeding to the proof, it would be useful to summarize some properties of the function $\gamma(\theta, \e)$. 
+\begin{enumerate}
+\item $ \gamma(\theta, \e) = - \gamma(1-\theta, \e) $ for all $\theta \in [0,1]$ \label{gamma:property4}.
+\item For $c$, $\e_0$ sufficiently small we have
+for all $\theta \in [0,c)$ that $\gamma(\theta,\eps) \leq \e \ln \left(\frac{c+\e}{1+\e-c}\right) \leq -20\cdot \eps$, and
+ for all $\theta \in (1-c,1]$ that $ \gamma(\theta, \e) \geq \e \ln \left(\frac{1-c+\e}{1+\e-(1-c)}\right) \geq 20\cdot \eps$. \label{gamma:property1}
+\item $\gamma (\theta, \e)\cdot (1 - 2 \theta) \leq 0$ for $\theta \in [0,1]$, since $\gamma(\theta,\epsilon)\leq 0$ for $\theta\leq 1/2$ and $\gamma(\theta,\epsilon)\geq 0$ for $\theta \geq 1/2$.
+ \label{gamma:property2}
+\item $\theta \cdot  \gamma (\theta, \e)  \geq -\e$ for all $\theta \in [0,1]$. \label{gamma:property3}
+
+The last property follows from $ \ln \left(\frac{1+\e-\theta}{\theta+\e}  \right) \leq \ln \left(\frac{1+\e+\theta}{\theta+\e}  \right) \leq \ln \left(1 + \frac{1}{\theta+\e}  \right) \leq \frac{1}{\theta + \e}  \leq \frac{1}{\theta}$, which implies in particular that $\theta \cdot \gamma(\theta, \e) =  \theta \cdot \e \cdot \left(- \ln \left( \frac{1+\e-\theta}{\theta + \e}\right) \right)  \geq -\e$.
+%\end{proof}
+\end{enumerate}
+
+We will use $\gamma$ as shorthand for  $\gamma(\theta, \e)$.  Recalling that $\beta=2-\e$ and using~\Cref{lm:taylor},  we have:
+	\begin{equation}\label{eq:2isdighg}
+	\begin{split}
+	\frac{f(\theta)+1-\theta}{\beta-(\theta+f(1-\theta))}&\leq \frac{(1-\theta)\left(1+\e \ln \left(\frac{\theta+\e}{1+\e-\theta}\right)\right)-\theta+1+1.01\e}{2-\e - \theta-\theta\left(1+\e \ln \left(\frac{1-\theta+\e}{\theta+\e}\right)\right)-1.01\e}\\	
+	& \leq \frac{(1-\theta)(2+\gamma)+2\e}{2-2\theta+\theta \gamma-3\e}\\
+	& =	1+\frac{\gamma(1-2\theta)+5\e}{2-2\theta+\theta\gamma-3\e}.
+\end{split}
+\end{equation} 
+
+We will continue by proving that the second term is negative. First we prove that the denominator is positive. To this end, first consider the case when $\theta \in [0,c)$. In this case for $\e_0, c$ sufficiently small one has that:  $2-2\theta+\theta\gamma-2\e > 2 - 2 \theta -\e -2 \e > 0$ from \cref{gamma:property3}. Moreover, when  $\theta \in (1-c, 1]$ one has that $\theta > \frac{1}{2}$ (since $c$ is small) and $\gamma \geq 20 \e$ from \cref{gamma:property1}. Thus $2-2\theta+\theta\gamma-2\e \geq \theta \gamma - 2 \e \geq \frac{1}{2} \cdot 20 \e -3 \e = 7 \e > 0 $. Now, it remains to prove that the numerator is always negative. When $\theta \in [0,c)$ we have that $1 - 2 \theta \geq 3 /4$(since $c$ is small) and $\gamma \leq -20 \e$ from \cref{gamma:property1}, therefore $\gamma (1- 2 \theta) + 5\e \leq \gamma \cdot \frac{3}{4}+5 \cdot (-\frac{\gamma}{20}) = \frac{\gamma}{2} < 0 $. In the case where $\theta \in (1-c, 1]$, we have that $1 - 2 \theta <- 3/4$, and $\theta > 1/2 $ (since $c$ is small), and $\gamma \geq 20 \e$ from \cref{gamma:property1}, thus $\gamma (1 - 2 \theta) + 5 \e \leq -\frac{3}{4} \cdot 20 \e  + 5\e = -10 \e < 0 $.
+
+
+	We now turn to {\bf (2)}.  We assume that $\theta\in (c, 1-c)$, since otherwise the claim is trivial, by {\bf (1)}. We have by~\eqref{eq:2isdighg} that  $\frac{f(\theta)+1-\theta}{\beta-(\theta-f(1-\theta))} \leq 	1+\frac{\gamma(1-2\theta)+5\e}{2-2\theta+\theta\gamma-3\e}$. We have that  $\gamma (1 - 2 \theta ) + 5 \e \leq 5 \e$ from \cref{gamma:property2}. Furthermore, using \cref{gamma:property3} we have that $2 - 2 \theta + \theta \gamma - 3 \e  \geq 2c + -4 \e > c$ for a sufficiently small $\e_0$. Overall, the second term is bounded above by $\frac{5}{c} \cdot \e < C \cdot \e$, for $C > \frac{5}{c} > \frac{1}{c}$ as required.
+
+	We now prove {\bf (3)}. Note that by \textbf{(1)}, $\sum_{u\in N_v(v)}z_u > 1$ implies that $\theta\in (c, 1-c)$. Now, for every $u\in N_v(v)$, let $\alpha_u:=\frac{(\theta-y_u)^+}{f(\theta)}$, so that $y_u=\theta-f(\theta)\cdot \alpha_u$ if $y_u \leq \theta$.
+	We also note that by definition of $\alpha_u$ and our choice of $\theta$, we have $\sum_{u\in N_v(v)} \alpha_u = \sum_{u\in N_v(v)} \frac{(\theta-y_u)^+}{f(\theta)} \leq 1$. 
+	In the proof of {\bf(3)} and {\bf(4)} we will assume for notational simplicity that all $u\in N_v(v)$ have $y_u \leq \theta$, implying $z_u\geq 0$. Summing up \eqref{eq:z-upper-bound} over all $u\in N_v(v)$ and substituting in $\alpha_u$, we thus find that
+	\begin{align*}
+	\sum_{u\in N_v(v)} z_u&\leq \sum_{u\in N_v(v)} \frac{(\theta-y_u)^+(1+\frac{1-\theta}{f(\theta)})}{\beta-(y_u+f(1-y_u))}\\
+	&=\sum_{u\in N_v(v)} \alpha_u \cdot  \frac{f(\theta)+1-\theta}{\beta-(y_u+f(1-y_u))}\\
+	&\leq \sum_{u\in N_v(v)} \alpha_u \cdot  \frac{f(\theta)+1-\theta}{2-y_u-f(1-y_u)-2.01\e} && \text{(by~\Cref{lm:taylor} and $\beta=2-\eps$)}\\
+	& \leq \sum_{u\in N_v(v)} \alpha_u \cdot \frac{f(\theta)+1-\theta}{2- 4\e -2y_u},
+	\end{align*}
+	In the last transition we used again (as in \cref{gamma:property3}) that $ y_u\cdot \e \ln \left(\frac{1-y_u+\e}{y_u+\e}\right) \leq \e$, which implies $f(\theta) \leq 1-\theta + \e$ for all $\theta\in [0,1]$. Substituting $y_u = \theta-f(\theta)\cdot \alpha_u$ into the above upper bound on $\sum_{u\in N_v(v)} z_u$, we get
+	\begin{align}
+	\sum_{u\in N_v(v)} z_u&\leq \sum_{u\in N_v(v)} \alpha_u \cdot \frac{f(\theta)+1-\theta}{2-4\eps-2\theta+2 f(\theta) \cdot \alpha_u} \nonumber \\
+	&=\sum_{u\in N_v(v)} \alpha_u \cdot \frac{f(\theta)+1-\theta}{2-4\e-2\theta} - \sum_{u\in N_v(v)} \frac{(f(\theta)+1-\theta)\cdot 2f(\theta)\cdot \alpha_u^2}{(2-4\e-2\theta)\cdot (2-4\e-2\theta+2f(\theta)\cdot \alpha_u)}, \label{eq:23gewgewg}
+	\end{align}
+	using the elementary identity $\frac{1}{a+b} = \frac{1}{a} - \frac{b}{a(a+b)}$ for appropriate $a$ and $b$.
+	Now, both terms in the last line of \eqref{eq:23gewgewg} can be significantly simplified, as follows. For the former term, again using that $f(\theta)\leq 1-\theta+\epsilon$, together with $\sum_{u\in N_v(v)} \alpha_u \leq 1$ noted above, we find that 
+	\begin{align} \label{first-term-23gewgewg}
+	\sum_{u\in N_v(v)}\alpha_u\cdot \frac{f(\theta) + 1-\theta}{2-4\epsilon-2\theta} & \leq \sum_{u\in N_v(v)}\alpha_u\cdot  \frac{{2+\epsilon-2\theta}}{{2-4\epsilon-2\theta}} = \sum_{u\in N_v(v)}\alpha_u\cdot \left( 1+\frac{5\eps}{2-4\epsilon-2\theta}\right) \leq 1+O(\eps),
+	\end{align}
+	where in the last step we used that $\theta\leq 1-c$ and $c$ is some fixed constant.
+	For the second term in the last line of \eqref{eq:23gewgewg}, we note that 
+	\begin{align}\label{second-term-23gewgewg}
+		\sum_{u\in N_v(v)} \frac{(f(\theta)+1-\theta)\cdot 2f(\theta)\cdot \alpha_u^2}{(2-4\e-2\theta)\cdot (2-4\e-2\theta+2f(\theta)\cdot \alpha_u)} & = \Omega(1)\cdot \left(\sum_{u\in N_v(v)} \alpha_u^2 \right).
+	\end{align}
+	To see this, first note that for $\theta\in (c,1-c)$, the numerator of each summand of the LHS is at least $2f(c)^2 \cdot \alpha_u^2 \geq \Omega(\alpha_u^2)$, since $f$ is decreasing by \Cref{f-non-increasing} and $f(c)\geq \frac{1}{2}\cdot (1+\eps-c) \geq \Omega(1)$ for $c$ and $\eps$ sufficiently small.
+	To verify the first inequality of this lower bound for $f(c)$, recall that 
+	$f(c) = \left(1+ \varepsilon - c\right) \cdot \left(
+	\frac{c+\varepsilon}{1+\varepsilon-c}
+	\right)^{\frac{\varepsilon}{1+2\varepsilon}}$. Now, for $\epsilon$ tending to zero and $c<1/2$, the term $\left(
+	\frac{\theta+\varepsilon}{1+\varepsilon-\theta}
+	\right)^{\frac{\varepsilon}{1+2\varepsilon}}$ tends to one as $\epsilon$ tends to zero. Therefore for $\epsilon$ sufficiently small we have $f(c)\geq \frac{1}{2}\cdot (1+\epsilon-c)$ for all $c < 1/2$.
+	We now turn to upper bounding the denominator of 
+	each summand in the LHS of \Cref{second-term-23gewgewg}.
+	Indeed, substituting $y_u = \theta-f(\theta)\cdot \alpha_u$, we find that each such denominator is at most
+	$(2-4\e-2\theta)\cdot (2-4\e-2\theta+2f(\theta)\cdot \alpha_u) \leq (1/2)\cdot (2-4\eps - 2y_u) \leq (1/2)\cdot(2-4\eps - 2c) \leq O(1)$ for $c$ and $\epsilon$ sufficiently small. Note that both numerator and denominator are positive for sufficiently small $c$ and $\epsilon_0$.
+	Substituting the bounds of \eqref{first-term-23gewgewg} and \eqref{second-term-23gewgewg} into \eqref{eq:23gewgewg}, we obtain
+	\begin{align}\label{z-u-alpha-u-bound}
+	\sum_{u\in N_v(v)} z_u
+	& \leq 1 + O(\e) -\Omega(1)\cdot \left(\sum_{u\in N_v(v)} \alpha_u^2\right).
+	\end{align}
+
+From \cref{z-u-alpha-u-bound} and $\sum_{u\in N_v(v)} z_u > 1$ by assumption of {\bf(3)}, we get that
+
+\begin{equation}\label{eq:032utg23g}
+\sum_{u\in N_v(v)} \alpha_u^2\leq C^{'} \e
+\end{equation} 
+for an absolute constant $C^{'}>1$, since otherwise $ \sum_{u \in N_v(v)} z_u\leq 1$. Finally, it remains to note that 
+	\begin{align*}
+	\sum_{u\in N_v(v)} z_u^2&=\sum_{u\in N_v(v)} \left(\frac{\alpha_u  \cdot (f(\theta)+1-\theta)}{\beta-(y_u+f(1-y_u))}\right)^2\\
+	&\leq \left(\sum_{u\in N_v(v)} \alpha_u^2\right)\cdot \left(\frac{f(\theta)+1-\theta}{\beta-(\theta+f(1-\theta))}\right)^2 && \text{(by \Cref{f-non-increasing} and $y_u \leq \theta$)}\\
+	&\leq \left(\sum_{u\in N_v(v)} \alpha_u^2\right)\cdot \left(\frac{f(\theta)+1-\theta}{\beta-(1-c+f(c))}\right)^2 && \text{(by \Cref{f-non-increasing} and $\theta\leq 1-c$)}\\	
+	&\leq \left(\sum_{u\in N_v(v)} \alpha_u^2\right)\cdot \left(\frac{1-\theta+\eps+1-\theta}{\beta-(1-c+1-c+\eps)}\right)^2 && \text{($f(c)\leq 1-c+\eps$)}\\		
+	& \leq \left(\sum_{u\in N_v(v)} \alpha_u^2\right)\cdot \frac{2}{2c-2\e}\\
+	& \leq C \e,
+	\end{align*}
+	for some constant $C\geq \frac{2}{2c-2\epsilon}$. Thus $z_u^2 \leq \sum_{u\in N_v(v)} z_u \leq C\e$ and so $z_u \leq \sqrt{C \cdot \e } \leq C \sqrt{\e}$, as claimed. 
+	
+	We now prove {\bf (4)}. Since $\sum_{u \in N_v(v)} z_u > 1$ implies $\theta\in (c, 1-c)$ by {\bf (1)}, using the definition of $\alpha_u$'s from the proof of {\bf (3)} together with the fact that $\alpha_u\leq C^{'} \sqrt{\e}$ for every $u\in N_v(v)$ by~\eqref{eq:032utg23g} and the fact that $f(\theta)\leq 2$ for all $\theta\in [0,1]$ (by \Cref{lm:taylor}), we get that
+	\begin{equation*}
+	\begin{split}
+	y_u=\theta-f(\theta)\cdot \alpha_u\in [c-O(\sqrt{\e}), 1-c]\subseteq [c/2, 1-c/2],
+	\end{split}
+	\end{equation*}
+	for sufficiently small $\e_0>0$, as required.
+
+    As for {\bf (5)}, simplifying \eqref{eq:z-upper-bound} and using the fact that $\theta - y_u \leq f(\theta)$, we get
+\begin{align*}
+  z_u &\leq \frac{\theta - y_u + 1 - \theta}{\beta - y_u - f(1 - y_u)} = \frac{1 - y_u}{\beta - y_u - f(1 - y_u)}.
+\end{align*}
+
+Recall from~\Cref{lm:taylor} that for all $\theta\in [0,1]$, we have $f(\theta) \leq (1 - \theta) \left(1+\varepsilon
+\ln\left(\frac{\theta+\varepsilon}{1+\varepsilon-\theta} \right)\right) + 1.01\e$, 
+which implies the following:
+	\begin{enumerate}
+	    \item \label{point1} For all $\theta \in [0, 1]$, we have $f(\theta) \leq 1 - \theta + \sqrt{\e}$, and
+	    \item \label{point2} For $\theta < e^{-10}$, we have $f(\theta) \leq (1-\theta)(1 + \e(\ln( (e^{-10} + \e)/(1 - e^{-10} + \e)) + 1.01 \e \leq 1 - \theta - 2\e$.
+	\end{enumerate}
+Suppose that $y_u \leq 1 - e^{-10}$. Then using \Cref{point1}, we have
+\begin{align*}
+  z_u &\leq \frac{1-y_u}{\beta - y_u - f(1-y_u)} \leq \frac{1 - y_u}{2 - \e - y_u - y_u - \sqrt{\e}} \\
+  &\leq \frac{ 1 - y_u} {2(1 - y_u) - 2 \sqrt{\e}} \leq 1/2+\frac{2\sqrt{\epsilon}}{2e^{-10}-2\sqrt{\epsilon}} \leq 1/2 + O(\sqrt{\e}).
+\end{align*}
+Now suppose that $y_u > 1 - e^{-10}$. Then $1 - y_u < e^{-10}$, and so by~\Cref{point2}, $f(1 - y_u) \leq 1 - y_u - 2\e$.
+Thus we have
+\begin{align*}
+  z_u &\leq \frac{1-y}{\beta - y_u - f(1 -y_u)} \leq \frac{1 -y_u}{2 - \e - y_u - (y_u - 2\e)} = \frac{1-y_u}{2(1 - y_u) + \e} \leq 1/2,
+\end{align*}
+completing the proof.
+\end{proof}
+
+
+Finally, we rely on \Cref{lm:taylor} to prove that the fractional solution maintained by \Cref{line:fractional-to-round} is $1/\beta$ competitive, as implied by \Cref{ww-approx} and the following restated fact.
+
+\betafine*
+\begin{proof}
+	Let us denote as before $f=f_{1+2\epsilon}$.
+	Recall that $\beta^*(f) = 1+f(0)$. By \Cref{lm:taylor}, this is at most $1+f(0) \leq 1 + \left(1+\varepsilon
+	\ln\left(\frac{\varepsilon}{1+\varepsilon} \right)\right) + 1.01\e$. 
+	But for small enough $\epsilon$, we have that $\ln\left(\frac{\varepsilon}{1+\varepsilon} \right) \leq  -2.01$, implying that $1+f(0) \leq 2-\epsilon$, as claimed.
+\end{proof}

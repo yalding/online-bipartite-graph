@@ -1,0 +1,1089 @@
+\documentclass{article}
+
+\usepackage{fullpage}
+\usepackage{color}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{authblk}
+
+
+\newcommand{\yajun}[1]{{\color{red}{#1}}}
+\newcommand{\bx}{{\bf{x}}}
+\newcommand{\by}{{\bf{y}}}
+
+\begin{document}
+
+%\title{Online Vertex Cover and Matching: from Primal-Dual to Charging and Back}
+\title{Online Vertex Cover and Matching:\\ Beating the Greedy Algorithm}
+
+%\subtitle{[Extended Abstract]
+
+%\numberofauthors{2}
+\author[1]{Yajun Wang\thanks{yajunw@microsoft.com}}
+\author[2]{Sam Chiu-wai Wong\thanks{samwong@mit.edu. Part of the work is done when the author was visiting Microsoft Research Asia.}}
+\affil[1]{Microsoft Research Asia, Beijing, P.~R.~China}
+\affil[2]{Massachusetts Institute of Technology}
+
+%\author{
+%\alignauthor
+%Yajun Wang\\
+%       \affaddr{Microsoft Research Asia}\\
+%       \email{yajunw@microsoft.com}
+%\alignauthor
+%Sam Chiu-wai Wong\\
+%       \affaddr{Massachusetts Institute of Technology}\\
+%       \email{samwong@mit.edu}
+%}
+
+\maketitle
+\begin{abstract}
+%\yajun{Yajun: as we describe the greedy algorithm as one algorithm. I removed the "s" in the title.}
+
+%The past decade has witnessed an explosion of research on the online bipartite matching problem. Surprisingly, its dual problem, online bipartite vertex cover, has never been {\em explicitly} studied before. In this paper, we introduce a charging-based algorithmic framework for this problem as well as its generalizations. One immediate outcome is a simple analysis of an optimal $\frac{1}{1-1/e}$-competitive algorithm for online bipartite vertex cover. This also vastly generalizes the well-studied ski rental problem.
+
+In this paper, we {\em explicitly} study the online vertex cover problem, which is a natural generalization of the well-studied ski-rental problem. In the online vertex cover problem, we are required to maintain a monotone vertex cover in a graph whose vertices arrive online. When a vertex arrives, all its incident edges to previously arrived vertices are revealed to the algorithm. For bipartite graphs with the left vertices offline (i.e. all of the left vertices arrive first before any right vertex), there are algorithms achieving  the optimal competitive ratio of $\frac{1}{1-1/e}\approx 1.582$.
+
+Our first result is a new optimal {\em water-filling} algorithm for this case. One major ingredient of our result is a new charging-based analysis, which can be generalized to attack the
+online {\em fractional} vertex cover problem in general graphs. The main contribution of this paper is a 1.901-competitive algorithm for this problem. 
+When the underlying graph is bipartite, our fractional solution can be rounded to an integral solution. In other words, we can obtain a vertex cover with expected size at most $1.901$ of the optimal vertex cover in bipartite graphs.
+
+The next major result is a primal-dual analysis of our algorithm for the online fractional vertex cover problem in general graphs.  
+This is more than just yet another analysis as it implies the dual result of a 0.526-competitive algorithm for online {\em fractional} matching in general graphs. Notice that both problems admit a well-known 2-competitive greedy algorithm. Our result in this paper is the first successful attempt to beat the greedy algorithm for these two problems. 
+
+
+Our result on the online matching problem significantly generalizes the traditional online bipartite graph matching problem, where vertices from only one side of the bipartite graph arrive online. In particular, our algorithm improves upon the result of the fractional version of the online edge-selection problem in Blum et. al. (JACM '06), where only the greedy algorithm with competitive ratio $1/2$ is previously known. 
+
+
+%\yajun{the following paragraph is wired.}
+%Our result addresses one major weakness in the original online bipartite matching problem, where vertices from only one side of the bipartite graph arrive online. By adapting our techniques to bipartite graphs, we obtained the first algorithm that beats the 1/2-competitive greedy algorithm for the variant of the problem in which {\em all} vertices are online.
+
+%As a special case, our result on online matching, when restricted to bipartite graphs, significantly generalizes the traditional online bipartite matching problem, where vertices from only one side of the bipartite graph arrive online. Previously, no known algorithm beats the $1/2$-competitive greedy algorithm for the variant of the problem in which {\em all} vertices are online even in the fractional setting.
+
+%We initiate the study of the online vertex cover problem. This is motivated by the recent success in the research on problems related to online bipartite matching. Surprisingly, the dual problem of online bipartite vertex cover has not been {\em explicitly} studied before. 
+%We show that how the analysis of Buckbinder-Jain-Naor's algorithm for online bipartite fractional matching implies an optimal $\frac{1}{1-1/e}$-competitive algorithm for online bipartite integral vertex cover.
+%We show that Buchbinder-Jain-Naor's algorithm for online bipartite fractional matching implies an optimal $\frac{1}{1-1/e}$-competitive algorithm for online bipartite vertex cover.
+
+
+%Our main result is a charging-based algorithmic framework for online vertex cover. In particular, we propose and analyze an optimal algorithm for online bipartite vertex cover in our framework. Furthermore, we extend our approach to obtain a 1.901-competitive algorithm for the problems of online {\em fractional} vertex cover in general graphs and online bipartite {\em integral} vertex cove r with unbounded alternation. 
+% Yajun: in the abstract, we may skip some minor results.
+%We also give more competitive algorithms for some restricted versions of the problem by employing similar techniques.
+
+%Finally, we show that these algorithms can also be analyzed by the primal-dual approach. We are therefore able to obtain the dual result of a 0.526-competitive algorithm for online fractional matching. This improves upon the result of Blum et. al. (JACM '06).
+
+On the hardness side, we show that no randomized online algorithm can achieve a competitive ratio better than 1.753 and 0.625 for the online fractional vertex cover problem and the online fractional matching problem respectively, even for bipartite graphs.
+\end{abstract}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{proposition}{Proposition}
+
+\section{Introduction}
+
+In this paper, we study the online vertex cover problem in bipartite and general graphs. Given a graph $G=(V,E)$, $C\subseteq V$ is a vertex cover of $G$ if all edges in $E$ are incident to $C$. In the online setting, the vertices of $V$ arrive one at a time. When a vertex arrives, its edges incident to the previously arrived neighbors are revealed. 
+We are required to maintain a {\em monotone} vertex cover for the revealed subgraph at all time. In particular, no vertices can be removed from the cover once added. The objective is to minimize the size of the final vertex cover.
+
+Our study of the online vertex cover problem is motivated by two apparently unrelated lines of research in the literature, namely ski rental and online bipartite matching. 
+%We first address how each of them relates to our work, before explaining the hidden connection between them. One significance of our work is that it reconciles two major classes of online problems.
+
+\paragraph{Online bipartite matching.}
+The online bipartite matching problem has been intensively studied over the past decade. An instance of this problem specifies a bipartite graph $G=(L,R,E)$ in which the set of left vertices $L$ is known in advance, while the set of right vertices $R$ and edges $E$ are revealed over time. An algorithm maintains a monotone matching that is empty initially. At each step, an online vertex $v\in R$ arrives and all of its incident edges are revealed. An algorithm must immediately and irrevocably decide if $v$ should be matched to a previously unmatched vertex in $N(v)$. The objective is to maximize the size of the matching found at the end.
+
+This problem and almost all of its variants studied in the literature share the common feature that vertices of only one side of the bipartite graph arrive online. While this property indeed holds in many applications, it does not necessarily reflect the reality in general. We exemplify this by the following application:
+\begin{itemize}
+%\item {\bf Internet advertisement auction.}  Advertisers and incoming search keywords are represented by the left vertices and right vertices respectively. Each advertiser $i$ places a bid $b_{ij}$ on keyword $j$. As each keyword is queried, the search engine company must decide which advertisement should be shown in order to earn $b_{ij}$. The objective is to maximize the revenue earned from the advertisers. In this scenario, not only are keywords queried continuously, new advertisers can also arrive over time. The traditional model of this problem assumes only the former.
+
+\item {\bf Online market clearing.} In a commodity market, buyers and sellers are represented by the left and right vertices. An edge between a buyer and seller indicates that the price that the buyer is willing offer is higher than the price at which the seller is willing to take. The objective is to maximize the number of trades, or the size of the matching. In this problem, both the buyers and sellers arrive and leave online continuously.
+
+%\item {\bf Job recruitment.} Suppose that some companies are considering job applications submitted over time. On the other hand, a new company may have a position just open up and start looking for applicants. In this scenario, both the companies and job applicants arrive continuously. When an applicant applies and receives his offers, he has to decide if he should accept one or wait for a new offer from a company which is yet to start their recruitment. Similarly, when a company starts recruiting, it receives a number of applications and has to inform the applicants the outcomes within a reasonable period of time. The objective is to maximize the number of hires.
+\end{itemize}
+%Once an offer is made, the applicant typically is allowed a short period before he accepts or rejects it and such a decision is irrevocable.
+Thus a more general model of online bipartite matching is to allow all vertices to be online. In this paper, we obtain the first non-trivial algorithm for the fractional version of this generalization. Our algorithm is 0.526-competitive and, in fact, also works in general graphs.
+
+\paragraph{Ski rental and online bipartite vertex cover.}
+The ski rental problem is perhaps one of the most studied online problems. Recall that in this problem, a skier goes on a ski trip for $N$ days but has no information about $N$. On each day he has the choice of renting the ski equipment for 1 dollar or buying it for $B>1$ dollars. His goal is to minimize the amount of money spent.
+
+We consider the online bipartite vertex cover problem, which is a generalization of ski rental. The setting of this problem is exactly identical to that of online bipartite matching except that the task is to maintain a monotone vertex cover instead. Ski rental can be reduced to online bipartite vertex cover via a complete bipartite graph with $B$ left vertices and $N$ right vertices. One may view this problem as ski rental with a combinatorial structure imposed.
+We show that the optimal competitive ratio of online bipartite vertex cover is $\frac{1}{1-1/e}$. In other words, we still have the same performance guarantee even though the online bipartite vertex cover problem is considerably more general than the ski rental problem.
+
+\paragraph{The connection.}
+Recall that bipartite matching and vertex cover are dual of each other in the offline setting. It turns out that the analysis of an algorithm for online bipartite fractional matching in~\cite{Buchbinder2007} implies an optimal algorithm for online bipartite vertex cover. On the other hand, online bipartite vertex cover generalizes ski rental. This connection is especially interesting because online bipartite matching does not generalize ski rental but is the dual of its generalization\footnote{Coincidentally, the first papers on online bipartite matching and ski rental were both published in 1990 but to our knowledge, their connection was not realized, or at least explicitly stated.}.
+
+\paragraph{The greedy algorithm.}
+There is a simple well-known greedy algorithm for online matching and vertex cover in general graphs. As each vertex arrives, we match it to an arbitrary unmatched neighbor (if any) and put both of them into the vertex cover. It is easy to show that this algorithm is $1/2$-competitive for online matching and $2$-competitive for online vertex cover.
+
+The greedy algorithm for the vertex cover problem is optimal assuming the Unique Game Conjecture even in the offline setting~\cite{Khot2008}. Thus there is no hope of doing better than 2 if we strict ourselves to integral vertex covers in general graphs.  For the other problems studied in this paper, e.g. matching and vertex cover in bipartite graphs and matching in general graphs, no known algorithm beats the greedy algorithm in the online setting.
+
+We present the first successful attempt in breaking the barrier of 2 (or 1/2) achieved by the greedy algorithm. In the fractional setting, our algorithm is $1.901$-competitive (against the minimum fractional cover) for online vertex cover and $\frac{1}{1.901}\approx 0.526$-competitive (against the maximum fractional matching) for online matching in general graphs. It is possible to convert the fractional algorithm to a randomized integral algorithm for online vertex cover in bipartite graphs. On the other hand, it is not clear whether it is possible to round our algorithm or its variants for online matching in either bipartite graphs or general graphs.
+
+We stress that the fractional setting is still of interest for two reasons:
+
+\begin{itemize}
+\item As well-articulated in~\cite{Buchbinder2007}, some commodities are divisible and hence should be modeled as fractional matchings. In fact, for divisible commodities one would even prefer a fractional matching assignment since the maximum fractional matching may be larger than the maximum integral matching in general graphs. Thus a $c$-competitive algorithm against fractional matching would be preferable to a $c$-competitive algorithm against integral matching.
+\item Our 0.526-competitive algorithm for fractional matching suggests that it may be possible to beat the greedy algorithm for online integral matching in the oblivious adversarial model.
+\end{itemize}
+
+% Yajun: this should be put into the next section.
+%For online bipartite vertex cover, we give an optimal algorithm which generalizes the original optimal algorithm for ski rental. One particular advantage is that this algorithm is more natural than the one implied in []. Furthermore, we give a novel charging-based analysis. Using this new framework allows us to design the first nontrivial algorithm for online integral vertex cover. We then retroactively give a primal-dual analysis of this algorithm, from which we obtain an algorithm for online fractional matching as a by-product.
+%
+%
+\subsection{Our results and techniques}
+%The natural greedy algorithm for minimum vertex cover (resp. maximum matching) can be adapted online and is 2-competitive (resp. $\frac{1}{2}$-competitive). Our main contribution is showing how to break these barriers in the fractional setting. For maximum matching, we conjecture that it is possible to do the same in the integral setting; for minimum vertex cover, however, such is impossible assuming the unique game conjecture which implies that we cannot do better than 2 in polynomial time even in the offline setting.
+
+Our algorithms rely on a charging-based algorithmic framework for online vertex cover-related problems. The following results on vertex cover were obtained using this method:
+\begin{itemize}
+\item A new optimal $\frac{1}{1-1/e}$-competitive algorithm for online bipartite vertex cover\footnote{A similar algorithm is implied by the analysis of the algorithm for online bipartite fractional matching in~\cite{Buchbinder2007}.}.
+\item A 1.901-competitive algorithm for online fractional vertex cover in general graphs.
+%\item A 1.747-competitive algorithm for online bipartite vertex cover with 2-alternation.
+\end{itemize}
+
+We stress that the fact that our result holds only for the \emph{fractional} version of online vertex cover in general graphs is reasonable. In fact, even in the offline setting, the best known approximation algorithm for minimum vertex cover is just the simple 2-approximate greedy algorithm. Getting anything better than 2 would disprove the Unique Game Conjecture even in the offline setting~\cite{Khot2008} and have profound implications to the theory of approximability.
+
+Our algorithms can also be analyzed in the prime-dual framework~\cite{Buchbinder2007}. As by-products, we obtain dual results on the maximum matching as follows:
+\begin{itemize}
+\item A 0.526-competitive algorithm for online fractional matching in general graphs. This improves the result on the online edge-selection problem studied in~\cite{Blum2006}.
+%\item A 0.572-competitive algorithm for online bipartite fractional matching with 2-alternation.
+\end{itemize}
+
+All of these results also hold in the vertex-weighted setting (for vertex cover) and the b-matching setting.
+Section~\ref{sec:rounding} explains how to convert essentially any algorithm for online {\em fractional} vertex cover to an algorithm for online {\em integral} vertex cover in the case of bipartite graphs with the same (expected) performance. 
+%Thus one may replace "fractional" by "integral" in the statements above if restricted to bipartite graphs.
+
+%We emphasize that these two approaches, i.e., our charging-based scheme and the prime-dual framework, are both of interest. The primal-dual method allows us to simultaneously obtain the primal (matching) and dual (vertex cover) results. On the other hand, the charging method is an algorithmic framework that allows us to systematically design algorithms for vertex cover-related problems. 
+%In fact, we probably would not have been able to come up with the algorithm for online vertex cover without the charging-based framework.
+
+%By giving alternate primal-dual analyses of the algorithms above, we obtain the following results.
+
+On the hardness side, we establish the following lower bound (for vertex cover) and upper bound (for matching) on the competitive ratios. Notice that these bounds also apply to the integral version of the problems.
+\begin{itemize}
+%\item A lower bound of $1+\frac{1}{\sqrt{2}}\approx 1.707$ for online bipartite vertex cover with 2-alternation.
+\item A lower bound of $1+\sqrt{\frac{1}{2}\left(1+\frac{1}{e^2}\right)}\approx 1.753$ for the  online {\em fractional} vertex cover problem in bipartite graphs.
+% with 3-alternation. 
+%This also applies to online fractional vertex cover in general graphs.
+\item An upper bound of 0.625 for the online {\em fractional} matching problem in bipartite graphs. 
+%with 2-alternation. This also applies to online fractional matching in general graphs.
+\end{itemize}
+
+\paragraph{Main ingredients.}
+Our result is based on a novel charging-based analysis of a new {\em water-filling} algorithm for the online bipartite vertex cover problem. In the {\em water-filling} algorithm, for each online vertex, we are allowed to use water of amount at most $\frac{1}{1-1/e}$ to cover the new edges. (Recall that in the original {\em water-filling} algorithm for matching, the amount of water is at most $1$.) In our charging scheme, for an online vertex in the optimal cover, we charge all the water used in processing this vertex to itself. For an online vertex not in the optimal cover, we charge the water spent on the online vertex to its neighbors, which must be in the optimal cover. In particular, in the bipartite graph case with one-sided online vertices, an online vertex in the optimal cover will take care of the cost processing itself wherea an offline vertex in the optimal cover is responsible for the charge from its online neighbors. 
+
+In generalizing the charging scheme to the two-sided online bipartite and the general graph cases, a vertex must take care of both the cost in processing itself and the charges received from future neighbors. In such generalizations, we cannot use a fixed amount of water in processing each vertex. A key insight behind our algorithm is that the amount of water used should be related to the actual final water level. In other words, for a final water level $y$, the amount of water used should be $f(y)$ for some allocation function $f(\cdot)$. By extending our previous charging scheme, the competitive ratio of our new water-filling algorithm for the online fractional vertex cover problem in general graphs will be a function of $f(\cdot)$. We also derive the constraints which $f(\cdot)$ must satisfy in order to make the analysis work.
+
+As a result, we are left with a non-conventional minimax optimization problem. (See Eqn.(\ref{eqn:opt}).) The most exciting part, however, is that we can actually solve this optimization problem {\em optimally}.\footnote{Our solution is optimal in {\em our framework}. It may not be optimal for the online fractional vertex cover problem. } The optimal allocation function in Theorem~\ref{thm:vcgeneral} implies a competitive ratio of $1.901$ for the online fractional vertex cover problem in general graphs.
+Our primal-dual analysis for the online fractional matching problem in general graphs is obtained by reverse-engineering the charging-based analysis.
+
+\paragraph{Remark:} In retrospect, it may be much harder to directly develop a water-filling algorithm for online matching in general graphs. 
+Firstly, it may take some work to realize that the amount of water used should be variable rather than 1 as in online bipartite matching. On the contrary, in vertex cover, the amount of water is already variable even for the basic one-sided online bipartite vertex cover. Secondly, to analyze a water-filling algorithm on the matching, one has to optimize over the allocation function, which specifies the total amount of water used as a function of the water level, and another function which updates the potentials of the dual variables. As a consequence, the competitive ratio would be an optimization problem involving {\em two variable functions}! In fact, if we reverse engineer a water-filling algorithm on the matching from our solution, the corresponding allocation function does not have a known closed form.
+Thus our charging-based analysis for online vertex cover is a critical step in developing the algorithms. Our starting point, the vertex cover, turns out to be a surprising blessing.
+
+\subsection{Previous work}
+There are three lines of research related to our work. The first two categories discussed below are particularly relevant.
+
+\paragraph{Online matching.}
+The online bipartite matching problem was first studied in the seminal paper by Karp et al.~\cite{Karp1990}. They gave an optimal $1-1/e$-competitive algorithm. Subsequent works studied its variants such as $b$-matching~\cite{kalyanasundaram2000optimal}, vertex weighted version~\cite{Aggarwal2011,devanurrandomized}, adwords~\cite{Buchbinder2007,DevenurH09,Mehta2007,devanurrandomized, devanur2012online,goel2008online,Aggarwal2011} and online market clearing~\cite{Blum2006}. Water-filling algorithms have been used for a few variants of the online bipartite matching problem (e.g. ~\cite{kalyanasundaram2000optimal,Buchbinder2007}).
+
+Another line of research studies the problem under more relaxed adversarial models by assuming certain inherent randomness in the inputs~\cite{Feldman2009,Manshadi2011,Mahdian2011, Karande2011}. Online matching for general graphs have been studied under similar stochastic models~\cite{bansal2010lp}. To our knowledge, there is no result on this problem in the more restricted adversarial models other than the well-known $1/2$-competitive greedy algorithm, even for just bipartite graphs with vertices from both sides arriving online~\cite{Blum2006}.
+
+Analyzing greedy algorithms for maximum matching in the offline setting is another related research area. Aronson et al.~\cite{Aronson1995} showed that a randomized greedy algorithm is a $\frac{1}{2}+\frac{1}{400,000}$-approximation. The factor was recently improved to $\frac{1}{2}+\frac{1}{256}$~\cite{poloczek12}. A new greedy algorithm with better ratio was presented in~\cite{goel12}. Our 0.526-competitive algorithm for online fractional matching complements these results. 
+
+\paragraph{Ski rental.} The ski rental problem was first studied in~\cite{karlin1988competitive}. Karlin et al. gave an optimal $\frac{1}{1-1/e}$-competitive algorithm in the oblivious adversarial model~\cite{Karlin1994}. There are many generalizations of ski rental. Of particular relevance are multislope ski rental~\cite{Lotker2008}  and TCP acknowledgment~\cite{Karlin2001}, where the competitive ratio $\frac{1}{1-1/e}$ is still achievable. 
+%In other words, they capture more general scenarios than the original ski rental problem without any loss in performance. 
+The online vertex-weighted bipartite vertex cover problem presented in this paper is also of this nature and, in fact, further generalizes multislope ski rental, as shown in Appendix~\ref{sec:multislope}.
+
+\paragraph{Online covering.} Another line of related research deals with online integral and fractional covering programs of the form $\min\{ cx\mid Ax\geq 1,0\leq x\leq u\}$, where $A\geq 0,u\geq 0$, and the constraints $Ax\geq 1$ arrive one after another~\cite{Buchbinder2009}. Our online vertex cover problem also falls under this category. The key difference is that the online covering problems are so general that the optimal competitive ratios are usually not constant but logarithmic in some parameters of the input.
+
+Finally, online vertex cover for general graphs was studied by Demange et al.~\cite{Demange2005} in a model substantially different from ours. Their competitive ratios are characterized by the maximum degree of the graph.
+
+
+\section{Preliminaries}
+
+
+Given $G=(V,E)$, a vertex cover of $G$ is a subset of vertices $C\subseteq V$ such that for each edge $(u,v) \in E$, $C\cap \{u,v\} \neq \emptyset$. A matching of $G$ is a subset of edges $M\subseteq E$ such that each vertex $v \in V$ is incident to at most one edge in $M$.
+
+$\by\in [0,1]^V$ is a fractional vertex cover if for any edge $(u,v)\in E$, $y_u+y_v \geq 1$. We call $y_v$ the {\em potential} of $v$.  $\bx\in [0,1]^E$ is a fractional matching if for each vertex $u\in V$, $\sum_{v\in N(u)} x_{uv} \leq 1$. It is well-known that vertex cover and matching are dual of each other.
+
+{\bf LPs for fractional vertex cover and matching.}
+
+%Recall the LPs for fractional vertex cover and matching in a graph $G=(V,E)$:
+\begin{center}
+\begin{tabular}{ | r l | r l | }
+\hline
+Primal (Matching): & & Dual (Vertex Cover): &\\
+ & $\max\sum_{e\in E} x_e$ &  & $\min\sum_{v\in V}y_v$ \\
+s.t. & $ x_v:=\sum_{u\in N(v)} x_{uv}\leq 1,\,\forall v\in V$ & s.t. & $y_u+y_v\geq 1,\,\forall (u,v)\in E$ \\
+&  $x\geq 0$ & & $y\geq 0$ \\
+\hline
+\end{tabular}
+\end{center}
+
+In this paper, the matching and vertex cover LPs are called the primal and dual LPs, respectively. By weak duality, we have $$\sum_{e\in E} x_e\leq\sum_{v\in V}y_v $$ for any feasible fractional matching $\bx$ and vertex cover $\by$.
+
+%{\bf Yajun: probably we should talk about the vertex weight and capacited matching in the end of priliminary.}
+%
+%If the vertices are weighted (for vertex cover) or capacitated (for matching), we instead have the following primal and dual LP objectives:
+%
+%\begin{tabular}{ c c }
+%  $\max\sum_{e\in E} x_e$, & $\min\sum_{v\in V}w_vy_v$. 
+%  %\\
+% %$ x_v:=\sum_{u\in N(v)} x_{uv}\leq w_v\forall v\in V$ & $y_u+y_v\geq 1\forall (u,v)\in E$ \\
+% % $x\geq 0$ & $y\geq 0$ \\
+%\end{tabular}
+%
+%These LPs will be used when we analyze the primal-dual algorithms for various variants of online vertex cover and matching.
+
+{\bf Competitive analysis.}
+We adopt the competitive analysis framework to measure the performance of online algorithms. The size of the vertex cover  (or matching) found by an algorithm is compared against the (offline) optimal solution, in the worst case.
+
+An algorithm, possibly randomized, is said to be \textit{$c$-competitive} if for any instance, the size of the solution $ALG$ found by the algorithm and the size of the optimal solution $OPT$ satisfy 
+\[
+\mathbb{E}[ALG] \leq c\cdot OPT\,\mathrm{ or }\,\mathbb{E}[ALG]\geq  c\cdot OPT
+\]
+depending on whether the optimization is a minimization or maximization problem. The constant $c$ is called the \textit{competitive ratio}.
+
+% Yajun: why we want to discuss the adaptive one? we might want to focus on the oblivious one.
+%A few different adversarial models have been considered in the literature. In this paper, we consider the adaptive offline adversarial and oblivious adversarial models. In the former model, it can be shown that for any "reasonable" problem, it suffices to consider only deterministic algorithms. The key feature of the latter model is that the adversary must specify the input once-and-for-all at the beginning and is not given access to the randomness used by the algorithm. See e.g. [] for more formal definitions of different adversarial models used in modeling online problems.
+A few different adversarial models have been considered in the literature. In this paper, we focus on the {\em oblivious adversarial} model, in which the adversary must specify the input once-and-for-all at the beginning and is not given access to the randomness used by the algorithm. %We remark that for deterministic algorithms, all of these adversarial models are equivalent. See any standard online algorithm textbook for more details.
+
+\subsection{Algorithms for online vertex cover and matching}
+In the online setting, the vertices of $G$ arrive one at a time in an order determined by the adversary. When an online vertex $v$ arrives, all of its edges incident to the {\em previously arrived} vertices are revealed. We denote the set of arrived vertices by $T\subset V$ and $G(T)$ is the subgraph of $G$ induced by $T$.
+
+%Let $T\subset V$ be the set of arrived vertices and $G(T)$ be the subgraph of $G$ induced by $T$. In the online vertex cover problem, we are required to maintain a {\em monotone} vertex cover for $G(T)$ at all time. For the fractional version, $y_u$ must never decrease, whereas for the integral version, we are not allowed to remove vertices from the current cover $C$. The objective is to minimize the size of the final cover.
+
+%In the online matching problem, we are required to maintain a {\em monotone} matching of $G(T)$ at all time. In particular, in the fractional setting, $x_{uv}$ must never decrease for $(u,v)\in E$ and in the integral setting, we are not allowed to remove edges from the current matching. The objective is to maximize the final matching.
+
+An algorithm for online integral matching maintains a monotone matching $M$. As each vertex $v$ arrives, it must decide if $(u,v)$ should be added to $M$ for some previously unmatched $u\in N(v)\cap T$, where $N(v)$ is neighbors of $v$ in $G$. No edge can be removed from $M$. The objective is to maximize the size of the final matching $M$. For online fractional matching, a fractional matching $\bx$ for $G(T)$ is maintained and at each step, $x_{uv}$ must be initialized for $u\in N(v)\cap T$ so that $\bx$ remains a fractional matching. The objective is to maximize the final $\sum_{e\in E} x_e$.
+
+An algorithm for online integral vertex cover maintains a monotone vertex cover $C$. As each vertex $v$ arrives, it must insert a subset of $\{v\}\cup N(v)\backslash C$ into $C$ so that it remains a vertex cover. No vertex can be removed from $C$. The objective is to minimize the size of the final cover $C$. For online fractional vertex cover, a fractional vertex cover $\by$ for $G(T)$ is maintained and at each step, we must initialize $y_v$ and possibly increase some $y_u$ for $u\in T$ so that $\by$ remains a fractional vertex cover. The objective is to minimize the final $\sum_{v\in V}y_v$.
+
+To simplify the terminology, we refer to the online vertex cover (matching) problem as the instances where all vertices in the graph arrive online. On the other hand, to be conformal with the existing terminology in the literature, we refer to the online {\em bipartite} vertex cover (matching) problem as the instances where the graph is bipartite and only one side of the vertices arrive online. This is the traditional case studied in the literature.
+
+%\subsection{Problem statements}
+%{\bf Ski rental} Suppose that a skier goes on a ski trip for $N$ days but $N$ is unknown to him. In the morning of each day, he decides if he will keep skiing that day or go home. If he decides to stay, he has the choice of buying the equipment for $B$ dollars or renting it for 1 dollar. Once he buys it, no more buying or rental cost will be incurred. The goal is to minimize the amount of money spent.
+%
+%{\bf Online integral matching and vertex cover} Let $G=(V,E)$ be an undirected graph. Let $T$ denote the set of revealed vertices. Initially $T=\emptyset$. At each step, a vertex $v\in V\backslash T$ and its neighbors in $T$, i.e. $N(v)\cap T$, are revealed. $v$ is also added to $T$.
+%
+%An algorithm for online integral matching maintain a monotone matching $M$. As each vertex $v$ arrives, it must decide if $(u,v)$ should be added to $M$ for some previously unmatched $u\in N(v)\cap T$. No edge can be removed from $M$. The objective is to maximize the final $|M|$.
+%
+%An algorithm for online integral matching maintain a monotone vertex cover $C$. As each vertex $v$ arrives, it must select a subset of $\{v\}\cup N(v)\backslash C$ and add it to $C$ so that it remains a vertex cover for the subgraph induced by $T$. No vertex can be removed from $C$. The objective is to minimize the final $|C|$. A simple thought tells us that either $v$ or $N(v)\backslash C$ should be added to $C$ (as adding both is clearly not a wise decisioin).
+%
+%{\bf Online fractional matching and vertex cover} The input of the fractional version of the problem is identical. An algorithm for online fractional matching maintains a monotonically increasing fractional matching $x$ for the subgraph induced by $T$. As each vertex $v$ arrives, it initializes $x_{uv}$ for $u\in N(v)\cap T$ so that $x$ remains a fractional matching. The objective is to maximize the final $\sum_{e\in E} x_e$.
+%
+%An algorithm for online fractional vertex cover maintains a monotonically increasing fractional vertex cover $y$ for the subgraph induced by $T$. As each vertex $v$ arrives, it initializes $y_v$ and possibly increase some $y_u$ for $u\in T$ so that $y$ remains a fractional vertex cover. The objective is to minimize the final $\sum_{v\in V}y_v$.
+
+%Yajun: this is not a separate problem.
+%{\bf Online bipartite integral/fractional matching and vertex cover.} 
+
+
+%\textit{Unless stated explicitly, we shall assume the case of 1-alternation when studying the problem in bipartite graphs.}
+
+{\bf Weighted vertex cover and b-matching.} Our results can be generalized to cases of weighted vertex cover and b-matching.
+For vertex cover, the objective function becomes $\sum_{v\in C}w_v$ (integral) or $\sum_{v\in V}w_vy_v$ (fractional), where $w_v\geq 0$ are weights on the vertices that are revealed to the algorithm when $v$ arrives.
+
+For b-matching, the only difference is that each vertex can be matched up to $w_v\in\mathbb{N}$ times instead of just 1 (integral) or the constraint $x_v:=\sum_{u\in N(v)}x_{uv}\leq w_v$, where $w_v\geq 0$, replaces $x_v\leq 1$ (fractional). See below the LP formulation of the two problems for the fractional solution. 
+%We call $w_v$ the {\em capacity} of $v$.
+
+{\bf LPs for fractional weighted vertex cover and b-matching.}
+
+%Recall the LPs for fractional vertex cover and matching in a graph $G=(V,E)$:
+\begin{center}
+\begin{tabular}{ | r l | r l | }
+\hline
+Primal: & & Dual: &\\
+ & $\max\sum_{e\in E} x_e$ &  & $\min\sum_{v\in V}w_vy_v$ \\
+s.t. & $ x_v:=\sum_{u\in N(v)} x_{uv}\leq w_v,\, \forall v\in V$ & s.t. & $y_u+y_v\geq 1,\, \forall (u,v)\in E$ \\
+&  $\bx\geq 0$ & & $\by\geq 0$ \\
+\hline
+\end{tabular}
+\end{center}
+
+
+%\textit{For brevity, in this paper we often omit the word "fractional" (e.g. online vertex cover instead of online integral vertex cover) if the intended meaning is unambiguous.}
+
+%\subsection{Integral vs. fractional algorithms and the role of randomization}
+%We explain how to obtain the fractional version of an integral algorithm while preserving the competitive ratio. We also show that randomization does not help in online problems that ask for a fractional solution. The materials in this section are essentially folklore but included for completeness. We focus on vertex cover to make the discussion concrete.
+%
+%Suppose that a randomized algorithm maintains a monotone vertex cover $C$. Consider $y\in\mathbb{R}^{|V|}$ given by $y_v=\mathbb{E}[v\in C]$. Observe that $y$ never decreases because $C$ is monotone. Moreover, for any edge $(u,v)$, we have $y_u+y_v=\mathbb{E}[\mathbf{1}_{u\in C}+\mathbf{1}_{v\in C}]\geq\mathbb{E}[\mathbf{1}_{u\in C\text{ or }v\in C}]=1$ since $C$ is a vertex cover. This shows that $y$ is a fractional vertex cover. Finally, the expected size of the cover $\sum\mathbb{E}[\mathbf{1}_{v\in C}]=\sum y_v$ is equal to the size of the fractional solution $y$.
+%
+%The above gives a procedure to convert a randomized algorithm for online integral vertex cover to a deterministic algorithm for online fractional vertex cover. We next address the role of randomization.
+%
+%Given a randomized algorithm for online fractional vertex cover which maintains a fractional cover $y$, consider $z=\mathbb{E}[y]$. Using analogous arguments as above, one sees that $z$ is a monotone fractional vertex cover. Thus we may consider only deterministic algorithms for fractional problems.
+
+\subsection{Rounding fractional vertex cover in bipartite graphs}
+\label{sec:rounding}
+%It is generally not possible to round a fractional solution to a randomized integral solution in online algorithms. We show that, however, this can be done for bipartite vertex cover~\cite{NivPersonal}.\footnote{We previously had a more complicated rounding scheme. We thank Niv Buchbinder for allowing us to present his simple scheme.}
+We present a rounding scheme that converts any given algorithm for online {\em fractional} vertex cover to an algorithm for online {\em integral} vertex cover in bipartite graphs~\cite{NivPersonal}.\footnote{We previously had a more complex rounding scheme. We thank Niv Buchbinder for letting us present his simple scheme.} This allows us to obtain the integral version of our results on fractional vertex cover for bipartite graphs.
+
+Let ${\bf y}$ be the fractional vertex cover maintained by the algorithm. %, which we can assume to be deterministic by the discussion in the last section.
+Sample $t\in [0,1]$ uniformly at random before the first online vertex arrives. Throughout the execution of the algorithm, assign $u\in L$  to the cover if $y_u\geq t$ and $v\in R$ to the cover if $y_v\geq 1-t$, where $L$ and $R$ are the left and right vertices of the graph $G$ respectively.
+As $y_u$ and $y_v$ never decrease in the online algorithm, our rounding procedure guarantees that once a vertex enters the cover, it will always stay there. 
+
+We next claim that this scheme gives a valid cover. Since $\by$ is always feasible, we have $y_u+y_v\geq 1\forall (u,v)\in E$ and hence at least one of $y_u\geq t$ and $y_v\geq 1-t$ must hold. In other words, one of $u$ and $v$ must be in the cover.
+Therefore the cover obtained by applying this scheme is indeed valid and monotone, as required.
+
+Finally, for each vertex $v$ with final potential $y_v$, the probability that $v$ is in the cover after the rounding is exactly $y_v$. Therefore, by linearity of expectation, the expected size of the integral vertex cover after the rounding is exactly $\sum_{v\in L\cup R} y_v$. Hence, this rounding scheme does not incur a loss.
+
+\section{Online bipartite vertex cover problem}
+
+In this section, we study the online bipartite vertex cover which is the dual of the traditional online bipartite matching problem. In this problem, the left vertices of the graph $G=(L,R,E)$ are offline and the right vertices in $R$ arrive online one at a time.
+As mentioned in the introduction, online bipartite vertex cover generalizes the well known ski rental problem.
+\begin{lemma}
+Online bipartite vertex cover generalizes ski rental. In particular, no algorithm for online bipartite vertex cover achieves a competitive ratio better than $1+\alpha:=\frac{1}{1-1/e}$, which is the optimal ratio for ski rental~\cite{Karlin1994}.
+\end{lemma}
+
+\subsection{An optimal algorithm: $GreedyAllocation$}
+\label{subsec:greedyallocation}
+We present an optimal algorithm for the online vertex cover problem in bipartite graphs.  Notice that the primal-dual analysis of the previously studied water-level algorithms on the online bipartite matching problem implies an optimal algorithm for the online bipartite vertex cover problem. Our algorithm applies the {\em water level} paradigm on {\em vertex cover} instead of {\em matching}. 
+
+This difference may appear trivial but it actually has profound consequences. In the water-filling algorithms for matching, the amount of water used is typically at most 1, i.e. the online vertex can be matched at most once. This is independent of the final water level. However, in vertex cover, we use at most $y+\alpha$ amount of water on the neighbors of the online vertex when the final water level is $y$. Our use of a general allocation function $f(\cdot)$ in the general graph case is partly inspired by this. Secondly, our new algorithm permits a novel charging-base analysis, 
+%, which forms a basis for our results in the general graph case.
+%
+%
+%Although it is possible to analyze the algorithm in the primal-dual framework by designing a corresponding algorithm for the matching as in~\cite{Buchbinder2007}, we will analyze the algorithm using a novel charging-based argument. 
+which encompasses several key observations that are helpful in developing our algorithm for online vertex cover in general graphs.
+
+%Our algorithm is based on the ``water filling" paradigm.
+To avoid repetition, we present our algorithm in the general case as Algorithm~\ref{alg:general greedy} with allocation function $f(\cdot)$. For each vertex $v$, we maintain a non-decreasing cover potential $y_v$ which is initialized to $0$.
+When an online vertex $v$ arrives, the edges between $v$ and $N(v)\cap T$ are revealed. In order to cover these new edges, we must increase the potential of $v$ and its neighbors. Suppose that we set $y_v=1-y$ after processing $v$. To maintain a feasible vertex cover, we must increase any $y_u<y$ for $u\in N(v)$ to $y$. We call $y$ the {\em water level}.
+
+The trick here lies in how $y$ is determined. We consider a simple scheme in which $y$ is related to the total potential increment of $N(v)$. More precisely, we require that the total potential increment $\sum_{u\in N(v):y_u<y}(y-y_u)$ be at most $f(y)$, where $f$ is a positive continuous function on $[0,1]$. 
+
+For the online bipartite vertex cover problem considered in this section, the {\em allocation function} $f(y)=\alpha + y$ turns out to be an optimal choice. Another interpretation of this allocation function is that we spend at most $(1-y)+(\alpha + y)=1+\alpha$ amount of water on each online vertex. This observation will be crucial in the analysis. 
+
+%all of $v$'s neighbors that previously have potential less than $y$ now have potential $y$ while other neighbors' potentials remain the same, we initialize $y_v=1-y$. 
+%In general, we are allowed to use potential $f(y)$ on $v$'s neighbors if the final water level is $y$, where $f(\cdot)$ is a non-negative continuous function on $[0,1]$. 
+%We call $f(\cdot)$ the {\em allocation function}. Our algorithm is described in $GreedyAllocation$
+
+%Notice that we present $GreedyAllocation$ for general graphs with general allocation function $f(y)$. For bipartite graphs $G=(L,R,E)$, offline vertices are $L$ and $f(y) = \alpha + y$. 
+%Since we will assign $1-y$ to $v$, the total potential available in processing an online vertex is at most $1+\alpha$. In other words, we will greedily increase the water level $y$ within our budget $1+\alpha$.
+
+
+
+%We show how the result in [?] implies an optimal $1+\alpha:=\frac{1}{1-1/e}$-competitive algorithm for online bipartite vertex cover. In [?], an optimal $1-1/e$-competitive algorithm for online bipartite fractional matching, waterfilling, is stated and analyzed in the primal-dual framework. This gives a dual algorithm for vertex cover because the dual variables are never decreased. We briefly sketch the details below. The algorithm and its analysis is a variant of the one in [?]. Recall the LPs for bipartite matching and vertex cover.
+%
+%$\max\sum_{(u,v)\in E}x_{uv}|x_u:=\sum_{v:(u,v)\in E} x_{uv}\leq 1\forall u\in L,
+% x_v:=\sum_{u:(u,v)\in E} x_{uv}\leq 1\forall v\in R,x\geq 0$
+%
+%$\min\sum_{u\in L}y_u+\sum_{v\in R}y_v|y_u+y_v\geq 1\forall (u,v)\in E, y\geq 0$
+%
+
+\begin{algorithm}[h!]
+\SetAlgoLined
+\caption{$GreedyAllocation$ with allocation function $f(\cdot)$}
+\label{alg:general greedy}
+\KwIn{Online graph $G=(V,E)$ with offline vertices $U\subset V$}
+\KwOut{A fractional vertex cover of $G$}
+Initialize for each $u\in U$, $y_u = 0$\;
+Let $T$ be the set of known vertices. Initialize $T=U$\;
+\For{each online vertex $v$}
+{
+Maximize $y\le 1$, s.t., $\sum_{u\in N(v)\cap T} \max\{y-y_u,0\} \leq f(y)$\;
+For each $u\in N(v)\cap T$, $y_u \leftarrow \max\{ y_u, y\}$\;
+$y_v \leftarrow 1-y$\;
+$T\leftarrow T\cup \{v\}$\;
+}
+Output $\{y_v\}$ for all $v\in V$\;
+\end{algorithm}
+
+
+%Upon the arrival of $v$, initialize $x_{uv}$ for $u\in N(v)$ and update the potentials $y_{u}$
+%as follows:
+
+%\begin{enumerate}
+%\item Maximize $y\leq1$ subject to $(1-y)+\sum_{u\in N(v)}(\max\{y_{u},y\}-y_{u})\leq1+\alpha$
+%\item Initialize $x_{uv}\longleftarrow 0$ if $y_u\geq y$
+%\item For $u\in N(v)$ in which $y_u<y$
+%\item $y_{u}\longleftarrow y$
+%\item $y_{v}\longleftarrow 1-y$
+%\item Maintain the invariant $y_u=\alpha (e^{x_u}-1)$ by appropriately initializing $x_{uv}$ and hence increasing $x_u$
+%\end{enumerate}
+
+%Buchbinder et al. showed that Waterfilling is $1-1/e$-competitive for online bipartite fractional matching by arguing that $\sum_{(u,v)\in E}x_{uv} \geq (1-1/e)\sum_{u\in L}y_u+\sum_{v\in R}y_v$, from which the desired claim follows by weak duality because $\sum_{u\in L}y_u+\sum_{v\in R}y_v$ is an upper bound on the size of the maximum matching. An analogous argument shows that Waterfilling is also $1+\alpha$-competitive for online bipartite fractional vertex cover, as $\sum_{(u,v)\in E}x_{uv}$ is a lower bound on the size of the minimum vertex cover.
+%
+%We give a new analysis of Waterfilling in section 3.2 via a simple charging argument. This also helps explain how the function $\alpha (e^x-1)$ arises.
+%
+%\subsection{Rounding}
+%{\bf Yajun: I would put the rounding in the introduction. In the main paper, we can always talk about fractional solutions, which will make things simpler. }
+%
+%
+%Sample $t\in [0,1]$ uniformly at random before the first online vertex arrives.
+%
+%Throughout the execution of the algorithm, assigns $u\in L$  to the cover if $y_u\geq t$ and $v\in R$ to the cover if $y_v\geq 1-t$.
+%
+%As $y_u$ and $y_v$ never decrease, this rounding procedure guarantees once a vertex is assigned in the cover, it will always stay there.
+%
+%Since $y$ is always feasible, we have $y_u+y_v\geq 1$ at all time and hence at least one of $y_u\geq t$ and $y_v\geq 1-t$ must hold.
+
+\subsection{Analyzing $GreedyAllocation$}
+%{\em Yajun: I am editing this section.}
+
+%It is possible to analyze the WaterFilling algorithm in the prime-dual framework. In particular, this is a special case for our main algorithm. In this section, on the other hand, we provide a charging argument based analysis, which is helpful in developing our main algorithm.
+
+%The primal version of Waterfilling, as argued in [?], is somewhat counterintuitive as it is not clear why one should increment $x_u$ in a 'waterfilling' manner. We explain (informally) how this strategy arises naturally in the dual setting and this also constitutes the basis of our charging argument. 
+
+Now we analyzing the performance of $GreedyAllocation$ with $f(y) = y +\alpha$ for the online bipartite vertex cover problem.
+Let $C^*$ be a minimum vertex cover of $G$. Our strategy is to charge the potential increment to vertices of $C^*$ in such a way that each vertex of $C^*$ is charged at most $1+\alpha$.
+
+Let $v$ be the current online vertex. Suppose that our algorithm sets $y_v=1-y$ for some $y$. 
+Let $y_u$ be the potential of $u\in N(v)$.
+%To maintain feasibility, $y_u$ should be increased if $u\in N(v)$ and $y_u\ge y$. 
+%In fact, we can without loss of generality assume that such $y_u$ should be increased to $1-y$ as any additional increment only increases the total potentials. Of course, increasing $y_u$ beyond $1-y$ may help \textit{future} online vertices. However, even in such cases one can still defer the increment until it becomes useful. Therefore, the way in which $y$ is determined is the core of any reasonable algorithm for online bipartite vertex cover. 
+We consider two cases.
+
+\underline{Case 1:} $v\in C^*$. 
+%Since it may happen that $N(v)\cap C^*=\emptyset$, 
+It is natural to charge the potential increment in $N(v)$ and $v$ to $v$. 
+By our construction, $v$ will be charged at most $1+\alpha$.
+%This observation suggests that the total increment $1-y+\sum_{u\in N(v):y_u<y}(y-y_u)$ should be bounded by $1+\alpha$.
+
+\underline{Case 2:} $v\notin C^*$. Notice that we must have $N(v)\subseteq C^*$. In this case, vertices of $N(v)$ should be responsible for the potential $y_v=1-y$ used by $v$.
+We describe how to charge $1-y$ to $N(v)$ as follows.
+%Thus one should maximize $y$ in order to minimize the charges to $N(v)$.
+
+%Combining both cases explains our strategy of maximizing $y$ while guaranteeing $1-y+\sum_{u\in N(v):y_u<y}(y-y_u)\leq 1+\alpha$. 
+%Our contribution is in clarifying how the charge $1-y$ should be delegated to each vertex of $N(v)$ in the latter case. 
+%Let us explain how to charge the potentials in the second case.
+Intuitively, if $\sum_{u\in N(v)} (y-y_u)=f(y)=\alpha + y$, the most fair scheme should charge $\frac{1-y}{f(y)}(y-y_u)$ to $u \in N(v)$ whose potentials increase
+since  the fair ``unit charge" is $\frac{1-y}{f(y)}$. 
+If $\frac{1-t}{f(t)}$ is decreasing, $\frac{1-y}{f(y)}(y-y_u)$ can be upper bounded by $\int_{y_u}^y \frac{1-t}{f(t)}\mathrm{d}t$. This observation motivates the next lemma which forms the basis of all the major results in this paper.
+\begin{lemma}
+\label{lem:charging}
+Let $f:[0,1]\longrightarrow\mathbb{R}_+$ be continuous such that $\frac{1-t}{f(t)}$ is decreasing, and $F(x)=\int_0^x  \frac{1-t}{f(t)}\mathrm{d}t$. If $\sum_{u\in X} (y-y_u)= f(y)$ for some set $X$ and $y\geq y_u$ for $u\in X$, then
+$$1-y\leq \sum_{u\in X} \left(F(y)-F(y_u)\right).$$
+\end{lemma}
+\begin{proof}
+We have the following
+\begin{eqnarray*}
+\sum_{u\in X}\left(F(y)-F(y_u)\right) & = & \sum_{u\in X}\int_{y_u}^y  \frac{1-t}{f(t)}\mathrm{d}t\\
+             & \geq &  \sum_{u\in X}(y-y_u)\frac{1-y}{f(y)}=1-y,
+\end{eqnarray*}
+where the inequality above holds as $\frac{1-t}{f(t)}$ is decreasing.
+\end{proof}
+
+
+%\begin{corollary}
+%\label{cor:charges}
+%Let the allocation function be $f(x)=\alpha+x$ and $G(x)=\int_0^x  \frac{1-t}{t+\alpha}\mathrm{d}t$.
+%In processing online vertex $v$ in $GreedyAllocation$, let $y_u$ be the potential of $u\in N(v)$ after processing $v$ and $X=\{ u\in N(v)\mid y_u<y\}$. 
+%We have $$y_v=1-y\leq \sum_{u\in X} \left( G(y)-G(y_u)\right).$$
+%\end{corollary}
+%\begin{proof}
+%In algorithm $GreedyAllocation$, we have $\sum_{u\in X}(y-y_u)\leq y+\alpha$, with equality whenever $y<1$.
+%
+%The case $y=1$ is trivial. Assume that $y<0$ and hence $\sum_{u\in X}(y-y_u)=y+\alpha$. Now the result follows by applying the previous lemma to the function $f(x)=x+\alpha$.
+%\end{proof}
+
+We are ready to evaluate the performance of $GreedyAllocation$. 
+\begin{theorem}
+\label{thm:no alternation}
+$GreedyAllocation$ is $1+\alpha$-competitive and hence optimal for the online bipartite vertex cover problem.
+\end{theorem}
+\begin{proof}
+We charge the potentials used to the vertices of the minimum cover $C^*$. Let $v$ be an online vertex. The case $v\in C^*$ is trivial as explained before.
+
+%{\bf Case 1:} $v\in C^*$. We charge the potential $1+\alpha$ used when processing $v$ to $v$ itself.
+
+%{\bf Case 2:} 
+
+Now consider the case $v\notin C^*$. We charge the potential spent on $u\in N(v)\subseteq C^*$ to $u$ itself. The potential spent on $v$ is $y_v = 1-y$ where $y$ is the final water level after processing $v$. 
+Let $X\subset N(v)$ be the set of vertices whose potentials increase when processing $v$.
+If $y =1$, we are done as no charging is necessary. If $y <1$, then we have $\sum_{u\in X} (y-y_u) = \alpha +y$, where $y_u$ is the potential of $u$ before processing $v$. We charge each vertex $u\in X$ by $G(y)-G(y_u)$. By Lemma~\ref{lem:charging}, $1-y \leq \sum_{u\in X} (G(y)-G(y_u))$, i.e., our charging is sufficient.
+
+%The potential $y_v=1-y$ spent on $v$ is compensated by charging $G(y)-G(y_u)$ to $u\in X\subseteq N(v)$, where 
+%$X = \{ u\in N(v)\mid y> y_u \}$ by Corollary~\ref{cor:charges}.
+
+%In this way, $y_v$ is completely accounted for by the last lemma.
+
+In summary, each online vertex of $C^*$ is responsible for $1+\alpha$ potential. On the other hand, each left vertex of $C^*$ is responsible for itself (which contributes at most 1 to $C$) as well as the incoming charges from its neighbors. For $u\in L\cap C^*$, the sum of these charges can be at most $G(1)-G(0)$ as the sum $G(y)-G(y_u)$, taken over the iterations in which $y_u$ increases, telescopes. Therefore the amount of potential charged to a left vertex is also bounded by $1+G(1)-G(0) = (\alpha+1)\ln (1+\frac{1}{\alpha}) = 1+\alpha$ since $\alpha = \frac{1}{e-1}$.
+% both left and right vertices will be responsible for potential up to $1+\alpha$. 
+This gives our desired result.
+\end{proof}
+
+In fact, $GreedyAllocation$ can be extended to the vertex-weighted setting. To avoid diversion from the main results, we defer the proof of the following theorem to the appendix.
+\begin{theorem}
+$GreedyAllocation$ (modified) is $1+\alpha$-competitive and hence optimal for online vertex-weighted bipartite vertex cover.
+\end{theorem}
+
+%{\bf Yajun: i do not want to talk about prime dual in this section. But we may use $\alpha$ as a general parameter.}
+%
+%The charging scheme given in the last proof also explains how the equation $y=\alpha(e^x-1)$, or $x=\ln(1+y/\alpha)$, arises in the primal-dual framework. Each left vertex $u\in C^*$, where $y_u=y$, is charged $y+G(y)-G(0)=(1+\alpha)\ln(1+y/\alpha)$.
+
+\section{Online fractional vertex cover in general graphs}
+The lessons learned in the last section are actually much more general. As suggested in the description of $GreedyAllocation$, we can generalize the algorithm to general graphs. However, we have to carefully design the allocation function $f(\cdot)$ to get a non-trivial competitive ratio.
+
+Before getting into the details, we revisit the analysis in the last section to gain some insights which will be helpful to tackle the general graph version of the problem. In our charging argument, each vertex in $L\cap C^*$ is responsible for the charges from its neighbors. On the other hand, a vertex in $R\cap C^*$ is only responsible for the potential increment when processing itself. However, if both vertices in $L$ and $R$ are online, an online vertex $v\in C^*$ should be responsible for the potential used to process it when it arrives as well as the charges from future neighbors.
+
+Let $f(x)$ be a general allocation function such that $\frac{1-t}{f(t)}$ is decreasing. Informally, if the water level when processing $v$ is $y<1$, i.e. the initial potential of $v$ is $1-y$, we use potential $f(y)$ on $v$'s neighbors and $1-y$ on $v$ itself. Afterwards, $v$ will take charges from its future neighbors. Notice that $v$'s potential will grow from $1-y$ to at most $1$. By Lemma~\ref{lem:charging}, $v$ will take charges at most $\int_{1-x}^1 \frac{1-t}{f(t)} \mathrm{d}t$. Putting the two pieces together, the total charges to each $v\in C^*$ and hence the competitive ratio are at most 
+\[
+\beta(f) = \max_{z\in [0,1]} 1 + f(1-z) + \int_{z}^1 \frac{1-t}{f(t)}\mathrm{d}t.
+\]
+
+We will show how to compute the optimal allocation function $f(\cdot)$ in Sec.~\ref{sec:optimization}. From now on, we will formally show that the performance of $GreedyAllocation$ in general graphs with allocation function $f(\cdot)$ is at most $\beta(f)$.
+
+%In this section, we show how to generalize the waterfilling algorithm to the case with general graphs. Notice that in the bipartite graph case, for an online vertex $v\in C^*$, it only need to be responsible for potential used in processing it. On the other hand, for an offline vertex $u \in C^*$, it needs to take care of the charges from incoming neighbors. In general graphs, however, a vertex $v\in C^*$ might be responsible for the potential in processing it as well as charges from future neighbors. If we directly apply the original algorithm, the competitive ratio would be at most $1+2\cdot\alpha >2$, which is worse than the trivial greedy algorithm.
+
+
+%We extend the charging argument to handle online fractional vertex cover in general graphs. Most of the key ideas have been given in the last section. 
+%Our high level idea is to replace $\sum (y-y_u)\leq y+\alpha$ by the more general $\sum (y-y_u)\leq f(y)$, which still satisfies the assumptions in Lemma~\ref{lem:charging}. 
+%We then  bound the competitive ratio of our algorithm by $f(x)$. By optimizing over all possible $f(x)$, we obtain an algorithm with competitive ration smaller than $2$.
+%For a vertex $v\in C^*$, let $y_v$ be the potential assigned when the algorithm processes $v$. By construction, the potential used in processing $v$ is at most $y_v + f(1-y_v)$. Now consider the future charges $v$ might receive, when the potential of $v$ increases from $y_v$ to $1$, the additional charges $v$ might take is at most $\int_{y_v}^1 \frac{1-t}{f(t)}d t$. So intuitively, we want to find function $f(x)$ which satisfies the assumption in Lemma~\ref{lem:charging} and minimizes the following
+%
+%\begin{equation}
+%\label{eqn:global}
+%\sup_{z\in [0,1]} 1 + f(1-z) + \int_z^1 \frac{1-t}{f(t)} d t.
+%\end{equation}
+
+%Hopefully, We generalize the previous charging scheme and compute the optimal $f(y)$, which gives a polynomial time 1.900-competitive algorithm. This beats the well-known 2-competitive greedy algorithm.
+
+%It is not immediately clear whether it is possible to achieve a competitive ratio of $2$ in this framework. In particular, we remark that no linear or constant function $f(y)$ achieves a competitive ratio better than 2. 
+%The main difficulty is to compute the optimal $f(y)$ as the resultant optimization problem is nonstandard and there is no systematic technique for solving this kind of problem. Nevertheless, we are fortunate enough that this particular instance has a simple optimality condition, from which a functional differential equation is obtained and has closed form solutions. The final step is to select the best $f(y)$ from the family of solutions.
+
+% Yajun: the following discussion is better in the introducation.
+%One can also consider online \textit{integral} vertex cover. However, assuming the unique game conjecture, the well-known 2-competitive greedy algorithm is already optimal among polynomial time online algorithms. In addition, we conjecture that the greedy algorithm is in fact optimal among all, not necessarily polynomial time, online algorithms.
+
+%Let $f:[0,1]\longrightarrow\mathbb{R}_+$ be continuous such that $\frac{1-t}{f(t)}$ is decreasing. Our algorithm is as follows:
+%
+%\begin{enumerate}
+%\item Maximize $y\leq1$ subject to 
+%	\[ \sum_{u\in N(v)}(\max\{y_{u},y\}-y_{u})\leq f(y).\]
+%\item For $u\in N(v)$ in which $y_u<y$
+%\item $y_{u}\longleftarrow y$
+%\item $y_{v}\longleftarrow 1-y$
+%\end{enumerate}
+\begin{lemma}
+Let $f(\cdot)$ be the allocation function.
+In processing vertex $v$ in $GreedyAllocation$, we must have either $y=1$ or $\sum_{u\in N(v)} \max\{y-y_u,0\}= f(y)$.
+\end{lemma}
+\begin{proof}
+Let $H(t)=\sum_{u\in N(v)}\max\{t-y_{u},0\}- f(t)$. Note that $H$ is continuous and $H(0)=-f(0)<0$.
+
+Assume $y< 1$. Notice that $H(1)>0$. Otherwise, we can set $y=1$. If $H(y) <0$, then by intermediate value theorem there is some $t\in (y,1)$ for which $H(t)=0$. This contradicts the maximality of $y$. Hence $H(y)=0$, as desired.
+\end{proof}
+
+Our previous discussion implies that $GreedyAllocation$ is competitive against the minimum {\em integral} vertex cover. In fact, our algorithm is also competitive against the minimum {\em fractional} vertex cover in general graphs.
+\begin{theorem}
+Let $f: [0,1]\longrightarrow R^+$ be the continuous allocation function such that $\frac{1-t}{f(t)}$ is decreasing.
+Let $\beta=\max_{z\in [0,1]} 1+f(1-z)+\int_z^1 \frac{1-t}{f(t)}\mathrm{d}t$ and $F(x)=\int_0^x  \frac{1-t}{f(t)}\mathrm{d}t$. 
+$GreedyAllocation(f)$ is $\beta$-competitive against the optimal fractional vertex cover in general graphs.
+\end{theorem}
+\begin{proof}
+Let $ y^*$ be the minimum fractional vertex cover. Denote by $v$ the current online vertex. Consider the following charging scheme.
+\begin{itemize}
+\item Charge $\left(f(y)+1-y\right)y_v^*$ to $v$.
+\item Charge $\left(y-y_u+F(y)-F(y_u)\right)y_u^*$ to $u\in X$, where $X=\{ u\in N(v)\mid y_u<y\}$.
+\end{itemize}
+We claim that the total charges are sufficient to cover the potential increment $1-y+\sum_{u\in X}(y-y_u)$.
+
+Observe that since $y_v^*+y_u^*\geq 1$ for all $u\in N(v)$. Since $f(y)\geq \sum_{u\in X}(y-y_u)$, we have 
+\begin{eqnarray*}
+f(y)y_v^*+\sum_{u\in X}(y-y_u)y_u^* & \geq & \sum_{u\in X}(y-y_u)(y_v^*+y_u^*)\\
+             & \geq &  \sum_{u\in X}(y-y_u).
+\end{eqnarray*}
+Furthermore,
+\begin{eqnarray*}
+&&(1-y)y_v^*+\sum_{u\in X}\left(F(y)-F(y_u)\right)y_u^* \\
+&\geq&  (1-y)y_v^*+\sum_{u\in X}\left(F(y)-F(y_u)\right)(1-y_v^*)\\
+&\geq&   1-y,
+\end{eqnarray*}
+where the last inequality follows from Lemma~\ref{lem:charging}.
+
+The above shows that the proposed charging scheme indeed accounts for the total potential increment. Now we bound the total charges to a vertex $v$ over the execution of the algorithm.
+
+When $v$ arrives, $y_v$ is initialized as $1-y$ and $v$ is charged $\left(f(y)+1-y\right)y_v^*$. After that, when $y_v$ increases from $a$ to $b$, $v$ is charged $\left(a-b+F(a)-F(b)\right)y_v^*$ . Note that the sum of these terms telescopes and is at most $$\left(1-(1-y)+F(1)-F(1-y)\right)y_v^*=\left(y+F(1)-F(1-y)\right)y_v^*.$$
+
+Therefore the total charges to $v$ are at most
+\begin{eqnarray*}
+&&\left(f(y)+1-y\right)y_v^*+\left(y+F(1)-F(1-y)\right)y_v^*\\
+&=& \left(1+f(1-y)+\int_y^1 \frac{1-t}{f(t)}\mathrm{d}t\right)y_v^*\\
+&\leq& \beta y_v^*.
+\end{eqnarray*}
+This implies that the total potential is bounded by $\beta\sum_{v\in V} y_v^*$, which shows that our algorithm is $\beta$-competitive.
+\end{proof}
+
+
+\subsection{Computing the optimal allocation function}
+\label{sec:optimization}
+
+The next question is then to find a good $f(y)$ to get a small $\beta$. In essence, the goal is to solve the following optimization problem 
+\begin{equation}
+\label{eqn:opt}
+\inf_{f\in \mathcal{F}}\max_{z\in [0,1]} 1+f(1-z)+\int_z^1 \frac{1-t}{f(t)}\mathrm{d}t.
+\end{equation}
+
+
+where $\mathcal{F}$ is the class of positive continuous functions on $[0,1]$ such that $\frac{1-t}{f(t)}$ is decreasing for each $f\in \mathcal{F}$.
+
+
+To the best of our knowledge, there is no systematic approach to tackle a minimax optimization problem of this form. A natural way is to first express the optimal $z$ in terms of $f$, and then use techniques from calculus of variation to compute the best $f$. However, a major difficulty is that there is no closed form expression for the optimal $z$. 
+%Thus one has to resort to methods such as implicit function theorem to proceed, which seems intrinsically hard.
+%We have attempted to solve the problem in this manner but the computation was too tedious to carry out. Moreover, it is unclear if the $f$ obtained this way belongs to $\mathcal{F}$, thus possibly making the effort to carry out the computation futile even if it can be done.
+
+To overcome this hurdle, we first disregard the requirement that $\frac{1-t}{f(t)}$ be decreasing. (Though, our final optimal solution turns out to satisfy this condition.) We show that such a relaxation of the optimization problem admits a very nice optimality condition, namely that there exists some optimal $f$ such that $1+f(1-z)+\int_z^1 \frac{1-t}{f(t)}\mathrm{d}t$ is constant for all $z$. We characterize this property in the following lemma.
+\begin{lemma}
+Let $r:[0,1]\longrightarrow\mathbb{R}_{+}$ be a
+continuous function such that for $\forall p\in [0,1]$, $r(p)+\int_{1-p}^{1}\frac{1-x}{r(x)}\mathrm{d}x\leq\gamma$
+for some $\gamma>0$. Then there exists a continuous function $f:[0,1]\longrightarrow\mathbb{R}_{+}$
+such that $\forall p\in [0,1]$, $f(p)+\int_{1-p}^{1}\frac{1-x}{f(x)}\mathrm{d}x \equiv\gamma$.
+\end{lemma}
+\begin{proof}
+Let $r_{1}=r$ and $R_{1}(p)=r_{1}(p)+\int_{1-p}^{1}\frac{1-x}{r_{1}(x)}\mathrm{d}x$.
+Define two sequences of functions $\{r_{i}\},\{R_{i}\}$ recursively
+as follows:
+\[
+r_{i+1}=r_{i}+\gamma-R_{i},R_{i+1}(p)=r_{i+1}(p)+\int_{1-p}^{1}\frac{1-x}{r_{i+1}(x)}\mathrm{d}x.
+\]
+
+Note that $r_{i},R_{i}$ are positive and continuous for every $i$. We first show $R_{i}\leq\gamma$ by induction. The base case for $i=1$ is trivial. Now we assume $R_i\leq \gamma$ for some $i$. This implies that $r_i\leq r_{i+1}$.  Then
+Notice 
+\begin{align*}
+R_{i+1}(p)&=r_{i+1}(p)+\int_{1-p}^{1}\frac{1-x}{r_{i+1}(x)}\mathrm{d}x
+\leq r_{i+1}(p) +\int_{1-p}^{1}\frac{1-x}{r_{i}(x)}\mathrm{d}x \\
+&=r_{i+1}(p) + R_i(p) - r_i(p) = \gamma.
+\end{align*}
+Therefore $R_i\le \gamma$ for all $i$ and consequently $r_i\leq r_{i+1}$.
+
+Observe that $r_{i}$ converges pointwise as
+$r_{i}$ is bounded by $\gamma$ and monotonically increases. Let $r_{\infty}=\lim_{i\rightarrow\infty}r_{i}$. 
+
+Moreover, since $r_{i+1}=r_{i}+\gamma-R_{i}$, $R_{\infty}=\lim_{i\rightarrow\infty}R_{i}\equiv\gamma$.
+On the other hand, we have
+\begin{align*}
+\gamma=R_{\infty}(p) &=\lim_{i\rightarrow\infty}\left(r_{i}(p)+\int_{1-p}^{1}\frac{1-x}{r_{i}(x)}\mathrm{d}x\right)\\
+&=r_{\infty}(p)+\lim_{i\rightarrow\infty}\int_{1-p}^{1}\frac{1-x}{r_{i}(x)}\mathrm{d}x.
+\end{align*}
+By the dominated convergence theorem, $\lim_{i\rightarrow\infty}\int_{1-p}^{1}\frac{1-x}{r_{i}(x)}\mathrm{d}x=\int_{1-p}^{1}\frac{1-x}{r_{\infty}(x)}\mathrm{d}x$
+since $\frac{1-x}{r_{i}(x)}$ is bounded by $\frac{1-x}{r_{1}(x)}$. 
+
+By taking limit in the second recurrence, we get
+\[
+r_{\infty}(p)=\gamma-\int_{1-p}^{1}\frac{1-x}{r_{\infty}(x)}dx
+\]
+which implies $r_{\infty}$ is  continuous and hence satisfies our requirement.
+\end{proof}
+
+
+Therefore, it is sufficient to consider functions $f$ that satisfy this optimality condition. A consequence is that $f(1-z)=\beta-1-\int_z^1 \frac{1-t}{f(t)}\mathrm{d}t$ is actually differentiable. Differentiating $1+f(1-z)+\int_z^1 \frac{1-t}{f(t)}\mathrm{d}t$ yields $-f'(1-z)-\frac{1-z}{f(z)}=0$, or equivalently, $$f(z)f'(1-z)=z-1.$$
+
+Although this differential equation is atypical as $f(z)$ and $f'(1-z)$ are not taken at the same point, surprisingly it has closed form solutions, as given below.
+\begin{lemma}
+Let $r$ be a non-negative differentiable function on $[0,1]$ such that $r(z)r'(1-z)=z-1$. Then $$r(z)=\left(\frac{1+k}{2}-z\right)^{\frac{1+k}{2k}}\left(z+\frac{k-1}{2}\right)^{\frac{k-1}{2k}},$$where $k\geq1$. Moreover, $\frac{1-t}{r(t)}$ is decreasing for $t\in [0,1]$.
+\end{lemma}
+\begin{proof}
+We have 
+\[
+r(p)r'(1-p)=p-1.
+\]
+Replacing $p$ by $1-p$, we get 
+\begin{equation}
+\label{eqn:p}
+r(1-p)r'(p)=-p.
+\end{equation}
+
+Hence,
+\begin{equation}
+\label{eqn:pp2c}
+(r(p)r(1-p))'=1-2p\implies r(p)r(1-p)=p-p^{2}+c
+\end{equation}
+
+for some $c$. Note that $r(0)r(1)=c \ge 0$. 
+%Therefore, $p-p^2+c>0$ as $p\in [0,1]$. 
+From Eqn~(\ref{eqn:p}) and (\ref{eqn:pp2c}), we get $r'(p)/r(p)=p/(p^{2}-p-c)$.
+Let $k=\sqrt{1+4c}\geq 1$. By taking partial fraction and using $(\ln r(p))'=r'(p)/r(p)$,
+\[
+\frac{r'(p)}{r(p)}=\frac{1}{2k}\left(\frac{1+k}{p-\frac{1+k}{2}}-\frac{1-k}{p-\frac{1-k}{2}}\right)\implies r(p)=D\frac{\left|p-\frac{1+k}{2}\right|^{\frac{1+k}{2k}}}{\left|p-\frac{1-k}{2}\right|^{\frac{1-k}{2k}}}
+\]
+for some constant $D$. It is easy to check that $r(p)r(1-p)=D^{2}(p-p^{2}-c)\implies D=1$. Since $k\geq 1$, we get the required $r(p)$.
+
+Now we show that
+$\frac{1-t}{r(t)}$ is decreasing for $t\in [0,1]$. Taking the derivative of $\frac{1-t}{r(t)}$, we have $-1-(1-t)r'(t)/r(t)=-1-(1-t)t/(t^{2}-t-c)=c/(t^{2}-t-c)\leq 0$,
+as desired.
+\end{proof}
+
+The final step is just to select the best $f$ from the family of solutions. Since $1+f(1-z)+\int_z^1 \frac{1-t}{f(t)}\mathrm{d}t$ is constant, it suffices to find the smallest $1+f(0)$, which corresponds to the case $k\approx1.1997$, the real fixed point of the hyperbolic cotangent function.\footnote{The optimal $k$ is closely related to the Laplace limit in the solution of Kepler's equation~\cite{weisstein}.}
+
+\begin{theorem}
+\label{thm:vcgeneral}
+Let $f(z)=\left(\frac{1+k}{2}-z\right)^{\frac{1+k}{2k}}\left(z+\frac{k-1}{2}\right)^{\frac{k-1}{2k}}$, where $k\approx1.1997$. $GreedyAllocation(f)$ is 1.901-competitive for the fractional online vertex cover problem in general graphs.
+\end{theorem}
+
+Finally, we remark that our algorithm can be viewed as a generalization of the well-known greedy algorithm because the solution $f(z)=1-z$ (with $k=1$) is equivalent to a variant of the greedy algorithm.
+
+\section{Online fractional matching in general graphs}
+We give a primal-dual analysis of the algorithm given in the last section. 
+%The main advantage of the primal-dual method is its simplicity. Nonetheless, it is sometimes difficult to determine how the dual variables should be updated. In this regard, the charging-based analysis is more intuitive and natural to come up with.
+%
+A by-product of this primal-dual analysis is a $\frac{1}{1.901}\approx 0.526$-competitive algorithm for online fractional matching in general graphs.
+
+Let $\beta\approx 1.901$ be the competitive ratio established in the last section and $f(z)$ be the same as that of Theorem~\ref{thm:vcgeneral}. Our primal-dual analysis shares some similarities with the one for online bipartite fractional matching by Buchbinder et al.~\cite{Buchbinder2007}.
+
+%Recall the LPs for fractional matching and vertex cover in general graphs:
+%
+%Primal: $\max\sum_{e\in E} x_e$ s.t. $x_{v}:=\sum_{u\in N(v)}x_{uv}\leq1\forall v\in V,x\geq0$
+%
+%Dual: $\min\sum_{v\in V} y_{v}$ s.t. $y_{u}+y_{v}\geq1\forall(u,v)\in E,y\geq0$
+
+Our algorithm $PrimalDual$ applies to both online fractional vertex cover and matching.  When restricted to the dual, it is identical to $GreedyAllocation$. 
+
+\begin{algorithm}[h!]
+\SetAlgoLined
+\caption{$PrimalDual$}
+\label{alg:general greedy}
+\KwIn{Online graph $G=(V,E)$}
+\KwOut{A fractional vertex cover $\{y_v\}$ of $G$ and a fractional matching $\{x_{uv}\}$.}
+Let $T$ be the set of known vertices. Initialize $T=\emptyset$\;
+\For{each online vertex $v$}
+{
+Maximize $y\le 1$, s.t., $\sum_{u\in N(v)\cap T} \max\{y-y_u,0\} \leq f(y)$\;
+Let $X = \{u \in N(v)\cap T \,\mid\, y_u < y\}$\;
+\For{each $u\in X$}
+{
+$y_u\leftarrow y$\;
+$x_{uv}\longleftarrow \frac{y-y_u}{\beta}\left(1+\frac{1-y}{f(y)}\right)$\;
+}
+For each $u \in (N(v)\cap T)\setminus X$, $x_{uv}\longleftarrow 0$\;
+$y_v \leftarrow 1-y$\;
+$T\leftarrow T\cup \{v\}$\;
+}
+Output $\{y_v\}$ for all $v\in V$\;
+\end{algorithm}
+
+To analyze the performance, we claim that the following two invariants hold throughout the execution of the algorithm.
+
+\textbf{Invariant 1:} $$\frac{y_{u}+f(1-z_u)+\int_{z_u}^{y_{u}}\frac{1-t}{f(t)}\mathrm{d}t}{\beta}\geq x_{u},$$ where $z_u$ is the potential of $u$ set upon its arrival, $y_u$ is the current potential of $u$ and $x_u = \sum_{v \in N(u)} x_{uv}$ is the sum of the potentials on the edges incident to $u$. Note that the LHS is at most 1 (see last section for details), which guarantees that the primal is feasible as long as the invariant holds.
+
+\textbf{Invariant 2:} $$\sum_{u\in T} y_{u}=\beta\sum_{(u,v)\in E\cap T^2} x_{uv}$$
+
+Invariant 2 guarantees that the primal and dual objective values are within a factor of $\beta$ from each other. By weak duality, this implies that the algorithm is $\beta$-competitive for online fractional vertex cover and $\frac{1}{\beta}$-competitive for online fractional matching in general graphs.
+Note that both invariants trivially hold at the beginning. 
+
+The idea behind Invariant 1 is to enforce some kind of correlation between $y_u$ and $x_u$. For instance, when $y_u$ is small, $x_u$ should not be excessively large because $x_u$ must be increased to (partially) offset any future increase in $y_u$ in order to maintain Invariant 2.
+
+%Our primal-dual algorithm is described below.
+
+%
+%\begin{enumerate}
+%\item Maximize $y\leq1$ subject to $\sum_{u\in N(v)}(\max\{y_{u},y\}-y_{u})\leq f(y)$
+%\item Let $X=\{u\in N(v)|y_u<y\}$
+%\item For $u\in X$
+%\item $y_{u}\longleftarrow y$
+%\item $x_{uv} \longleftarrow \frac{y-y_u}{\beta}\left( 1 + \frac{1-y}{f(y)}\right)$
+%\item For $u\in N(v)\backslash X$, $x_{uv}\longleftarrow 0$
+%\item $y_{v}\longleftarrow 1-y$
+%\end{enumerate}
+
+We claim that both invariants are preserved.
+\begin{lemma}[Invariant 2]
+\label{lem:inv2}
+In each iteration of the algorithm, the increase in the dual objective value is exactly $\beta$ times that of the primal.
+%, i.e. Invariant 2 is preserved.
+\end{lemma}
+\begin{proof}
+The dual increment is $$1-y+\sum_{u\in X}(y-y_u)$$ and the primal increment is $$\sum_{u\in X} \frac{y-y_u}{\beta}\left( 1 + \frac{1-y}{f(y)}\right).$$
+Thus it suffices to show that $1-y=\sum_{u\in X}(y-y_u)\frac{1-y}{f(y)}$. This just follows from Lemma~\ref{lem:charging}, which states that we have either $y=1$ or $\sum_{u\in X}(y-y_u)=f(y)$.
+\end{proof}
+\begin{lemma}[Invariant 1]
+\label{lem:inv1}
+After processing online vertex $v$, we have $x_v\leq \frac{y_v+f(1-y_v)}{\beta}$ and $x_u\leq \frac{y+f(1-z_u)+\int_{z_u}^{y}\frac{1-t}{f(t)}\mathrm{d}t}{\beta}$ for $u\in X$.
+%, i.e. Invariant 1 is preserved.
+\end{lemma}
+\begin{proof}
+Note that $x_v=\sum_{u\in X}x_{uv}$ is just the increase in the primal objective value. By Invariant 2, $x_v=\frac{1-y+\sum_{u\in X}(y-y_u)}{\beta}$. Our claim for $x_v$ follows since $y_v=1-y$ and $\sum_{u\in X}(y-y_u)\leq f(y)$.
+
+By Invariant 1, the previous $x_u$ satisfies $$x_u-x_{uv}\leq\frac{y_{u}+f(1-z_u)+\int_{z_u}^{y_{u}}\frac{1-t}{f(t)}\mathrm{d}t}{\beta}.$$
+This proof is finished by noticing that $$x_{uv}=\frac{y-y_u}{\beta}\left( 1 + \frac{1-y}{f(y)}\right)\leq  \frac{1}{\beta} \left( y-y_u+ \int_{y_u}^y \frac{1-t}{f(t)}\mathrm{d}t\right),$$ as $\frac{1-t}{f(t)}$ is a decreasing function.
+\end{proof}
+
+Finally, it is clear that the dual is always feasible. The primal is feasible because $x\geq 0$ and Invariant 1 guarantees that $x_v\leq 1$, as discussed earlier. Combining this and the two lemmas, we have our main result.
+\begin{theorem}
+\label{thm:pdgeneral}
+Our algorithm is $\beta\approx 1.901$-competitive for online fractional vertex cover and $\frac{1}{\beta}\approx 0.526$-competitive for online fractional matching for general graphs.
+\end{theorem}
+%\begin{proof}
+%By Invariant 2 and weak duality, we have  $$OPT\leq\sum y_{u}=\beta\sum x_{uv}\leq\beta OPT.$$
+%This gives $\sum y_{u}\leq\beta OPT$ and $\sum x_{uv}\geq OPT/\beta$ in general graphs.
+%\end{proof}
+
+%\subsection{Online vertex-weighted vertex cover and capacitated matching}
+%[state algorithm]
+%
+%The analysis of the algorithm is a simple extension of that in the last section and is hence deferred to the appendix.
+
+It is possible to extend our algorithm to the vertex-weighted fractional vertex cover problem and the fractional b-matching problem, as shown in the appendix.
+\begin{theorem}
+\label{thm:vertexweighted}
+There exists an algorithm that is $\beta\approx 1.901$-competitive for online vertex-weighted fractional vertex cover and $\frac{1}{\beta}\approx 0.526$-competitive for online capacitated fractional matching for general graphs.
+\end{theorem}
+
+%\section{The Case of Bipartite Graphs}
+%Bipartite graphs deserve special attention for various reasons. First of all, online matching is traditionally studied for bipartite graphs and this captures many interesting practical problems such as Internet advertising and market clearing. Another reason is to get better performance guarantees. Our algorithm for vertex cover can be used to tackle the integral version of the problem in the case of bipartite graphs. We also obtain improved competitive ratios by imposing arrival constraints on the vertices.
+%%One shortcoming in this line of research is that vertices of only one side of bipartite graphs arrive online. In many application scenarios, this is not quite true: in Internet advertising, both bidders and search queries can arrive online; in kidney exchange, both donors and patients are registered over time. Thus it is important to allow both sides of the vertex set to be online in order to more accurately model these problems.
+%\begin{theorem}
+%Our algorithm is 1.901-competitive for online bipartite integral vertex cover with unbounded alternation.
+%\end{theorem}
+%\begin{proof}
+%Apply the rounding scheme in section~\ref{sec:rounding}.
+%\end{proof}
+%
+%Even though we cannot round the primal solution, our result actually improves a result in~\cite{Blum2006}.
+%\begin{theorem}
+%Our algorithm is 0.526-competitive for online bipartite fractional matching with unbounded alternation.
+%\end{theorem}
+%
+%\subsection{2-alternation}
+%We apply the techniques developed thus far to obtain improved algorithms in the case of bounded alternation. This is exemplified by the special case of 2-alternation. Once understood, it is clear how one can prove similar results for higher alternations.
+%
+%Let $g(t)$ and $h(t)$ be positive continuous functions such that both $\frac{1-t}{g(t)}$ and $\frac{1-t}{h(t)}$ are decreasing. Our algorithm is same as before except that we use $g$ in phase 1 and $h$ in phase 2. The description of the algorithm and its analysis are discussed in the appendix for the more general weighted/capacitated setting. Here we highlight only the main steps.
+%\begin{lemma}
+%\label{lem:charging2alt}
+%Let $\gamma$ satisfy $\gamma\geq\int_0^1\frac{1-t}{g(t)}\mathrm{d}t$, $\gamma\geq g(1-z)+\int_z^1 \frac{1-t}{h(t)}\mathrm{d}t$ for all $z\in [0,1]$ and $\gamma\geq 1-z+h(z)$ for all $z\in [0,1]$. Our algorithm is $1+\gamma$-competitive.
+%\end{lemma}
+%
+%By solving the optimization problem as given in the last lemma, we get the following result.
+%\begin{theorem}
+%\label{thm:alt}
+%By choosing $g(y)=y+(1+\gamma)\ln(1-\frac{y}{1+\gamma})$ and $h(y)=y+\gamma$, where $\gamma\approx0.747$, our algorithm is $1+\gamma$-competitive for online vertex-weighted bipartite integral vertex cover with 2-alternation and $\frac{1}{1+\gamma}$-competitive for online capacitated bipartite fractional matching with 2-alternation.
+%\end{theorem}
+%
+%%Phase 1: use $\sum(y-y_{u})=r(y)$; phase 2: use $1+\beta$ as in
+%%GreedyAllocation.
+%%
+%%Let $v$ be a vertex in the optimal cover. The following does not
+%%include the self-charge of 1.
+%%
+%%Case 1: $v\in L_{0}$. charges $\leq\int_{0}^{1}\frac{1-x}{r(x)}dx$.
+%%
+%%Case 2: $v\in R_{1}$. charges $\max_{y}r(1-y)+(1+\beta)\ln(1+\beta)-1-(1+\beta)\ln(y+\beta)+y$
+%%
+%%Case 3: $v\in L_{2}$. charges $\beta$.
+%%
+%%Now set $\frac{d}{dy}r(1-y)+(1+\beta)\ln(1+\beta)-1-(1+\beta)\ln(y+\beta)+y=-r'(1-y)-\frac{1+\beta}{y+\beta}+1\equiv0$.
+%%We get $r(y)=y+(1+\beta)\ln(1+\beta-y)+C$. By setting the charges
+%%in cases 2 and 3 equal, $\beta=r(0)=(1+\beta)\ln(1+\beta)+C\implies C=\beta-(1+\beta)\ln(1+\beta)$.
+%%Now solving $\int_{0}^{1}\frac{1-x}{r(x)}dx=\beta$ numerically gives
+%%$\beta\approx0.747$. Moreover, the graph below indeed shows that
+%%$\frac{1-y}{r(y)}$ indeed satisfies all the requirements in Result
+%%8.
+
+\section{Hardness Results}
+
+In this section, we obtain new hardness results in our model. All of our hardness results are obtained by considering appropriate bipartite graphs.
+Let $G=(L,R,E)$ be a bipartite graph with left vertices $L$ and right vertices $R$. We study different variants of the online vertex cover and matching problems by imposing certain constraints on the vertex arrival order.
+
+\begin{itemize}
+\item {\bf 1-alternation.} The left vertices $L$ are offline and the right vertices in $R$ arrive online. When a vertex $v\in R$ arrives, all its incident edges are revealed. This is the case studied in the literature.
+\item {\bf $k$-alternation:}  There are $k$ phases and $L_0\subseteq L$ is the set of offline vertices. In each phase $1\leq i\leq k$, if $i$ is odd (resp. even), vertices from a subset of $R$ (resp. $L$) arrive one by one. 
+%The classical online bipartite matching problem corresponds to the case $k=2$. 
+The {\em no alternation} case corresponds to $k =1$.
+Note that the case $k=\infty$ effectively removes any constraint on the vertex arrival order, and is called the unbounded alternation case below.
+% hence the name unbounded alternation below.
+\item {\bf Unbounded alternation:} The vertices in $L\cup R$ arrive in an arbitrary order.
+\end{itemize}
+
+\subsection{Lower bounds for the online vertex cover problem}
+
+We give lower bounds on the competitive ratios for online bipartite vertex cover with 2- and 3-alternation, and an upper bound for online bipartite matching with 2-alternation. These hardness results also apply to the more general problems of online vertex cover and matching in general graphs.
+\begin{proposition}
+There is a lower bound of $1+\frac{1}{\sqrt{2}}\approx 1.707$
+for online bipartite vertex cover with 2-alternation.
+\end{proposition}
+\begin{proof}
+It suffices to establish the result for the fractional version of the problem. Suppose that an algorithm $A$ is $(1+\beta)$-competitive. 
+%We may assume that $A$ is deterministic by using the same derandomization trick in Section . 
+Without loss of generality, we may assume that $A$ is deterministic.
+Our approach is to bound $\beta$ by considering a family of complete bipartite graphs. Thus a new online vertex is always adjacent to all the vertices on the other side.
+
+Let $|L_0|=d$ and $y$ be the fractional vertex cover maintained by $A$. 
+%We vary $k=|R_1|$. 
+We claim that after processing the $i$-th vertex in $R_1$, we have
+$$\sum_{u\in L_0} y_u\leq i\beta.$$ 
+The reason is that the adversary can generate infinitely many left online vertices in phase 2 and hence $y_v$, for any $v\in R_1$, converges to 1 (otherwise, if $y_v$, which monotonically increases, converges to some $l<1$, then $y_u\geq 1-l$ for $u\in L_2$ and the cost of the vertex cover found is unbounded while the optimal solution is at most $i$).
+
+%Assume $|R_1|=k$. 
+%Therefore $\sum_{v\in L_0} y_v$ can be arbitrarily close to $k$ after phase 2 and consequently
+%We have $\sum_{u\in L_0} y_u\leq k\beta$. % as the vertex cover found must have size at most $k(1+\beta)$.
+
+Let $v_i^{(1)}$ be the $i$th vertex in $R_1$. Next we claim that $$y_{v_{i}^{(1)}}\geq 1-\frac{i\beta}{d}.$$ Since $\sum_{u\in L_0} y_u\leq i\beta$ after processing $v_{i}^{(1)}$, by Pigeonhole Principle there must be some $y_u\leq \frac{i\beta}{d}$. To maintain a valid vertex cover, we need $y_{v_{i}^{(1)}}\geq 1-\frac{i\beta}{d}$.
+
+Finally, we have 
+\begin{equation}
+\label{[eqn:yv]}
+\sum_{v\in R_1} y_v\leq d\beta.
+\end{equation}
+Otherwise, the adversary can generate infinitely many online vertices to append $R_1$ in which case 
+$y_u$ will be increased to $1$ eventually for all $u\in L_0$, i.e., $\sum_{u\in L_0}y_u = d$.
+%either $y_u\geq \epsilon\forall u\in L_1$ for some $\epsilon >0$ or $\sum_{u\in L_0}y_u$ converges to $d$.
+This contradicts the fact that $A$ is $(1+\beta)$-competitive.
+% The former case is impossible because our fractional vertex cover would have unbounded size. In the latter case, we must have $\sum_{v\in R_1} y_v\leq d\beta$ if the algorithm is to be $(1+\beta)$-competitive.
+
+Now by taking $|R_1|=\sqrt{2}d$, we get$$\sum_{i=1}^{\sqrt{2}d}\left( 1-\frac{i\beta}{d}\right) \leq\sum_{v\in R_1} y_v\leq d\beta ,$$
+from which our desired result follows by taking $d\longrightarrow\infty$.
+\end{proof}
+
+The proofs of the next two results are in the appendix.
+\begin{proposition}
+There is a lower bound of $1+\sqrt{\frac{1}{2}\left(1+\frac{1}{e^2}\right)}\approx1.753$
+for online bipartite vertex cover with 3-alternation.
+\end{proposition}
+\begin{proof}
+Again, let $d=|L_{0}|$. We extend the idea used in the proof of the
+bound $1+\frac{1}{\sqrt{2}}$ for 2-alternation. Let $x_{i}$ be the
+amount of resources spent on $L_{0}$ by the $i$-th vertex of $R_{1}$, i.e. the increment in the potential of $L_0$.
+Let $y_{i}$ be its own potential. Then $y_{i}\geq 1-(x_{1}+\cdots+x_{i})/d$,
+$x_{1}+\cdots+x_{i}\leq i\beta$ and $y_{1}+\cdots+y_{i}\leq d\beta$ by the argument used in the proof of Proposition 1.
+
+The new idea is that in phase 2, assuming $|R_1| =i$,  at most $i\beta$ resources can be spent
+on $L_{0}$ and $L_{2}$. (This is because the adversary can append infinitely many vertices to the current $L_2$.) Now consider the $j$-th vertex $u_j$ in $L_2$. Similar to Eqn.(\ref{[eqn:yv]}), 
+we have $\sum_{v\in R_1} y_v \leq (d+j)\cdot \beta$ after processing $u_j$, since the adversary can append infinitely many online vertices to $R_3$. Consequently, $y_{u_j} \geq 1- \min\{y_v \mid v\in R_1 \} \geq 1- (d+j)\cdot \beta/i$ by the pigeonhole principle. Therefore,
+
+\[
+x_{1}+\cdots+x_{i}\leq i\beta-\sum_{j=1}^{\ell}\left(1-\frac{(d+j)\beta}{i}\right),
+\]
+where $\ell = |L_2|$.
+
+%The reason is that we may wlog assume that after the $j$th vertex
+%of $L_{2}$ arrives, at most $(d+j)\beta$ resources can be spent
+%on $R_{1}$ as the adversary can then generate infinitely many vertices
+%in $R_{3}$.
+
+Let $X(i)=x_1+x_2+\cdots+x_i$.
+If $i \le d\beta$, we have $X(i) \leq i\beta$. When $i>d\beta$, by setting $\ell = \frac{i}{\beta} - d$, we have 
+\begin{align}
+X(i) &= i\beta - \left(1-\frac{d\beta}{i}\right)\ell+\frac{\beta}{2i}\ell^2+O(1) \nonumber\\
+%&= i\beta + \frac{\beta}{2i}\left(\frac{i}{\beta}-d\right) - \frac{\beta}{2i}\left(\frac{i}{\beta}-d\right)^2\nonumber\\
+&= d+i\beta-\frac{i}{2\beta}-\frac{\beta d^2}{2i}+O(1).\nonumber
+%&= i \left(\beta -\frac{1}{2\beta}\right) - \frac{1}{2i}(\beta d +\beta d^2) + \frac{1+d}{2}.\nonumber
+\label{eqn:Xi}
+\end{align}
+
+Notice that our bound on $X(i)$ holds for arbitrary $i$, since the adversary can arbitrarily manipulate the future input graph to fool the deterministic algorithm.
+
+
+Since $y_i\geq 1-X(i)/d$ and $\sum_{i=1}^k y_i \leq d\beta$ for any $k$, we have
+
+\[
+\sum_{i=1}^k \left(1-\frac{X(i)}{d}\right) \leq d\beta.
+\]
+
+
+Let $\alpha = \frac{1}{\sqrt{2\beta^2-1}}$. By setting $k = \beta \alpha d$ and considering $i\leq d\beta$, $i>d\beta$ separately,
+% We also let $d$ go to infinite so in last term in Eqn.(\ref{eqn:Xi}) is of a smaller order.
+we get
+
+\begin{align}
+d\beta &\geq \sum_{i=1}^{d\beta} \left(1-\frac{i\beta}{d}\right) +\sum_{i=d\beta +1}^k \left(\frac{i}{2\beta d}+\frac{\beta d}{2i}-\frac{i\beta}{d}+O(1/d)\right)\nonumber
+\end{align}
+
+%\[
+%\sum_{i=1}^k\left(1-\frac{i\beta}{d}\right)
+% - \sum_{i=d\beta +1}^k \left(\frac{\beta}{2i}\left(\frac{i}{\beta}-d\right) - \frac{\beta}{2i}\left(\frac{i}{\beta}-d\right)^2\right)\frac{1}{d} \leq d\beta
+%\]
+%
+%\[
+%\alpha -\frac{\alpha^2\beta^2}{2} - \sum_{i=d\beta +1}^k \left( 
+%\frac{1}{2i}\left(\frac{i}{d^2\beta}-\frac{1}{d}\right) - \frac{1}{2i}\left(\frac{i}{d\beta}-1\right)^2\right) \leq 1
+%\]
+
+By taking $d\longrightarrow\infty$ and using $\sum_{i=1}^n 1/i\approx \ln n$, we have the desired result.
+
+%\begin{align}
+%&\alpha - \frac{\alpha^2\beta^2}{2} + \frac{\alpha^2-1}{4}-(\alpha-1)+ \frac{\ln \alpha}{2} \nonumber \\
+%=& \alpha^2\left(\frac{1}{4} - \frac{\beta^2}{2}\right) +\frac{\ln \alpha}{2} +\frac{3}{4}
+%=\frac{\ln \alpha}{2} +\frac{1}{2}
+%\leq 1.\nonumber
+%\end{align}
+%\[
+%\alpha^2(\frac{1}{4} - \frac{\beta^2}{2}) + (\ln \alpha)/2 \leq 1/4	.
+%\]
+%
+%\[-\frac{1}{4}+(\ln \alpha)/2 \leq 1/4	.\]
+
+%So $\alpha\le e$. Therefore, $\beta \ge \sqrt{(1+e)/2}$. The result follows.
+\end{proof}
+
+
+%Viewing the above as a LP (to minimize $\sum y_{i}$ with variables
+%$x_{i}$), we get $x_{1}+...+x_{i}=i\beta$ for $i\le d\beta$ and
+%$x_{1}+...+x_{i}=i\beta-\sum_{j=1}^{l}\left(1-\frac{(d+j)\beta}{i}\right)\approx\beta(i-(i/\beta-d)^{2}/2i)$,
+%where $l$ satisfies $i=(d+l)\beta$ for $i>d\beta$.
+%
+%[computation: $\sum_{j=1}^{l}\left(1-\frac{(d+j)\beta}{i}\right)=l(1-\frac{d\beta}{i})-\frac{l(l+1)}{2i}\beta=\frac{l^2}{i}\beta-\frac{l(l+1)}{2i}\beta\approx \frac{l^2}{2i}\beta=\beta(i/\beta-d)^{2}/2i$]
+%
+%Now choose $k=|R_{1}|$ such that $\beta(k-(k/\beta-d)^{2}/2k)/d=1\implies k=\frac{d\beta}{\sqrt{2\beta^{2}-1}}$.
+%We then have $y_{i}\geq\frac{i}{2\beta d}+\frac{d\beta}{2i}-i\beta/d$
+%for $i>d\beta$ and $y_{i}\geq1-i\beta/d$ for $i\le d\beta$. By
+%using $y_{1}+...+y_{k}\leq d\beta$ our result follows.
+
+
+\subsection{Upper bounds for the online matching problem}
+Before establishing our last result on the upper bound for online bipartite matching with 2-alternation, we review how the bound $1-1/e$ is proved for the original problem (i.e. 1-alternation) as the same technique is used in a more complicated way. The next proof is a variant of that in \cite{Karp1990}.
+\begin{proposition}
+There is an upper bound of $1-1/e\approx 0.632$ for online bipartite matching (with 1-alternation).
+\end{proposition}
+\begin{proof}
+Again, we can consider only the fractional version of the problem and deterministic algorithms. Suppose that an algorithm maintains a fractional matching $x$. Let $L=\{ u_1,...,u_n\}$ and $R=\{ v_1,...,v_n\}$, with $v_i$ adjacent to $u_1,...,u_{n+1-i}$. The size of the maximum matching is clearly $n$. Let $v_1,...,v_n$ be the order in which the online vertices arrive.
+
+Observe that when $v_i$ arrives, $u_1,...,u_{n+1-i}$ are indistinguishable from each other. Thus $x_{v_i}:=\sum_{u\in N(v_i)} x_{uv_i}$ should be evenly distributed to $u_1,...,u_{n+1-i}$, i.e. $x_{uv_i}=\frac{x_{v_i}}{n+1-i}$. This argument can be made formal by considering graphs isomorphic to $G$ with the labels of vertices in $L$ being randomly permuted.
+
+Thus, after processing $v_k$ we have $$x_{u_i}=\frac{x_{v_1}}{n}+...+\frac{x_{v_k}}{n+1-k}.$$ Moreover, the size of the matching found is $x_{v_1}+\cdots+x_{v_n}$ and $x_{v_1},\cdots,x_{v_n}$ satisfy $\frac{x_{v_1}}{n}+\cdots+\frac{x_{v_n}}{1}\leq 1$.
+
+Viewing the above as a LP, it is easy to see that $x_{v_1}+...+x_{v_n}$ is maximized when $x_{v_n},...,x_{v_k}=1,x_{v_{k+1}},...,x_{v_n}=0$ and $\frac{1}{n}+...+\frac{1}{n-k+1}\approx 1$ for some $k$. Now when $n$ is large, $\frac{1}{n}+...+\frac{1}{n-k+1}\approx \ln\frac{n}{n-k}$.
+
+Finally, $$x_{v_1}+\cdots+x_{v_n}=k=n(1-1/e)=(1-1/e) \cdot OPT.$$
+\end{proof}
+
+\begin{proposition}
+There is an upper bound of 0.6252 for the online matching problem in bipartite graphs with 2-alternation.
+\end{proposition}
+\begin{proof}
+Again, we can consider only the fractional version of the problem and deterministic algorithms. Suppose that an algorithm is $\gamma$-competitive and maintains a fractional matching $x$.
+
+Let $|L_0|=|L_2|=n,|R_1|=2n$. The first $n$ vertices of $R_1$ are adjacent to all vertices in $L_0$. The two subgraphs induced by $L_0$ \& the last $n$ vertices of $R_1$ and $L_1$ \& the first $n$ vertices of $R_1$ are isomorphic to the graph used in the proof of the last theorem. Note that the size of maximum matching is $2n$.
+
+The most important observation here is that after processing the first $n$ vertices of $R_1$, the fractional matching found must have size at least $n\gamma$ as the current optimal solution has size $n$. In other words, we have $$x_{u_{1}^{(1)}}+...+x_{u_{n}^{(1)}}=x_{v_{1}^{(1)}}+...+x_{v_{n}^{(1)}}\geq n\gamma$$after the first $n$ vertices of $R_1$ arrive.
+
+Now the next $n$ vertices of $R_1$, by the same reasoning in the last theorem, are matched to the extent of $k$ such that $\gamma + \frac{1}{n}+...+\frac{1}{n+1-k}\approx 1$, from which we obtain $k=n(1-1/e^{1-\gamma})$. Similarly, $L_2$ is also matched to an extent of $n(1-1/e^{1-\gamma})$.
+
+Putting all the pieces together, we have the inequality $$\frac{n\gamma + 2n(1-1/e^{1-\gamma})}{2n}\geq \gamma\Rightarrow 1-\frac{1}{e^{1-\gamma}}-\frac{\gamma}{2}\geq0.$$
+
+The function $1-\frac{1}{e^{1-\gamma}}-\frac{\gamma}{2}$ is decreasing and has root approximately at 0.6252.
+\end{proof}
+
+
+
+
+\section{Discussion and open problems}
+%\yajun{Yajun: a few comments. 1. Our charging framework seems hard to apply to other problems. 
+%Of course, parametrize the algorithm with a function and optimize it is a general framework. but we are certainly not the first one.
+%I would remove the first paragraph. 
+%
+%The interesting (hard) open problems: is the ratio 1.901 (or 1/1.901) optimal in fractional setting? Is it possible to round our algorithm for matching in bipartite graphs or even general graphs? (related to your second paragraph.) Since we are already running out of space soon. I would rather present these two most important questions.
+%}
+
+%The charging framework proposed in this paper was used to design and analyze competitive algorithms for online vertex cover problems. We believe that more problems can be solved by applying this new technique.
+
+We presented the first nontrivial algorithm for the online fractional matching and vertex cover problems in graphs where all vertices arrive online. A natural question is whether our competitive ratios, 1.901 and 0.526, are optimal for these two problems. For the special case of the bipartite graphs, can we extend our charging-based framework to get improved algorithms?
+
+Another interesting problem is to beat the greedy algorithm for the online {\em integral} matching problem in bipartite graphs or even general graphs. Very recently, the connection between the optimal algorithms for online bipartite integral and fractional matching was established via the randomized primal-dual method~\cite{devanurrandomized}. This is promising as the techniques developed may also be applicable to our problem. However, it seems quite difficult to reverse-engineer an algorithm for online integral matching based on the analysis of our algorithm.
+
+%More concretely, it may be possible to imitate their approach and 
+
+For online integral vertex cover, as mentioned earlier, there is essentially no hope to do better than 2 assuming the Unique Game Conjecture. Nevertheless, it will still be interesting to obtain an unconditional online hardness result which could be easier than the offline counterpart.
+
+Finally, our discussion has been focused on the {\em oblivious adversary} model. It would be interesting to study our problems in weaker adversary models, i.e., stochastic~\cite{Feldman2009,Manshadi2011} and random arrival models~\cite{Mahdian2011,Karande2011}.
+
+%The online vertex cover problem, in bipartite or general graphs, is a new online problem and thus promises a great sea of possible follow-up work. We suggest two here.
+%\begin{itemize}
+%\item {\bf Incorporating delay.} What if we can observe the next $d\geq 1$ online vertices before deciding whether to put $v$ or $N(v)$ in the vertex cover? In general, it does not help as the adversary can generate $d$ singleton vertices which provide us no additional information. Nevertheless, can we beat the competitive ratios given in this paper for some special classes of graphs?
+%\item {\bf Weaker adversary models.} The online bipartite matching problem has been studied in many different models, some of which are weaker than the oblivious adversary model. In particular, competitive ratios better than $1-1/e$ were obtained in the stochastic~\cite{Feldman2009,Manshadi2011} and random arrival models~\cite{Mahdian2011,Karande2011}. Can we beat $\frac{1}{1-1/e}$ in these models for online bipartite vertex cover?
+%\end{itemize}
+
+{\noindent \bf Acknowledgments:}  We thank Michel Goemans for helpful discussions and Wang Chi Cheung for comments on a previous draft of this paper.
+
+\bibliography{online}
+\bibliographystyle{plain}
+
+\include{appendix}
+
+
+\end{document}

@@ -1,0 +1,1253 @@
+===== PDF PAGE 1 =====
+                     Semi-Streaming Matching in a Single Pass II:
+                                               Greedy is Optimal
+
+                            Sepehr Assadi∗           Max Jiang∗           Mars Xiang∗
+
+
+
+
+                                                           Abstract
+
+           We prove that no single-pass semi-streaming algorithm (deterministic or randomized) can
+       achieve a better-than-half approximation to the maximum matching problem.  This implies the
+       optimality of the naive greedy algorithm, answering an outstanding open question in the graph
+       streaming literature since the introduction of the model over two decades ago.
+           Our proof follows the “blueprint framework” introduced previously by the authors, which
+       reduced proving lower bounds for semi-streaming matching to constructing certain combinatorial
+       objects called blueprints.  We present an optimal construction of blueprints that when used in
+       this framework implies our semi-streaming matching lower bound.
+           Our results also imply that the optimal competitive ratio of online matching with preemption
+       is half, again matching the naive greedy algorithm, settling this open question as well.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ∗(sepehr@assadi.info, max.jiang@uwaterloo.ca, mxiang@uwaterloo.ca) School of Computer Science, University of
+Waterloo.   Supported  in  part  by  an  NSERC  Discovery  Grant,  a  Faculty  of  Math  Research  Chair  grant,  and  an
+Undergraduate Research Fellowship (URF) from University of Waterloo.
+Part of this work was done while Mars Xiang was at The Interaction Company of California.
+
+
+                                                                i
+
+===== PDF PAGE 2 =====
+Contents
+
+1   Introduction                                                                                                           1
+     1.1    Blueprint Framework of [AJX26]   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .    1
+     1.2    Our Blueprint Construction at a High Level  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .    3
+     1.3    Further Corollaries of Our Result  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .    5
+
+2   Preliminaries                                                                                                          6
+
+3   Random Walk on a Line with Symmetric Maxima                                    7
+     3.1    Proof ofLemma 3.1.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .    8
+
+4   The Blueprint Construction                                                             10
+     4.1    Setup   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  10
+     4.2    The Construction .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  13
+     4.3    Value Calculation .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  14
+
+AUpper Boundingthe Value of Blueprints                                                           20
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                               ii
+
+===== PDF PAGE 3 =====
+                1  Introduction
+
+                In the semi-streaming model for graph problems, formalized by [FKM +05], we have ann-vertex
+                graphG= (V, E) whose edges are given to the algorithm in some arbitrarily ordered stream; the
+                algorithm  makes  one  or  a  few  passes  over  the  stream,  uses  eO(n)  :=O(n·polylog (n))  memory,
+                and at the end of the stream, outputs a solution to the problem at hand.  In this paper, we study
+                single-passsemi-streaming algorithms for themaximum matchingproblem.
+                     Alongside the introduction of the model, [FKM +05] observed a simple (1/2)-approximation for
+                this problem:  greedily maintain a maximal matching of the arriving edges.  The two decades since
+                then have witnessed a high throughput of results on the semi-streaming matching problem, and yet,
+                this simple algorithm remains the state of the art.  A handful of impossibility results have also been
+                proven over the years, ruling out approximation ratios of (2/3) [GKK12], (1−1/e)∼0.632 [Kap13],
+                (1 + ln (2))−1   ∼0.590 [Kap21], and most recently (8−2                 √10)/3∼0.558 [AJX26].
+                     In light of this state of affairs, whether the half-approximation of the greedy algorithm can be
+                improved has been an outstanding open question since the introduction of the model [FKM +05,
+                KMM12,McG13,McG14,KT17,KN21].  Over the years, this question has been commonly referred
+                to as “major” [Tir18,GKMS19,GKRS20,FMU22], “central” [ABKL23,DGR25], “key” [ADKN23],
+                “main” [Ber24], one of the “most longstanding” [Beh21,AB21,DGR25] or “most appealing” [EHM16,
+                CJMM17], “perhaps the most well-known” [Gam21], and “the most basic” [FS22] of open questions
+                in the area.  It has also been more affectionally called “vexing” [CK14],“baffling” [KT17], “most
+                tantalizing” [Waj21], “notorious” [FNSZ22], and “elusive” [Nai24], among others.
+                     We fully resolve this question in our work.
+
+
+
+
+
+
+                     Theorem 1settles the complexity of the semi-streaming matching problem:  after all, the naive
+                greedy algorithm turns out to be optimal for this fundamental problem.
+                     Our proof ofTheorem 1is based on the“blueprint framework”of the recent work of the authors
+                in [AJX26].  We describe this framework next and put our result in this context.
+                1.1Blueprint Framework of [AJX26]
+
+                In [AJX26], we reduced proving lower bounds for semi-streaming matching to constructing “constant-
+                size” (relative to stream length) combinatorial objects calledblueprints.  We now define blueprints
+                and this framework1 (following [AJX26], we use ‘blackboard bold’ letters for blueprint notation).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    1We directly define what [AJX26] calls asimpleblueprint as the blueprint itself, as it is a lot easier to describe
+Definition 1.1.For integersand we do not need the extra power of the more general definition.P, C⩾1, we define ablueprintwith parametersP, Cas any
+bipartite graphG= (L,R,E) such that:
+
+Theorem  1.There  is  no  single-pass  semi-streaming  algorithm  for  the  maximum  bipartite•Vertices inLandRare identified by tuples in [C]                       P ; specifically, for anyx∈[C]            P  we have1
+matching problem that can achieve any constant approximation ratio strictly better than halfa vertexL(x)∈Land a vertexR(x)∈R.
+
+with constant probability.•Edges ofGare partitioned intoPgroups:E=E                                      (1) ⊔ ··· ⊔E   (P)   .
+
+===== PDF PAGE 4 =====
+                                 Definition 1.1simply gives the “skeleton” of a blueprint; what we really need from a blueprint is
+                                 to satisfy the following two constraints (seeSection 2for a quick review of notation).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                 SeeFigure 1for an example of ban constraints.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                 (a)Adding any edge inE             (1) bans the pairs in the identity     (b)If the same edge was instead added toE             (2), it would
+                                 permutation in the entire blueprint.                                      ban fewer but different pairs.
+
+                                 Figure 1:An illustration of ban constraints in a blueprint withP=C= 2 with labels of vertices drawn
+                                 next to them.  Solid (black) edges show two possible edges in two different blueprints and dashed (red) edges
+                                 show banned pairs resulting from inclusion of each of these edges separately.
+
+                                      Finally, the following quantity determines how “good” a blueprint is for our purpose.
+
+
+
+
+
+
+
+                                      We refer the reader to [AJX26] for several examples of blueprints and the intuition (and the
+                                 formal proof) behind the connection between blueprints and semi-streaming matching.  For us, we
+                                 need the following theorem that captures the blueprint framework put forward in [AJX26]                2.
+                                 Theorem 2([AJX26]).Suppose there is a proper blueprintGand defineα:=                                                             2−2·value(G)2−value(G)           .  Then,
+                                 for any fixedδ >0, and any sufficiently largen, as a function ofGandδ, the following holds.  Any
+              Definition  1.2.We  say  a  blueprintG=  (L,R,E)  with  parameters  (P, C)  isproperif  itsingle-pass  semi-streaming  algorithm  for  maximum  bipartite  matching  onn-vertex  graphs  cannot
+              satisfies the following constraints:achieve an(α+δ)-approximation with probability more than1−δ.
+                             E(1)E(2)2In  light  of  what  we  said  earlier  aboutsimpleblueprints  in  [AJX26],  it  is  worth  emphasizing  that  [AJX26]
+1111             •Matching constraint:The edges inEform a single matching inG.proves this theorem for simple blueprints and then shows simple and not-simple blueprints are equivalent; given our1111
+                                 construction is already a simple blueprint, we do not need this equivalence and defined simple blueprints as blueprints.
+1212             •Ban constraints:For anyx, y∈[C]                   P  and vertices1212 L(x) andR(y) incident on the same
+              Definition 1.3.Define thevalueedgee= (L(x),R(y))∈E                                      (p)    for someof a blueprintG= (L,R,E) as:p∈[P]:2
+2121                       for anyz∈[C]           P−p+1     , at least one of vertices2121value(G) :=      |E|L(x                <p ◦z) orR(y             <p ◦z) has no
+2222                       edges inG; we say these two vertices arebanned together2222|L|    = |E||R|     = |E|by the edgeCP .e.
+
+===== PDF PAGE 5 =====
+    In [AJX26], we constructed blueprints with values converging to (5−             √10)/3 which, plugged
+inTheorem 2, proves the impossibility of better than (8−2         √10)/3∼0.558 approximation for the
+semi-streaming matching problem.  The limit of the framework of [AJX26] however is determined
+by the following quantity
+                                        sup{value(G) :Ga proper blueprint},                                        (1)
+which was not well understood in [AJX26].
+Our blueprint construction.We determine the optimal value ofEq (1)in this work, proving
+the following, which is the maintechnicalresult of our work.
+Theorem 3.There is a sequence of proper blueprints(G                        m)m⩾1      with parameterP             m → ∞and
+
+                                                   m→∞   value(G      m) = 2/3.lim
+
+    Plugging in the blueprints inTheorem 3inTheorem 2then immediately provesTheorem 1.
+Our proof ofTheorem 3is constructive and we give an explicit description of the blueprints in the
+family (even though this is not required to applyTheorem 2).  We also note that as pointed out
+in [AJX26], one does needP→ ∞for the value of the blueprint to be able to reach 2/3.
+    As an aside, we should note that, technically speaking, one also needs to prove an upper bound
+onEq (1)to fully determine the value ofEq (1)(although this is not needed for provingTheorem 1).
+However, a 2/3 upper bound follows immediately fromTheorem 2and the greedy algorithm for
+the semi-streaming matching problem.  We give a different and direct proof of this upper bound
+inSection Aas it provides further insight into the structure of blueprints.
+1.2Our Blueprint Construction at a High Level
+Blueprints inTheorem 3are created by using elementary properties of random walks on the integer
+line.   The  general  idea  of  the  construction  is  as  follows  (as  our  blueprints  areentirely  disjoint
+from [AJX26] technique-wise, we will not review those blueprints and refer the reader to [AJX26]).
+Vertices and random walks. Letm⩾1 be an integer andG= (L,R,E) be a blueprint with
+parametersPandCthat  depend  onm.   To  any  labelx∈[C]                                                  P ,  we  assign  a  walkW(x)  on
+{0, . . . ,2m}that starts from some state in [2m−1] and in each step moves to either a one larger
+or  one  smaller  state  and  terminates  when  it  reaches  0  or  2m.   Define  thereflectionwalk                            W(x)
+that  starts  at  the  same  state  asW(x)  but  in  every  step,  takes  the  opposite  direction  asW(x).
+This assignment is done so that forxchosen uniformly from [C]            P ,W(x) (also                        W(x)) becomes a
+random walk whose starting state is sampled from some distributionµand each of its step is chosen
+uniformly.  This is done by using the first index of [P] to simulate sampling fromµ(by partitioning
+[C]  into  intervals  of  lengths  proportional  toµ(i)-values)  and  remaining  indices  to  simulate  the
+random walk (by partitioning [C] into two equal halves); seeFigure 2for a quick illustration (we
+have skipped one other coordinate in [P] called “delay” and will explain it later).
+Edges between0-reaching random walks.LetL                          ⋆ (resp.R           ⋆) be verticesL(x) (resp.R(x))
+whose  random  walkW(x)  (resp.                 W(x))  reaches  0.   Moreover,  for  anyj∈[2m−1]  and  time
+t∈[P−1], letL                 ⋆j,t denote the following subset ofL    ⋆:
+
+  •AllL(x)∈Lsuch thatW(x) reaches 0,W(x) hasjas themaximumstate it ever visits, and,
+     it has visitedjfor thefirsttime at thet-th step of the walk.
+
+We  defineR           ⋆j,t  analogously  using  the  reflection  walk      W.   In  the  blueprint,  we  add  amatching
+betweenL      ⋆j,t andR       ⋆2m−j,t       inE    (t+1)   with size equal to the smaller of the two.
+
+                                                                  3
+
+===== PDF PAGE 6 =====
+Properness of the blueprint. We need to ensure the inserted edges form a matching and that
+the  ban  constraints  are  satisfied.   The  former  is  easy  to  verify  asL    ⋆j,t,R ⋆j,t  sets  are  disjoint  for
+differentj, tand each is incident on a matching.  We now prove the ban constraint.
+     Consider any edge betweenL(x)∈L                  ⋆j,t andR(y)∈R                   ⋆2m−j,t       in someE          (t+1)   forj∈[2m−1] and
+t∈[P−1] (all edges are of this form).  The ban constraint requires that for anyz∈[C]                       P−t    , at
+most one ofL(x       ⩽t  ◦z) orR(y            ⩽t  ◦z) is matched.  Fixingx               ⩽t   andy      ⩽t   “brings” any walk ofW(x         ⩽t  ◦z)
+and   W(y     ⩽t  ◦z) to the statesjand 2m−jat theirt-th step (by the definitions ofL                                          ⋆j,t,R ⋆2m−j,t      ).
+Now, supposeL(x         ⩽t  ◦z) is matched.  Then, it means that the remainder of the walk, which with
+a slight abuse of notation we denote byW(z), will move from the statej, usesz, and reaches 0
+(soL(x         ⩽t  ◦z) becomes matched).  But then, the reflection walk                   W(z) will move in the “opposite”
+direction:  it moves from 2m−j, usesz, and thus reaches 2minstead; this means thatR(y                                    ⩽t  ◦z)
+will not be matched, as desired.  This is the entire proof of the ban constraint (see alsoFigure 3).
+Value calculation.The final step is to consider the value of this blueprint.  In our construction,
+we are going to ensure that the sizes of each ofL    ⋆j,t  andR       ⋆2m−j,t        that are matched together are
+(almost) equal to each other.  This will ensure that the size of the matching of the blueprint is
+(almost)|L                 ⋆|, which implies that
+
+                                 value(G) :=       |L ⋆|CP  =     Pr
+                                                             x∈  R[C]    P (walkW(x) reaches 0).                               (2)
+As stated earlier, the constraint we have is thatL        ⋆j,t andR       ⋆2m−j,t       sets should have roughly the same
+size.  For now let usrelaxthis constraint to instead ask thatL                   ⋆j :=∪     t L⋆j,t andR       ⋆2m−j       :=∪     t R⋆2m−j,t
+have the same size.  This translates to having,
+  ∀j∈[2m−1]    Pr
+                     x∈  R[C]    P (walkW(x) reaches 0 and maximum state it visits isj) walk
+                             =     Pr               W(x) reaches 0 and maximum state it visits is 2m−j           . (3)
+                                x∈  R[C]    P
+
+The underlying distributions of bothW(x) and                      W(x) here are just standard random walks starting
+from a random state chosen according to some distributionµ.  Thus, at this point, the goal is to
+maximizeEq (2)subject to the constraints inEq (3), by choosing the initial distributionµcarefully.
+     The type of random walk we have here is often called “gambler’s ruin” and is well studied as
+one of the simplest examples of Markov Chains;  see, e.g. [LP26, Section 2.1].  For instance, it is
+known that starting from auniformdistributionµ, maximum visited state will also be distributed
+uniformly and thus certainly satisfiesEq (3).  But in this case, the walk has an equal chance of
+reaching  0  and  2m,  makingvalue(G)  =  1/2  only.   However,  by  “shifting”  the  distribution  ofµ
+towards 0, while still enforcingEq (3), one can improve the objective function.  We are not aware
+of prior work that study this particular formulation but solving this optimization problem has a
+standard method:  one can cast the problem as a linear program inµ(i)-values and obtain a closed
+form formula for the variables.  Doing this in our case leads to the objective value of 2m/(3m+ 1)
+(seeLemma 3.1), giving us the desired value for the blueprint.
+     There is however one catch with the argument above: we moved from enforcing (almost) equality
+in sizes ofL    ⋆j,t andR       ⋆2m−j,t       to onlyL        ⋆j  andR       ⋆2m−j      ; but, symmetrizing the distribution of maxima
+(through the choice ofµ) does not mean the time to reaching them will also be symmetric.  This
+however can be handled rather easily by introducingrandom delaysin the random walks:  we
+dedicate one more coordinate in [P] for this task,  and start the random walks at different time
+stages to ensure that distribution of “time to hit maximum” becomes (almost) uniform over the
+time steps which fixes the above problem.
+
+                                                                    4
+
+===== PDF PAGE 7 =====
+1.3Further Corollaries of Our Result
+
+We mention two further corollaries of our results.  The first one is for the matching problem but
+in  another  model,  theonline  matching  with  preemption,  whereas  the  second  one  is  for  another
+problem, theminimum vertex cover, but back in the semi-streaming model.
+Online  matching  with  preemption.In  this  problem,  the  edges  of  the  graph  are  arriving
+sequentially and the algorithm must maintain a matching by accepting or rejecting arriving edges
+and can preempt previously accepted ones by discarding them.  This model is a generalization of
+the original online matching (with one-sided vertex arrival) in [KVV90].
+    Thecompetitive ratioof an algorithm in this model is the ratio of the matching size provided
+by the algorithm compared to the maximum matching of the graph. The greedy algorithm achieves
+a half competitive ratio in this model with no need for preemption.  When preemptions are not
+allowed, [GKM +19] proved that half approximation is optimal.  No better algorithm is known even
+when preemption is allowed and a series of results over the years have ruled out competitive ratios
+of (1−1/e)∼0.632 [KVV90], (1 + ln (2))                             −1   ∼0.590 [ELSW13], (2−                   √2)∼0.585 [HPT             +19], and
+very recently 0.5661 [KS26]                3.  We prove that the greedy algorithm is also optimal for this problem.
+
+Corollary 1.4.There is no algorithm for the online matching problem with preemption with an
+expected competitive ratio strictly better than half by any constant.
+
+    As  already  observed  in  [AJX26],  the  blueprint  framework  also  implies  lower  bounds  for  the
+online matching problem with preemption (given this connection, technically, the best known bound
+on the competitive ratios prior to our work is the 0.558 bound of [AJX26],  which was obtained
+independently and concurrently to [KS26]). Thus,Corollary 1.4directly follows from ourTheorem 3
+and the blueprint framework of [AJX26].
+
+Semi-streaming (bipartite) vertex cover.Going back to the semi-streaming model, a closely
+related problem to maximum bipartite matching is its dual, the minimum bipartite vertex cover
+problem.  The greedy algorithm is also a 2-approximation algorithm for this problem and no better
+algorithms  are  known.   It  has  been  asked  in  prior  work,  e.g.,  [ABB +19,DGR25]  whether  this
+algorithm can be improved.  We resolve this question in this work.
+
+Corollary 1.5.There is no single-pass semi-streaming algorithm for the minimum bipartite ver-
+tex cover problem that can achieve any constant approximation ratio strictly better than two with
+constant probability.
+
+    We note that prior to our work, no 2-approximation lower bounds were known for this problem
+even in general graphs (the UGC hardness of 2-approximation vertex cover [KR03] does not imply
+a semi-streaming lower bound, as runtime of algorithms is not bounded in this model).
+    The  proof  of  this  result  is  again  by  observing  that  the  blueprint  framework  of  [AJX26]  also
+implies lower bounds for the vertex cover problem given the duality of the problems (plus a standard
+modification for going from matching lower bounds to vertex cover ones as done previously in the
+literature, e.g., in [AK17,DGR25]).
+
+
+
+
+
+
+   3It is not a coincidence that these numbers and their progressions sound very similar to the ones mentioned for
+the semi-streaming matching:  until [AJX26], all previous semi-streaming matching lower bounds in [GKK12,Kap13,
+Kap21]  were  based  on  generalizing  online  preemptive  matching  instances  to  the  semi-streaming  model  (but  using
+completely white-box arguments); see [Kap21] for a detailed discussion of this topic.
+
+                                                              5
+
+===== PDF PAGE 8 =====
+2  Preliminaries
+
+Notation.For integers 1⩽a⩽b, we define [a:b] :={a, a+ 1, . . . , b}and [b] :={1, . . . , b}.  For
+a tuplex= (x               1, . . . , xt) andi∈[2 :t], we denotex                    <i := (x  1, . . . , xi−1   ).
+     For a random variableX, we sometimes write the subscriptXin Pr                                X(f(X)) (for somef), to
+explicitly specify the randomness is coming fromX.  For a random variableXand a setS,  we
+writeX∈             R Sto meanXis sampled uniformly at random fromS.
+Gambler’s ruin.We use a standard type of random walks on integer line{0,1, . . . ,2m}for some
+integerm⩾1, often called thegambler’s ruin; see, e.g. [LP26, Section 2.1].
+     The  walkW=w              1, w2,··· starts  at  some  integerw             1 ∈[2m−1]  and  in  each  timet⩾1,  it
+updatesw          t+1  =w   t + 1 with probability half andw  t+1  =w   t −1 otherwise.  The walk terminates
+at the first timetwhenw                    t = 0 orw    t = 2mand remains in this state.  Throughout, by a random
+walk, we always mean the above type of walk unless explicitly stated otherwise.
+Fact 2.1(c.f. [LP26, Proposition 2.1]). For a random walkWover{0, . . . ,2m}and an integerk
+in{0, . . . ,2m},
+                               PrW (Wreaches0before2m|Wstarts atk) =                                2m−k2m     .
+
+Moreover, the expected length of the walk before terminating is at mostm          2.
+     For a (finite) random walkW=w              1,···, w  T , wherew           T ∈ {0,2m}is a terminating state, define:
+      wmax =w    max(W) := maxt∈[T]     {w  t}  andt          max =t    max(W) := min{t∈[T] :w                        t =w    max(W)},
+
+as thelargeststate seen on the walk and thefirsttime the walk sees its eventual largest state.
+     A corollary ofFact 2.1is the following.
+Claim 2.2.For a random walkWover{0, . . . ,2m}and any1⩽i⩽j <2m,
+
+                          PrW (Wends in0∧w                max(W) =j|Wstarts ati) =                         ij·(j+ 1)      .
+
+Proof.For this to happen, we needWto reachjbefore 0, and once onj, to reach 0 beforej+ 1.
+Given the random walk is memoryless, these two events are independent and thus we have
+     PrW (Wends in 0∧w            max(W) =j|Wstarts ati) =
+
+         PrW (Wreachesjbefore 0|Wstarts ati)·Pr                         W (Wreaches 0 beforej+ 1|Wstarts atj).
+
+The  first  term  is  about  a  random  walk  on{0, . . . , j}starting  fromiand  thus  byFact  2.1has
+probabilityi/j.  The second term is about a random walk on{0, . . . , j+ 1}starting fromjand
+thus byFact 2.1has probability 1/(j+ 1).  Multiplying these two concludes the proof.
+
+     We also have the following standard claim on the length of random walks.
+Claim  2.3.The  probability  that  a  random  walkWstarting  from  any  state  does  not  terminate
+within2m               3 steps is at most2       −m  .
+
+Proof.The  expected  time  for  a  walkWto  terminate,  starting  from  any  state,  is  at  mostm                  2
+byFact  2.1.   Thus,  by  Markov  bound,  the  probability  that  the  walk  has  not  terminated  after
+2m  2  steps  is  at  most  half.   Repeating  the  argument  from  current  state,  the  probability  thatm
+repetitions, each of length 2m  2, does not terminate the walk is at most 2−m  .
+
+
+                                                                       6
+
+===== PDF PAGE 9 =====
+3  Random Walk on a Line with Symmetric Maxima
+
+Fix any integerm⩾1.  We will be using the gambler’s ruin random walk on{0, . . . ,2m}described
+inSection 2for our proofs.   For our purpose,  we also need to specify a distribution over initial
+states  with  the  following  two  properties:  (1)  the  distribution  ofw    max(W)  is  symmetric  (on  the
+interior states) assuming the start state is sampled from this distribution, and, (2) the probability
+of terminating in state 0 is maximized.  The following lemma finds such a distribution for us (we
+do  not  explicitly  prove  that  it  maximizes  the  term  in  (2)  and  only  calculate  its  value,  which  is
+sufficient for us; however, one can prove it is maximized).
+Lemma 3.1.Consider the assignmentµ:{1, . . . ,2m−1} →[0,1]such that fori∈[m],
+
+              µ(i) :=γ          m ·                    2·(2m+ 1)(2m−i)·(2m−i+ 1)·(2m−i+ 2)                                          forγ     m := 2m·(m+ 1)3m+ 1         ,
+
+and fori∈[m+ 1 : 2m−1],µ(i) = 0.
+    Firstly,µis  a  distribution.   Secondly,  if  we  sample  a  random  walkWstarting  from  a  state
+distributed according toµ—denoting the combined distribution byD          m—, then, for allj∈[2m−1],
+
+        W∼D    m (Wends in0∧w                max(W) =j) =    Pr   W∼D    m (Wends in0∧w                max(W) = 2m−j).Pr
+
+Finally,
+
+                                              W∼D    m (Wends in0) =            2mPr3m+ 1     .
+
+    We postpone the proof of this lemma to the end of this section to complete our definitions first.
+The proof can be skipped by the reader as it is not needed for understanding the rest of the paper.
+Delayed and length-restricted random walks.Lemma 3.1“symmetrizes” the distribution
+of maxima for a random walkW.  We also need to ensure the distribution of the time of reaching
+the maxima is (essentially) the same across different choices forw      max(W).  Adding a “delay” to the
+walk fixes this issue as well.
+    Adelayed  random  walkwith delayd⩾1 (also calledd-delayed random walk) is defined
+similar to our original random walk, except that for its firstd−1 time stamps, the walk stays in
+the same state and starts moving as before from time stepd.  Specifically, ad-delayed random walk
+W=w        1, w2,···,is such that
+            w1 =···=w        d    and    fort⩾d,w             t+1  is chosen uniformly from{w           t + 1, w  t −1},
+and the walk as before terminates when hitting the state 0 or 2m.  We refer to the “non-delayed”
+part of the walkWas theinnerrandom walkW                               in, namely,W in =w   d, wd+1  ,···.
+    For ad-delayed random walkW, we define
+                                              tmax(W) = (d−1) +t                  max(W  in),                                             (4)
+namely,  the time theinnerwalk reached the eventual maximum (this distinction between inner
+and the entire walk is only relevant when the starting state is the eventual maximum; in this case,
+we considert                 max(W) =d, namely, the delay of the walk instead of time 1);w                  max(W) is defined as
+before which is equal tow    max(W  in) regardless.
+    Finally, we also need the length of the walks to be finite, which can be guaranteed (essentially)
+byClaim 2.3.  We say that a delayed random walk isℓ-length restrictediff it terminates within
+ℓstepsafterspending its delayed time, i.e., reaches states 0 or 2mwithind+ℓsteps assuming its
+delay wasd(or alternatively, the length of its inner walkW            in is at mostℓ).  ByClaim 2.3, for large
+enoughℓ, a (delayed) random walk will beℓ-length restricted with high probability (inm).
+
+                                                                   7
+
+===== PDF PAGE 10 =====
+3.1Proof ofLemma 3.1
+
+We remark that the “right” way to prove a statement of the typeLemma 3.1is to solve the program
+that maximizes Pr(Wends in 0) subject to the symmetric constraints, under variables{µ(i)}                                      2m−1i=1
+which are non-negative and sum to one.  This becomes a linear programming problem which can
+then be solved explicitly (by considering its dual), to determine the values ofµ(i)’s.  Nevertheless,
+since we have already solved this program and obtainedµ(i)’s, in the following proof we only verify
+the correctness of these variables.
+     We prove each part ofLemma 3.1in the following.
+µforms a distribution.Clearly, allµ(i)⩾0 so we only need to prove                           Pi µ(i) = 1.  For this,
+        X                       mX                    2·(2m+ 1)
+             µ(i) =γ         m ·    (2m−i)·(2m−i+ 1)·(2m−i+ 2)
+          i                    i=1
+                              2m−1X        2·(2m+ 1)
+                    =γ   m ·          r·(r+ 1)·(r+ 2)                                (by reindexing the sum withr= 2m−i)
+                               r=m
+                              2m−1X                          1
+                    =γ   m ·         (2m+ 1)·          r·(r+ 1)     −            1(r+ 1)·(r+ 2)             (by a direct calculation)
+                               r=m                     1
+                    =γ   m ·(2m+ 1)·             m·(m+ 1)        −            1(2m)·(2m+ 1)                (by the telescoping sum)
+
+                    =γ   m ·     3m+ 12m·(m+ 1)            = 1,
+
+by the definition ofγ   m.  Thus,µis a distribution.
+Symmetric property.  To simplify the notation, in the following, we use ‘w   T  = 0’ to denote the
+event that the walk ends in 0 (instead of 2m) and use ‘w        1 =i’ for any integerito mean the walk
+starts from the statei.  For anyj∈[2m−1],
+
+                                                              mX
+        W∼D    m (w  T  = 0∧w      max(W) =j) =Pr                 µ(i)·Pr (w          T  = 0∧w      max(W) =j|w             1 =i)
+                                                             i=1
+                                                                            (as the walk needs to start somewhere in [m])
+                                                             min(m,j) X
+                                                         =              µ(i)·Pr (w          T  = 0∧w      max(W) =j|w             1 =i)
+                                                                i=1
+                                       (as otherwise starting fromi > jensuresw                           max(W) =jnever happens)
+                                                             min(m,j) X
+                                                         =              µ(i)·              ij·(j+ 1)      ,                                             (5)
+                                                                i=1
+byClaim 2.2since 1⩽i⩽j⩽2m.  We have the following claim on partial sums above.
+
+Claim 3.2.For anyj∈[m],
+
+                                               jX
+                                    Pj :=          µ(i)·i=γ             m ·           j·(j+ 1)(2m−j)·(2m−j+ 1)                       .
+                                              i=1
+
+
+
+                                                                       8
+
+===== PDF PAGE 11 =====
+Proof.The proof is by induction.  Forj= 1,
+
+                        P1 =µ(1) =γ         m ·            2·(2m+ 1)(2m−1)·(2m)·(2m+ 1)                             =γ   m ·      1·(1 + 1)(2m−1)·(2m)                   ,
+
+matching the RHS of the claim.  For 1< j⩽m, for the induction step, by the value ofµ(j),
+
+Pj =P   j−1    +j·µ(j) =γ                m ·               (j−1)·j(2m−j+ 1)·(2m−j+ 2)                          +j·γ      m ·                     2·(2m+ 1)(2m−j)·(2m−j+ 1)·(2m−j+ 2)
+
+                                 =γ   m ·   j·(j−1)·(2m−j) + 2j·(2m+ 1)(2m−j)·(2m−j+ 1)·(2m−j+ 2)
+                                                                (by multiplying the first fraction with (2m−j)/(2m−j))
+
+                                 =γ   m ·           j·(j+ 1)(2m−j)·(2m−j+ 1)                       ,
+
+where the last equation can be verified using a direct calculation by verifying that
+
+                                 (2m−j+ 2)·(j+ 1) = (j−1)·(2m−j) + 2·(2m+ 1).
+
+This concludes the proof.                           Claim 3.2
+
+     Plugging inClaim 3.2inEq (5), we have that for anyj∈[m],
+
+                   Pr
+                W∼D    m (w  T  = 0∧w      max(W) =j) =               Pjj·(j+ 1)       =γ   m ·                  1(2m−j)·(2m−j+ 1)                       .
+
+On the other hand, forj∈[m], we have 2m−j⩾mand by the max-term inEq (5),
+
+
+W∼D    m (w  T  = 0∧w      max(W) = 2m−j) =                              PmPr
+                                                                    (2m−j)·(2m−j+ 1)                        =γ   m ·                  1(2m−j)·(2m−j+ 1)                       ,
+since byClaim 3.2,P         m =γ   m.  This proves the equality in the symmetric property.
+Probability ofWending in0.  We calculate this directly as
+
+                                  mX
+      Pr                               µ(i)·Pr    W (w  T  = 0|w    1 =i)               (by the distribution of the start state)
+   W∼D    m (w  T  = 0) =        i=1
+                                  mX
+                             =         µ(i)·Pr    W (Wreaches 0 before 2m|w              1 =i)
+                                 i=1
+                                                                               (as otherwise the walk terminates in 2minstead)
+                                  mX
+                             =         µ(i)·       2m−i2m                                                                              (byFact 2.1)
+                                 i=1
+                                         mX   i·µ(i)
+                             = 1−               2m                                       (sinceµis a distribution so         Pi µ(i) = 1)
+                                       i=1
+                             = 1−   γm2m     (as the numerator in the sum-term isP   m which isγ   m byClaim 3.2)
+
+                             =    2m3m+ 1     ,
+
+by the value ofγ   m.  This concludes the proof ofLemma 3.1.
+
+                                                                              9
+
+===== PDF PAGE 12 =====
+                  4  The Blueprint Construction
+                  We provide our blueprint construction in this section, proving the following theorem.
+
+                  Theorem(Restatement ofTheorem 3).For any sufficiently large integerm, there exists a proper
+                  blueprintG                 m with parametersP= poly(m)andC=m                              O(m)       such that
+                                                                                                     1
+                                                                      value(G    m) = 23 −Θ           m     .
+
+                       We start by presenting the setup needed for this construction, followed by the construction itself
+                  and its properness proof, and finally calculate its value to conclude the proof ofTheorem 3.
+                  4.1Setup
+                  Letmbe a large integer that is used to define all our other parameters for the blueprint.  We define
+                  a blueprintG:=G(m) in this section.  Define:
+
+                           L:=m        4,                                                      (used to determine thelengthof random walks)
+                          D:= 2m·L,                             (used to determine the (range of)delaysin random walks)
+                          P:=L+D+ 1                                                                       (parameterPof the blueprint)
+                          C:= sufficiently large as function ofmto be fixed later.       (parameterCof the blueprint)
+
+                  Recall that vertices ofGareL,Rand they are labeled by [C]                        P . We partition indices ofPas follows:
+
+                                                                 P:= (start,delay,walk)    where
+                                                       start= 1,   delay= 2,   and,walk= [3 :P].
+
+                       We use these indices to associate a delayed random walk to vertices of the blueprint as follows.
+
+
+
+
+
+
+
+
+
+
+Definition 4.1.Samplex∈[C]                               P  uniformly at random and define adelayed random walk
+W=W(x) =w                     1, w2,···, w  T  for someT⩽D+Las follows                             a.
+
+ 1.x    start determines the start statew        1 of the random walkW: we partition [C] into intervals of
+      proportional lengthµ(1), µ(2), . . . , µ(m) (as defined inLemma 3.1), and pickw                                                    1 depending
+      on which intervalx    start lands in.
+ 2.x    delay determines the delay of the delayed random walkW: we partition [C] intoDequal-
+      length intervals and the delay of the random walkd(x) =difx                        delay lands ind-th interval.
+ 3.x    walk determines the inner walk: for any timet⩾d(x),x                       t+2  determines the transition from
+      wt tow    t+1  inW, wherew                   t+1  =w   t −1 ifx      t+2  ∈[1 :C/2] andw             t+1  =w   t + 1 otherwise.
+      The walk terminates whenever it hits 0 or 2mand the subsequent states remain the same.SeeFigure 2for an illustration of this definition and further help with parsing it.
+
+     We also define thereflection walkofx, denoted by                                W(x), exactly asW(x) except for
+Line  (3):  we  now  increase  the  state  ifx      i ∈[1  : C/2]  and  decrease  it  otherwise  (the  exact10
+opposite rule as in the definition ofW).
+
+   aIt is possible that the walk does not terminate and in that case we only consider itsD+Lfirst states.
+
+===== PDF PAGE 13 =====
+                               Figure 2:An illustration of the random walkW(x) inDefinition 4.1whenm= 3 andD= 6.  The figure
+                               shows how the indices of [P] are partitioned into (start,delay,walk).  The intervals inside each box shows
+                               how [C] is partitioned into different intervals.  The tiny arrows in each box shows the value of a single point
+                               x∈[C]         P  on each relevant index.  The walkW(x) thus first considersx                                       start and so chooses starting state 2.
+                               The delaydis set to 5 givenx           delay.  Finally, the walk waits until timedand then decide its next move based
+                               on the indexd+ 2 and so on; in this particular example, the walk goes to 3 next, then 2, and then 1.
+
+
+                                     Before getting to the main part, a quick remark is in order.
+
+                               Remark 4.2.We pickCsuch that
+
+                                  •µ(i)·Cis  an  integer  for  all i∈[2m−1](so  the  distribution  of  the  start  point  in  Line(1)
+                                      matchesµ);
+
+                                  •D|C(so the distribution of the delay in Line(2)is uniform over[D]);
+
+                                  •Cis even (so the distribution of the inner walk in Line(3)is a standard random walk).
+
+                               We can thus set                                                    mY
+                                                                                  C= 2D·              denominator ofµ(i)
+                                                                                                 i=1
+                               and given the values of parametersµ(i)inLemma 3.1and sinceD= poly(m), we haveC=m                                                               O(m)      .
+
+                                     We  use  walksW(x)  for  defining  subsets  ofLand  reflection  walks                                         W(x)  for  subsets  inR.
+                               Specifically, for any integerj∈[2m−1] and timet∈[D+L], we define
+
+                                   Lj,t :={L(x) :W(x) isL-restricted,W(x) reaches 0,w                                                                 max(W(x)) =j, andt                        max(W(x)) =t},
+                                  Rj,t := R(x) :          W(x) isL-restricted,             W(x) reaches 0,w             max(W(x)) =j, andt                      max(W(x)) =t       	 .
+
+                               These sets will play the key role in the definition of edges of the blueprint (they are essentially the
+                               endpoints of the edges).
+                                     We have the following immediate relation between the sizes of these sets.
+
+                               Claim 4.3.For allj∈[2m−1]andt∈[D+L],|L                                                     j,t|=|R      j,t|.
+
+                               Proof.The  only  difference  betweenL           j,t  andR       j,t  is  in  Line  (3)  ofDefinition  4.1:  we  thus  have
+                               L(x)∈L           j,t iffR( x)∈R       j,t, where[P]  xis defined to be the same asxin [P]\walkand fori∈walk,
+                               xi :=C−x           i + 1.  Using the bijection betweenx’s and                        x’s, we can conclude the proof.
+
+[C]                                                                                                       11
+
+
+
+         start        delay                           d+ 2                 walk
+
+===== PDF PAGE 14 =====
+     The more interesting property is the near-equality of the sizes ofL    j,t  andR        2m−j,t       (whenever
+t∈[L:D]); this is where we use most of the properties we incorporated in our random walks.
+
+Lemma 4.4.For allj∈[2m−1]andt∈[L:D],
+
+                                 |R 2m−j,t     | −2   −m  · CPD  ⩽|L     j,t|⩽|R      2m−j,t     |+ 2 −m  · CPD .
+
+Proof.DefineW                 in(x) as the inner walk ofW(x), which is the walk that starts at timed(x) (the
+delay) and continues the same asW; we define                          W in(x) similarly.  In the following, when clear from
+the context, we drop (x) and writeWto denoteW(x) (similarly forW                                            in,W, etc.).
+     We first have
+      |L j,t|
+       CP   = Prx       W  L-restricted,Wreaches 0,w                                  max(W) =j,t             max(W) =t(byDefinition 4.1)
+
+              = Prx     Win L-restricted,W                       in reaches 0,w    max(W  in) =j,t       max(W) =t
+               (L-restrictedness, reaching 0, and the max-states are all the same betweenW           in andW)
+              = Prx     Win L-restricted,W                       in reaches 0,w    max(W  in) =j,t       max(W  in) =t−(d(x)−1)
+                                                                                       (by the definition oft    max(W) inEq (4))
+
+              =  1D ·Prx       Win L-restricted,W                       in reaches 0,w    max(W  in) =j
+
+asd(x) is independent ofW              in and is uniform over [D], and so the eventd(x) =t−t                       max(W  in) + 1
+(conditioned onW     in) happens with probability 1/Das the RHS is in [D] as well; this is because
+tmax(W  in)⩽L(byL-restrictedness) andt∈[L:D].
+     We can do the same exact analysis forR      2m−j,t       and                  Was well to have
+               |R 2m−j,t     |
+                    CP      =  1D ·Prx        W in L-restricted,         W in reaches 0,w    max(W in) = 2m−j                      .
+
+Consider the expression in the RHS of either of these two terms.  The distribution ofW    in or                                              W in
+is exactly the same as the distribution of a random walk fW∼ D    m defined inLemma 3.1.  Hence,
+         |L j,t|                 fW  L-restricted,   fWreaches 0,w        max(fW) =j
+          CP   =  1D ·PrfW
+                                   fWreaches 0,w        max(fW) =j                       fWnotL-restricted
+                  ⩾  1D ·     PrfW                                              −PrfW
+                                                                                                  (as Pr(A∧B)⩾Pr(B)−Pr(                       A))
+                                   fWreaches 0,w        max(fW) =j
+                  ⩾  1D ·     PrfW                                              −2   −m               (asL=m             4 and byClaim 2.3)
+                                   fWreaches 0,w        max(fW) = 2m−j
+                  =  1D ·     PrfW                                                       −2   −m
+                                                                                   (by the symmetry property ofLemma 3.1)
+                                   fW  L-restricted,   fWreaches 0,w        max(fW) = 2m−j
+                  ⩾  1D ·     PrfW                                                                               −2   −m
+                                                                                                               (as Pr(A)⩾Pr(A∧B))
+
+                  = |R 2m−j,t     |CP     − 2−mD  .
+
+                                                                        12
+
+===== PDF PAGE 15 =====
+                        Figure 3:An illustration of the proof of the ban constraint (Claim 4.6) forGwithm= 6,j= 2,  and
+                        z≈(↑,↑,↓,↓,↓,↓), which by that we mean the↑indices are in [(C/2) + 1 :C] and↓ones are in [1 :C/2].
+                        Suppose the choices ofx   <p andy      <p already “bring” the walksW(x         <p ◦z) and                        W(y     <p ◦z) to states 2 and
+                        10, respectively.  From there,W(x               <p ◦z), increases the state by two and then decreases it by four, whereas
+                        by reflection,      W(y     <p ◦z) does the exact opposite; thus,W(x              <p ◦z) reaches state 0 iff                W(y     <p ◦z) reaches
+                        12(= 2m). As such, at most one pair of these vertices can be matched inG(only vertices whose walk reaches
+                        0 are matched regardless of being inLorR).
+
+
+                        Applying the same argument starting fromR          2m−j,t       then implies that
+
+                                                       |R 2m−j,t     | −2   −m  · CPD  ⩽|L     j,t|⩽|R      2m−j,t     |+ 2 −m  · CPD
+
+
+                        4.2The Construction
+                        We are now ready to define the edges of the blueprintG= (L,R,E) and prove its properness.  As
+                        stated earlier, both vertex-setsLandRare labeled by [C]                                   P .  The edges inEare defined as follows:
+
+                           •For anyj∈[2m−1] andt∈[L:D], we add a matchingM                                                j,t of sizes       j,t := min (|L   j,t|,|R    2m−j,t     |)
+                              between two arbitrarily-chosens  j,t-subsets ofL    j,t andR        2m−j,t      .  Moreover, the matchingM        j,t is
+                              added as part ofE    (p)    forp=t+ 2.
+
+                             We need to check that the blueprintGis proper, which is handled by the following two claims.
+
+                        Claim 4.5(“Matching constraint”).The edge-setEis a matching.
+
+                        Proof.By definition, the setsL          j,t are disjoint for different values ofj(the maximum of a random
+                        walk is a unique state) as well ast(thefirsttime reaching the eventual maximum is unique).  Same
+                        is true forR      2m−j,t       as well, thusE=∪          p∈[P]     E(p)    itself is a matching also.
+
+                        Claim 4.6(“Ban constraint”).The edge-setErespects the ban constraint.
+
+                        Proof.Consider an edgee∈E                    (p)    forp=t+ 2 for some arbitraryt∈[L:D] and supposeeis
+                        between someL(x)∈L                     j,t andR(y)∈R                    2m−j,t       forx, y∈[C]              P .  Recall all edges ofGare of this form.
+                             ByDefinition 1.2, the ban constraint requires that for allz∈[C]                         P−p+1     , at most one ofL(x        <p◦z)
+           W(x      <p ◦z)andR(y            <p◦z) is matched inE. We show that this is the case for every fixedW(y      <p ◦z)z∈[C]                             P−p+1     . Figure 3
+                        can be helpful with providing an illustration of this step of the proof.
+
+
+                                                                                                  13
+
+
+
+0         1          2         3          4         5          6         7          8         9         10        11         12
+
+===== PDF PAGE 16 =====
+     Consider the walkW(x           <p ◦z).  Fixingx                <p fixes the starting state of the walk (by fixingx   start),
+the delay of the walk (by fixingx             delay) and the states until timetof the walk.  By the definition
+ofL(x)∈L               j,t, we know that at the timet, the walkW(x               <p ◦z) will also be at the statej.  Thus,
+forL(x         <p ◦z) to be matched, we need the walkW(x                <p ◦z) to reach the state 0 or equivalently, we
+need the walkW      z :=w     t(=j), w        t+1 ,···,to reach 0 starting fromj.  Note that the entire movement
+of the walkW      z is determined byz.
+     On the other hand,  consider the reflection walk                           W(y      <p ◦z).   Again,  fixingy               <p  and the fact
+R(y)∈R             2m−j,t      ,  in  particular  means  that  this  walk  is  at  state  2m−jat  timet.   Consider  the
+continuation of this walk as               W z  :=  ¯w  t(= 2m−j),¯w                t+1 ,···,starting from 2m−jwhich is fully
+determined byz. Given               W z is a reflection ofW   z, ifW   z starting fromjreaches 0, then,                          W z starting
+from 2m−jwill reach 2m.  But, that means that the walk                                   W(y      <p ◦z) ends in the state 2mwhich
+forcesR(y                <p ◦z) to never be matched in the blueprint.
+     Combining the above, we have that between the two verticesL(x                <p ◦z) andR(y                <p ◦z), at most
+one is matched in the blueprint, respecting the ban constraint.
+
+     We thus established that the blueprintGis indeed a proper blueprint.
+4.3Value Calculation
+
+The last step is to calculate the value of the blueprint which is|E|/C        P .
+
+Lemma 4.7.The value of blueprintG=G                               m is
+
+                                         value(G)⩾           1−    1m     ·    2m3m+ 1     −3m·2        −m  ,
+
+Proof.GivenEis a matching, and by construction,
+
+                     value(G) =      |E|CP                                                                             (byDefinition 1.3)
+
+                                       2m−1X    DX   min (|L   j,t|,|R    2m−j,t     |)
+                                    =                             CP                                     (by the definition of edges)
+                                         j=1   t=L
+                                       2m−1X    DX    |L j,t|
+                                    ⩾                   CP  −2   −m  ·  1D                                                 (byLemma 4.4)
+                                       j=1    t=L             
+                                          2m−1X    DX   |L j,t|
+                                    ⩾                   CP     −2m·2        −m  .
+
+                                            j=1   t=L
+
+We can now bound the inner sum separately as follows:
+
+     2m−1X    DX   |L j,t|     2m−1X    DX
+                    CP   =                  Pr    W  L-restricted,Wreaches 0,w                                  max(W) =j,t             max(W) =t
+      j=1    t=L                j=1   t=L
+                                                                                                             (by the definition ofL    j,t)
+                               2m−1X
+                           =          Pr     W  L-restricted,Wreaches 0,w                                  max(W) =j,t             max(W)∈[L:D]
+                                j=1
+                                                                                     (as the events in the sum are all disjoint)
+
+
+                                                                       14
+
+===== PDF PAGE 17 =====
+                           2m−1X
+                        ⩾         Pr    W  L-restricted,Wreaches 0,w                                  max(W) =j,d(x)∈[L:D−L]
+                            j=1
+                        (sinceWisL-restricted, having delay in [L:D−L] ensurest                                         max(W)∈[L:D])
+                                        2m−1X
+                        ⩾ D−2LD    ·           Pr    W  L-restricted,Wreaches 0,w                                  max(W) =j
+                                         j=1
+                  (asd(x) is uniform independently on [D] and|[L:D−L]|=D−2L+ 1> D−2L)
+
+                        = D−2LD    ·Pr        W  L-restricted,Wreaches 0
+                                               fWreaches 0(the sum is over all disjoint possibilities of reaching 0)
+
+                        ⩾ D−2LD    ·      Pr                       −2   −m
+                                            2m            (byClaim 2.3and using     fWas a generic random walk)
+
+                        = D−2LD    ·       3m+ 1     −2   −m                                                  (byLemma 3.1)
+
+                        ⩾     1−    1m   ·    2m3m+ 1     −2   −m  .                                                    (asD= 2m·L)
+
+By plugging in this into the earlier bound, we have,
+
+                                    value(G)⩾          1−    1m   ·    2m3m+ 1     −3m·2        −m  ,
+
+concluding the proof.
+
+    The lower bound inTheorem 3now follows immediately fromLemma 4.7and the properness
+of the blueprint established inClaims 4.5and4.6.  The upper bound is simply because
+
+                                   value(G      m)⩽ PrW∼D    m (Wreaches 0) =         2m3m+ 1     ,
+
+byLemma 3.1, as every matched vertex inLbelongs to someL                    j,t and hence its walk has reached 0.
+    This concludes the proof ofTheorem 3.
+Acknowledgement
+We are thankful to Aaron Bernstein, Gunadi Gani, Lap Chi Lau, Euiwoong Lee, and Thatchaphol
+Saranurak for helpful discussions on blueprints, and to Lap Chi Lau and Janani Sundaresan for
+many helpful comments on the presentation of an earlier version of the paper.  We are also grateful
+to Trever Brown for providing us with computational resources for generating blueprints efficiently
+in the early stages of this project and to David Woodruff for running multiple LLM prompts on
+our behalf on Google’s Gemini-based models.
+    Sepehr Assadi is additionally grateful to Soheil Behnezhad, Aaron Bernstein, Niv Buchbinder,
+Deeparnab  Chakrabarty,  Michael  Kapralov,  Sanjeev  Khanna,  Christian  Konrad,  Lap  Chi  Lau,
+Thatchaphol Saranurak, and David Wajc for various discussions on semi-streaming matching over
+the years.
+
+
+
+
+                                                                15
+
+===== PDF PAGE 18 =====
+AI Acknowledgement
+We have used Google’s Gemini-based models, GPT 5.5 Pro, GPT 5.6 Sol, Claude Opus, and Claude
+Fable as part of our research.  Gemini-based models were used briefly during the preliminary stages
+for a small number of prompts using only the definitions of blueprints, without additional project
+context, and their outputs have not been used in the rest of the project.  The remaining systems
+were routinely supplied with the authors’ evolving research notes and ideas, and have been used
+for brainstorming and technical assistance.  Specifically, the authors provided an optimal solution
+to  arelaxationof  blueprints  (a  generalization  of  the  “density”-argument  inSection  A),  and  a
+combination of Claude Fable and GPT 5.6 Sol gave the idea for using random walks to take this
+solution from the relaxations to blueprints.  These random walks formed the crux of our blueprints.
+GPT 5.6 Sol also assisted with the proof ofLemma 3.1by solving the optimization problem after
+authors’ directive to formulate it as a linear program.  The proof in the paper is different than the
+AI-generated proof and is our own as we could simply use the provided variable values and directly
+prove they satisfy the constraints and the bound on the objective.
+    AI tools were also used to assist in proofreading and creating figures from given drawings.  No
+AI-generated text appears in the paper: the authors formulated and wrote all the final mathematical
+content themselves, including all the statements and proofs.  The authors take full responsibility
+for all content.
+References
+
+[AB21]S. Assadi and S. Behnezhad. Beating two-thirds for random-order streaming matching.
+              In48th International Colloquium on Automata, Languages, and Programming, ICALP
+              2021, July 12-16, 2021, Glasgow, Scotland (Virtual Conference), volume 198 ofLIPIcs,
+              pages 19:1–19:13. Schloss Dagstuhl - Leibniz-Zentrum f¨ur Informatik, 2021.1
+[ABB+19]S. Assadi, M. Bateni, A. Bernstein, V. S. Mirrokni, and C. Stein. Coresets meet EDCS:
+              algorithms  for  matching  and  vertex  cover  on  massive  graphs.   InProceedings  of  the
+              Thirtieth  Annual  ACM-SIAM  Symposium  on  Discrete  Algorithms,  SODA  2019,  San
+              Diego, California, USA, January 6-9, 2019, pages 1616–1635. SIAM, 2019.5
+[ABKL23]S. Assadi, S. Behnezhad, S. Khanna, and H. Li.  On regularity lemma and barriers in
+              streaming and dynamic matching. InProceedings of the 55th Annual ACM Symposium
+              on  Theory  of  Computing,  STOC  2023,  Orlando,  FL,  USA,  June  20-23,  2023,  pages
+              131–144. ACM, 2023.1
+[ADKN23]C. Alexandru, P. Dvor´ak, C. Konrad, and K. K. Naidu.  Improved weighted matching
+              in the sliding window model.  In40th International Symposium on Theoretical Aspects
+              of Computer Science, STACS 2023, Hamburg, Germany, March 7-9, 2023, volume 254
+              ofLIPIcs, pages 6:1–6:21. Schloss Dagstuhl - Leibniz-Zentrum f¨ur Informatik, 2023.1
+[AJX26]S. Assadi, M. Jiang, and M. Xiang.  Semi-streaming matching in a single pass:  A new
+              framework for lower bounds via blueprints.  InProceedings  of  the  58th  Annual  ACM
+              Symposium  on  Theory  of  Computing,  STOC  2026,  Salt  Lake  City,  UT,  USA,  June
+              22-26, 2026, pages 979–990. ACM, 2026.ii,1,2,3,5,20
+[AK17]S. Assadi and S. Khanna.  Randomized composable coresets for matching and vertex
+              cover.  InProceedings of the 29th ACM Symposium on Parallelism in Algorithms and
+              Architectures, SPAA 2017, Washington DC, USA, July 24-26, 2017, pages 3–12. ACM,
+              2017.5
+
+                                                          16
+
+===== PDF PAGE 19 =====
+[Beh21]S.  Behnezhad.Modern  Large-Scale  Algorithms  for  Classical  Graph  Problems.   PhD
+              thesis, University of Maryland, College Park, MD, USA, 2021.1
+
+[Ber24]A. Bernstein. Improved bounds for matching in random-order streams.Theory Comput.
+              Syst., 68(4):758–772, 2024.1
+
+[CJMM17]G. Cormode, H. Jowhari, M. Monemizadeh, and S. Muthukrishnan.  The sparse awak-
+              ens:   Streaming  algorithms  for  matching  size  estimation  in  sparse  graphs.   In25th
+              Annual European Symposium on Algorithms,  ESA 2017,  Vienna,  Austria,  September
+              4-6, 2017, volume 87 ofLIPIcs, pages 29:1–29:15. Schloss Dagstuhl - Leibniz-Zentrum
+              f¨ur Informatik, 2017.1
+
+[CK14]A. Chakrabarti and S. Kale.  Submodular maximization meets streaming:  Matchings,
+              matroids, and more.  InInteger Programming and Combinatorial Optimization - 17th
+              International Conference, IPCO 2014, Bonn, Germany, June 23-25, 2014. Proceedings,
+              volume 8494 ofLecture Notes in Computer Science, pages 210–221. Springer, 2014.1
+
+[DGR25]M. Derakhshan, A. Ghasemi, and R. Rajaraman.  One-way communication complex-
+              ity of minimum vertex cover in general graphs.  In52nd International Colloquium on
+              Automata, Languages, and Programming, ICALP 2025, July 8-11, 2025, Aarhus, Den-
+              mark, volume 334 ofLIPIcs, pages 66:1–66:19. Schloss Dagstuhl - Leibniz-Zentrum f¨ur
+              Informatik, 2025.1,5
+
+[EHM16]H. Esfandiari, M. Hajiaghayi, and M. Monemizadeh. Finding large matchings in semi-
+              streaming.   InIEEE  International  Conference  on  Data  Mining  Workshops,  ICDM
+              Workshops 2016, December 12-15, 2016, Barcelona, Spain, pages 608–614. IEEE Com-
+              puter Society, 2016.1
+
+[ELSW13]L. Epstein, A. Levin, D. Segev, and O. Weimann. Improved bounds for online preemp-
+              tive matching.  In30th International Symposium on Theoretical Aspects of Computer
+              Science,  STACS  2013,  February  27  -  March  2,  2013,  Kiel,  Germany,  volume  20  of
+              LIPIcs, pages 389–399. Schloss Dagstuhl - Leibniz-Zentrum f¨ur Informatik, 2013.5
+
+[FKM+05]J. Feigenbaum, S. Kannan, A. McGregor, S. Suri, and J. Zhang.  On graph problems
+              in a semi-streaming model.Theor. Comput. Sci., 348(2-3):207–216, 2005.1
+
+[FMU22]M.  Fischer,  S.  Mitrovic,  and  J.  Uitto.   Deterministic  (1 +ϵ)-approximate  maximum
+              matching with poly(1/ϵ) passes in the semi-streaming model and beyond.  InSTOC
+              ’22:  54th  Annual  ACM  SIGACT  Symposium  on  Theory  of  Computing,  Rome,  Italy,
+              June 20 - 24, 2022, pages 248–260. ACM, 2022.1
+
+[FNSZ22]M. Feldman, A. Norouzi-Fard, O. Svensson, and R. Zenklusen. Submodular maximiza-
+              tion subject to matroid intersection on the fly. In30th Annual European Symposium on
+              Algorithms, ESA 2022, Berlin/Potsdam, Germany, September 5-9, 2022, volume 244
+              ofLIPIcs, pages 52:1–52:14. Schloss Dagstuhl - Leibniz-Zentrum f¨ur Informatik, 2022.
+              1
+
+[FS22]M. Feldman and A. Szarf.  Maximum matching sans maximal matching:  A new ap-
+              proach  for  finding  maximum  matchings  in  the  data  stream  model.   InApproxima-
+              tion,  Randomization,  and  Combinatorial  Optimization.  Algorithms  and  Techniques,
+              APPROX/RANDOM  2022,  University  of  Illinois,  Urbana-Champaign,  USA  (Virtual
+
+
+                                                         17
+
+===== PDF PAGE 20 =====
+              Conference), September 19-21, 2022, volume 245 ofLIPIcs, pages 33:1–33:24. Schloss
+              Dagstuhl - Leibniz-Zentrum f¨ur Informatik, 2022.1
+
+[Gam21]B. Gamlath.How  to  Match  in  Modern  Computational  Settings.  PhD thesis,  EPFL,
+              Switzerland, 2021.1
+
+[GKK12]A. Goel,  M. Kapralov,  and S. Khanna.  On the communication and streaming com-
+              plexity of maximum bipartite matching.  InProceedings  of  the  Twenty-Third  Annual
+              ACM-SIAM Symposium on Discrete Algorithms, SODA 2012, Kyoto, Japan, January
+              17-19, 2012, pages 468–485. SIAM, 2012.1,5
+
+[GKM+19]B. Gamlath, M. Kapralov, A. Maggiori, O. Svensson, and D. Wajc.  Online matching
+              with general arrivals.  In60th IEEE Annual Symposium on Foundations of Computer
+              Science, FOCS 2019, Baltimore, Maryland, USA, November 9-12, 2019, pages 26–37.
+              IEEE Computer Society, 2019.5
+
+[GKMS19]B. Gamlath, S. Kale, S. Mitrovic, and O. Svensson. Weighted matchings via unweighted
+              augmentations.   InProceedings  of  the  2019  ACM  Symposium  on  Principles  of  Dis-
+              tributed  Computing,  PODC  2019,  Toronto,  ON,  Canada,  July  29  -  August  2,  2019,
+              pages 491–500. ACM, 2019.1
+
+[GKRS20]P. Garg, S. Kale, L. Rohwedder, and O. Svensson. Robust algorithms under adversarial
+              injections.  In47th International Colloquium on Automata, Languages, and Program-
+              ming,  ICALP  2020,  Saarbr¨ucken,  Germany  (Virtual  Conference),  July  8-11,  2020,
+              volume 168 ofLIPIcs, pages 56:1–56:15. Schloss Dagstuhl - Leibniz-Zentrum f¨ur Infor-
+              matik, 2020.1
+
+[HPT+19]Z.  Huang,  B.  Peng,  Z.  G.  Tang,  R.  Tao,  X.  Wu,  and  Y.  Zhang.   Tight  competitive
+              ratios of classic matching algorithms in the fully online model.  InProceedings of the
+              Thirtieth  Annual  ACM-SIAM  Symposium  on  Discrete  Algorithms,  SODA  2019,  San
+              Diego, California, USA, January 6-9, 2019, pages 2875–2886. SIAM, 2019.5
+
+[Kap13]M.  Kapralov.   Better  bounds  for  matchings  in  the  streaming  model.   InProceedings
+              of the Twenty-Fourth Annual ACM-SIAM Symposium on Discrete Algorithms, SODA
+              2013, New Orleans, Louisiana, USA, January 6-8, 2013, pages 1679–1697, 2013.1,5
+
+[Kap21]M. Kapralov.  Space lower bounds for approximating maximum matching in the edge
+              arrival model.  InProceedings of the  2021 ACM-SIAM Symposium  on Discrete Algo-
+              rithms,  SODA  2021,  Virtual  Conference,  January  10  -  13,  2021,  pages  1874–1893.
+              SIAM, 2021.1,5
+
+[KMM12]C. Konrad, F. Magniez, and C. Mathieu.  Maximum matching in semi-streaming with
+              few passes. InApproximation, Randomization, and Combinatorial Optimization. Algo-
+              rithms and Techniques - 15th International Workshop, APPROX 2012, and 16th Inter-
+              national Workshop, RANDOM 2012, Cambridge, MA, USA, August 15-17, 2012. Pro-
+              ceedings, volume 7408 ofLecture Notes in Computer Science, pages 231–242. Springer,
+              2012.1
+
+[KN21]C. Konrad and K. K. Naidu. On two-pass streaming algorithms for maximum bipartite
+              matching.  InApproximation, Randomization, and Combinatorial Optimization. Algo-
+              rithms and Techniques, APPROX/RANDOM 2021, University of Washington, Seattle,
+
+
+                                                         18
+
+===== PDF PAGE 21 =====
+              Washington,  USA  (Virtual  Conference),  August  16-18,  2021,  volume  207  ofLIPIcs,
+              pages 19:1–19:18. Schloss Dagstuhl - Leibniz-Zentrum f¨ur Informatik, 2021.1
+
+[KR03]S. Khot and O. Regev. Vertex cover might be hard to approximate to within 2−ε. In
+              18th Annual IEEE Conference on Computational Complexity (Complexity 2003), 7-10
+              July 2003, Aarhus, Denmark, page 379. IEEE Computer Society, 2003.5
+
+[KS26]P. Kiss and M. Sharifi.  Online preemptive matching revisited.  In53rd International
+              Colloquium on Automata, Languages, and Programming, ICALP 2026, Royal Holloway,
+              University of London, Egham, United Kingdom, July 7-10, 2026, volume 374 ofLIPIcs,
+              pages 128:1–128:21. Schloss Dagstuhl - Leibniz-Zentrum f¨ur Informatik, 2026.5
+
+[KT17]S. Kale and S. Tirodkar. Maximum matching in two, three, and a few more passes over
+              graph streams.  InApproximation,  Randomization,  and  Combinatorial  Optimization.
+              Algorithms  and  Techniques,  APPROX/RANDOM  2017,  Berkeley,  CA,  USA,  August
+              16-18, 2017, volume 81 ofLIPIcs, pages 15:1–15:21. Schloss Dagstuhl - Leibniz-Zentrum
+              f¨ur Informatik, 2017.1
+
+[KVV90]R.  M.  Karp,  U.  V.  Vazirani,  and  V.  V.  Vazirani.   An  optimal  algorithm  for  on-line
+              bipartite matching. InProceedings of the 22nd Annual ACM Symposium on Theory of
+              Computing, May 13-17, 1990, Baltimore, Maryland, USA, pages 352–358. ACM, 1990.
+              5
+
+[LP26]D. A. Levin and Y. Peres.Markov chains and mixing times.  American Mathematical
+              Society, 2026.4,6
+
+[McG13]A. McGregor.  Open Problems in Sublinear Algorithms, Problem 60:  Single-Pass Un-
+              weighted Matchings.https://sublinear.info/60, 2013.  Suggested by Andrew Mc-
+              Gregor; accessed July 14, 2026.1
+
+[McG14]A. McGregor. Graph stream algorithms:  a survey. SIGMOD Rec., 43(1):9–20, 2014.1
+
+[Nai24]K. K. Naidu.Streaming Maximum Matching in a Few Passes:  Algorithms and Lower
+              Bounds.  PhD thesis, University of Bristol, 2024.1
+
+[Tir18]S.  Tirodkar.   Deterministic  algorithms  for  maximum  matching  on  general  graphs  in
+              the semi-streaming model. In38th IARCS Annual Conference on Foundations of Soft-
+              ware  Technology  and  Theoretical  Computer  Science,  FSTTCS  2018,  Ahmedabad,  In-
+              dia, December 11-13, 2018, volume 122 ofLIPIcs, pages 39:1–39:16. Schloss Dagstuhl
+              - Leibniz-Zentrum f¨ur Informatik, 2018.1
+
+[Waj21] D. Wajc.Matching Theory Under Uncertainty. PhD thesis, Carnegie Mellon University,
+              USA, 2021.1
+
+
+
+
+
+
+
+
+
+
+
+
+                                                          19
+
+===== PDF PAGE 22 =====
+Appendix
+
+A Upper Boundingthe Value of Blueprints
+For  completeness  and  to  provide  further  intuition  about  blueprints,  we  prove  an  optimal  upper
+bound forEq (1).  As stated earlier, this bound also follows fromTheorem 2of [AJX26] and the
+greedy algorithm for the semi-streaming matching problem.
+
+Lemma A.1.sup{value(G) :Ga proper blueprint}⩽                                          23.
+
+Proof.Fix any blueprintG= (L,R,E) with parameters (P, C).  DefineX                                       L  (resp.X           R) to be the
+matched vertices inL(resp.R).  We useν:=value(G) for the simplicity of notation.  We will
+prove thatν⩽2/3 (throughout we use the fact thatν >1/2 to simplify some definitions).
+     ConsiderLfirst.  For any vertexL(x) forx∈[C]                                                  P , define
+
+                                   D(L(x)) :=   min  p∈[P+1]             Pr
+                                                                    z∈  R[C]    P (L(z)∈X            L |z <p =x   <p).
+For eachp∈[P+ 1], the corresponding min-term in the RHS measures thedensityofX                                  L inside
+vertices consistent withx        <p.  Specifically, forp= 1, that term is simply Pr(L(z)∈X                        L) =νand for
+p=P+ 1 it is either 1 or 0 depending on whetherL(x)∈X                                   L or not.
+     We define this analogously forRby replacingX                         L withX        R and consideringR(x) forx∈[C]                                           P .
+Claim A.2.For any edge(L(x),R(y))∈E,D(L(x)) +D(R(y))⩽1.
+
+Proof.Fix an edge (L(x),R(y))∈E                                (p)    for somep∈[P].  By the ban constraint (Definition 1.2), for
+eachz∈[C]            P−p+1     , at most one of verticesL(x                <p ◦z) andR(y           <p ◦z) can be matched inE.  Thus,
+                       Pr
+                   w∈   R[C]    P (L(w)∈X             L |w <p =x   <p) +     Prw∈   R[C]    P (R(w)∈X              R |w <p =y   <p)⩽1.
+Taking the minimum on each term can only decrease the LHS, implying the claim.                                                               Claim A.2
+
+     ByClaim A.2, we have
+
+                                            Pr             D(L(x))>              1                             = 0,
+                                     (L(x),R(y))∈                  RE         2  ∧D(R(y))>                12
+which, by union bound and sinceEis a matching, implies that
+
+                               1 =         Pr               D(L(x))⩽              1
+                                     (L(x),R(y))∈                  RE         2 ∨D(R(y))⩽                12
+
+                                  ⩽   Pr              D(L(x))⩽              1 +     Pr            D(R(y))⩽              1 .                         (6)
+                                     L(x)∈       RXL                    2        R(y)∈       RXR                     2
+
+Claim A.3.Pr         L(x)∈       RXL     D(L(x))⩽              12⩽ 1−νν    .
+
+Proof.We sayx∈[C]                 P  isbadifD(L(x))⩽1/2.  We further sayxisp-badforp∈[2 :P+ 1] iff
+pis thesmallestindex where
+
+                                                   Pr                                                  2.
+                                                z∈  R[C]    P (L(z)∈X            L |z <p =x   <p)⩽   1
+
+                                                                           20
+
+===== PDF PAGE 23 =====
+Any bad vertex isp-bad for a unique choice ofp∈[2 :P+ 1].  We have
+
+
+                             L(x)∈       RXLPrD(L(x))⩽              12=     Pr
+                                                                          x∈  R[C]    P (xis bad|L(x)∈X                       L)
+
+                                                                      = Prx∈  R[C]    P (xis bad∧L(x)∈X                         L)Prx∈  R[C]    P (L(x)∈X             L)        .                      (7)
+
+The denominator in the RHS isνby definition.  We now bound the numerator.
+
+                                                            P+1X
+          Pr                                                          Pr
+      x∈  R[C]    P (xis bad∧L(x)∈X                         L) =p=2x∈  R[C]    P (xisp-bad∧L(x)∈X                                L)
+                                                                                                    (as a badxisp-bad for a uniquep)
+                                                            P+1X
+                                                        =             Pr         ·   Pr
+                                                            p=2   x∈  R[C]    P (xisp-bad)          x∈  R[C]    P (L(x)∈X             L |xisp-bad)
+
+                                                            P+1X
+                                                        ⩽             Pr         ·                 12                         (explained below)
+                                                            p=2   x∈  R[C]    P (xisp-bad)
+
+                                                        = 12     Pr             .
+                                                               x∈  R[C]    P (xis bad)
+                                                                            (again, sincep-bad events partition the bad event)
+The inequality above holds because conditioning onxbeingp-bad requires fixingx                           <p, and so by
+sampling the remaining coordinates and the definition ofp-bad, we knowL(x) belongs toX                   L with
+probability at most 1/2.
+     Finally, we can upper bound the probability thatxis bad (rather crudely) as follows:
+   ν=     Pr
+          x∈  R[C]    P (L(x)∈X             L) =     Prx∈  R[C]    P (L(x)∈X             L ∧xis bad) +    Prx∈  R[C]    P (L(x)∈X             L ∧xis not bad)
+
+      ⩽ 12 ·   Pr
+               x∈  R[C]    P (xis bad) +    Prx∈  R[C]    P (xis not bad)                               (by the previous equation)
+
+      ⩽ 12 ·   Pr                                                      .
+               x∈  R[C]    P (xis bad) + 1−  Pr      x∈  R[C]    P (xis bad)
+Therefore, we have,
+                                                         Pr
+                                                     x∈  R[C]    P (xis bad)⩽2·(1−ν).
+Plugging these bounds inEq (7)implies that
+
+                                                       Pr          D(L(x))⩽              12 ⩽ 1−νν    ,
+                                                   L(x)∈       RXL
+concluding the proof.                       Claim A.3
+
+     The same exact proof asClaim A.3also holds for vertices inRandX                        R by symmetry.  Plugging
+in these bounds inEq (6), we have,
+
+                      1⩽   PrL(x)∈       RXL  D(L(x))⩽              12+     Pr             D(R(y))⩽              12 ⩽2·      1−νν    ,
+                                                                          R(y)∈       RXR
+which in turn implies thatν⩽2/3, concluding the proof ofLemma A.1.
+
+
+                                                                            21

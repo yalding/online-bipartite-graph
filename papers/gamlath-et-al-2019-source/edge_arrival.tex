@@ -1,0 +1,136 @@
+\section{Edge Arrivals}\label{sec:edge}
+
+In this section we prove the asymptotic optimality of the greedy algorithm for online matching under adversarial edge arrivals.
+As discussed briefly in \Cref{sec:intro}, our main idea will be to provide a ``prefix hardness'' instance, where an underlying input and the arrival order is known to the online matching algorithm, but the prefix of the input to arrive (or ``termination time'') is not. Consequently, the algorithm must accrue high enough value up to each arrival time, to guarantee a high competitive ratio at all points in time. As we show, the fractional matching constraints rule out a competitive ratio of $\nicefrac{1}{2}+\Omega(1)$ even in this model where the underlying graph is known.
+
+\begin{thm}\label{thm:hardness}
+There exists an infinite family of bipartite graphs with maximum degree $n$ and edge arrival order for which any online matching algorithm is at best $\left(\frac{1}{2}+\frac{1}{2n+2}\right)$-competitive.
+\end{thm}
+\begin{proof}
+We will provide a family of graphs for which no fractional online matching algorithm has better competitive ratio. Since any randomized algorithm induces a fractional matching algorithm, this immediately implies our claim.
+The $n^{th}$ graph of the family, $G_n=(U,V,E)$, consists of a bipartite graph with $|U|=|V|=n$ vertices on either side. We denote by $u_i\in U$ and $v_i\in V$ the $i^{th}$ node on the left and right side of $G_n$, respectively. Edges are revealed in $n$ discrete rounds. In round $i=1,2,\dots,n$, the edges of a perfect matching between the first $i$ left and right vertices arrive in some order. I.e., a matching of $u_1,u_2,\dots,u_i$ and $v_1,v_2,\dots,v_i$ is revealed. Specifically, edges $(u_j,v_{i-j+1})$ for all $i\geq j$ arrive. (See \Cref{fig:hard-edge-instance} for example.) Intuitively, the difficulty for an algorithm attempting to assign much value to edges of $OPT$ is that the (unique) maximum matching $OPT$ changes every round, and no edge ever re-enters $OPT$.
+
+\newcount\mycount
+\newcommand{\DrawRound}[2]{% n, current round (k)
+	\begin{tikzpicture}[scale=0.66]
+    \node[draw, color=white] at (1,-0.25) {\textcolor{black}{$U$}};
+    \node[draw, color=white] at (3,-0.25) {\textcolor{black}{$V$}};
+    
+    \foreach \number in {1,...,#1}
+    \node[draw,circle,inner sep=0.01cm] (u-\number) at (1,-\number) {$u_\number$};
+    \foreach \number in {1,...,#1}
+    \node[draw,circle,inner sep=0.01cm] (v-\number) at (3,-\number) {$v_\number$};
+    % edges
+    
+    \foreach \number in {1,...,#2}{
+    	\foreach \i in {1,...,\number}{
+    		\mycount=\number
+    		\advance\mycount by -\i
+    		\advance\mycount by 1
+    		\draw [-, dashed] (u-\i) -- (v-\the\mycount);
+    	}
+    }
+    \foreach \number in {#2}{
+    	\foreach \i in {1,...,\number}{
+    		\mycount=\number
+    		\advance\mycount by -\i
+    		\advance\mycount by 1
+    		\draw [-, solid, line width=0.75pt] (u-\i) -- (v-\the\mycount);
+    	}
+    }
+	\end{tikzpicture}
+}
+
+\newcommand{\subfigRound}[3] {% #1 = n and #2 = round number, #3 = subfig-width
+	\begin{subfigure}[t]{#3}
+	\begin{center}
+	\DrawRound{#1}{#2}
+	\subcaption{round #2}
+	\end{center}
+	\end{subfigure}
+}
+
+\def\n{5}
+\begin{figure}[h]
+\begin{center}
+\foreach \j in {1,...,\n}
+{\subfigRound{\n}{\j}{0.175\textwidth}}
+	\caption{$G_\n$, together with arrival order. Edges of  current (prior) round are solid (dashed).}
+	\label{fig:hard-edge-instance}
+\end{center}
+\end{figure}
+\let\n\relax
+
+Consider some  $\alpha$-competitive fractional algorithm $\mathcal{A}$. We call the edge of a vertex $w$ in the (unique) maximum matching of the subgraph of $G_n$ following round $i$ the $i^{th}$ edge of $w$.
+For $i\geq j$, denote by $x_{i,j}$ the value $\mathcal{A}$ assigns to the $i^{th}$ edge of vertex $u_j$ (and of $v_{i-j+1}$); i.e., to $(u_j,v_{i-j+1})$. 
+By feasibility of the fractional matching output by $\mathcal{A}$, we immediately have that $x_{i,j}\geq 0$ for all $i,j$, as well as the following matching constraints for $u_j$ and $v_j$. (For the latter, note that the $i^{th}$ edge of $v_{i-j+1}$ is assigned value $x_{i,j}=x_{i,i-(i-j+1)+1}$ and so the $i^{th}$ edge of $v_j$ is assigned value $x_{i,i-j+1}$).
+\begin{align}
+    %(\sum_{e\ni u_k} x_e =) 
+    \sum_{i=j}^{n} x_{i,j}\leq 1. & \qquad  \text{($u_j$ matching constraint)}\label{match-const-left} \\
+    %(\sum_{e\ni v_k} x_e =) 
+    \sum_{i=j}^{n} x_{i,i-j+1}\leq 1. & \qquad \text{($v_j$ matching constraint)}\label{match-const-right}
+\end{align}
+
+On the other hand, as $\mathcal{A}$ is $\alpha$-competitive, we have that after some $k^{th}$ round -- when the maximum matching has cardinality $k$ -- algorithm $\mathcal{A}$'s fractional matching  must have value at least $\alpha\cdot k$. (Else an adversary can stop the input after this round, leaving $\mathcal{A}$ with a worse than $\alpha$-competitive matching.) Consequently, we have the following competitiveness constraints.
+\begin{equation}\label{comp-const}
+\sum_{i=1}^k \sum_{j=1}^i x_{i,j} \geq \alpha \cdot k \qquad \forall k\in [n].
+\end{equation}
+
+Combining constraints \eqref{match-const-left}, \eqref{match-const-right} and \eqref{comp-const} together with the non-negativity of the $x_{i,k}$ yields the following linear program, LP($n$), whose optimal value upper bounds any fractional online matching algorithm's competitiveness on $G_n$, by the above.
+
+\begin{figure}[h]
+	\begin{center}
+		\begin{tabular}{rll}
+			maximize & $\alpha$ \\
+			subject to: & $\sum_{i=j}^n x_{i,j}\leq 1$ & $\forall j\in [n]$ \\
+			& $\sum_{i=j}^n x_{i,i-j+1}\leq 1$ & $\forall j\in [n]$ \\
+			& $\sum_{i=1}^k \sum_{j=1}^i x_{i,j} \geq \alpha \cdot k$ & $\forall k\in [n]$ \\
+			& $x_{i,j}\geq 0$ & $\forall i,j\in [n]$.
+		\end{tabular}
+	\end{center}
+	\vspace{-0.5cm}
+\end{figure} 
+
+To bound the optimal value of LP($n$), we provide a feasible solution its LP dual, which we denote by Dual($n$). By weak duality, any dual feasible solution's value upper bounds the optimal value of LP($n$), which in turn upper bounds the optimal competitive ratio. Using the dual variables $\ell_j, r_j$ for the degree constraints of the $j^{th}$ left and right vertices respectively ($u_j$ and $v_j$) and dual variable $c_k$ for the competitiveness constraint of the $k^{th}$ round, we get the following dual linear program. Recall here again that $x_{i,i-j+1}$ appears in the matching constraint of $v_j$, with dual variable $r_j$, and so $x_{i,j}=x_{i,i-(i-j+1)+1}$ appears in the same constraint for $v_{i-j+1}$.)
+\begin{figure}[h]
+	\begin{center}
+		\begin{tabular}{rll}
+			minimize & $\sum_{j=1}^n \left( \ell_j+r_j \right)$ \\
+			subject to: & $\sum_{k=1}^n k\cdot c_k \geq 1$  \\
+			& $ \ell_j + r_{i-j+1} - \sum_{k=i}^n  c_k \geq 0$ & $\forall i\in [n], j \in [i]$ \\
+			& $\ell_j, r_j, c_k \geq 0$ & $\forall j,k\in [n]$.
+		\end{tabular}
+	\end{center}
+	\vspace{-0.3cm}
+\end{figure} 
+
+We provide the following dual  solution.
+\begin{align*}
+c_k &= \frac{2}{n(n+1)} \qquad \forall k \in [n]\\
+\ell_j = r_j  & = \begin{cases} 
+\frac{n-2(j-1)}{n(n+1)} & \mbox{if } j \leq n/2 +1 \\
+0 & \mbox{if } n/2 +1 < j \leq n. \end{cases}
+\end{align*}
+
+We start by proving feasibility of this solution. 
+The first constraint is satisfied with equality. For the second constraint, as $\sum_{k=i}^n  c_k = \frac{2 (n-i+1)}{n(n+1)}$ it suffices to show that 
+$\ell_j + r_{i-j+1} \geq \frac{2 (n-i+1)}{n(n+1)}$ for all $i\in [n], j \in [i]$.
+Note that if $j > n/2 +1$, then $\ell_j = r_j = 0 > \frac{n-2(j-1)}{n(n+1)}$. So, for all $j$ we have $\ell_j = r_j \geq \frac{n-2(j-1)}{n(n+1)}$.
+Consequently, $\ell_j + r_{i-j+1} \geq \frac{n-2(j-1)}{n(n+1)} +\frac{n-2(i-j+1-1)}{n(n+1)} =  \frac{2 (n - i + 1)}{n (n+1)}$ for all $i\in [n], j \in [i]$. Non-negativity of the $\ell_j,r_j,c_k$ variables is trivial, and so we conclude that the above is a feasible dual solution.
+
+It remains to calculate this dual feasible solution's value. We do so for $n$ even,\footnote{The case of $n$ odd is similar. As it is unnecessary to establish the result of this theorem, we omit it.} for which
+\begin{align*}
+        \sum_{j=1}^n (\ell_j + r_j ) = 2\cdot \sum_{j=1}^n \ell_j = 
+        2\cdot \sum_{j=1}^{n/2 +1} \frac{n - 2(j-1)}{n(n+1)}  = \frac{1}{2} + \frac{1}{2n +2},
+\end{align*}
+completing the proof.
+\end{proof}
+
+
+{\textbf{Remark 1.}}  Recall that \citet{buchbinder2018online} and \citet{lee2017maximum} presented better-than-$\nicefrac{1}{2}$-competitive algorithms for bounded-degree graphs and bounded number of arrival batches. Our upper bound above shows that a deterioration of the competitive guarantees as the maximum degree and number of arrival batches increase (as in the algorithms of \cite{buchbinder2018online,lee2017maximum}) is inevitable.
+
+\textbf{Remark 2.} Recall that the \emph{asymptotic} competitive ratio of an algorithm is the maximum $c$ such that the algorithm always guarantees value at least $ALG\geq c\cdot OPT - b$ for some fixed $b>0$. 
+Our proof extends to this weaker notion of competitiveness easily, by revealing multiple copies of the hard family of \Cref{thm:hardness} and letting $x_{ik}$ denote the average of its 
+counterparts over all copies.
+%, and noting that the (linear) matching and competitiveness constraints must also hold on average, we also upper bound the asymptotic competitive ratio of any algorithm by $\nicefrac{1}{2}$.
+

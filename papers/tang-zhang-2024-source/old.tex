@@ -1,0 +1,29 @@
+\section{Algorithms}
+\paragraph{Gain Sharing Function}
+We define $g(x)$ to be the passive price function (non-decreasing) w.r.t the matched portion. 
+\paragraph{Lazy Water-Filling} At a vertex $u$'s deadline, continuously match $u$ to the neighbor with lowest water-level (matched portion). 
+\paragraph{Eager Water-Filling} At a vertex $u$'s arrival time, continuously match $u$ to the neighbor $v$ with lowest water-level until $g(y_u) + g(y_v) \geq 1$. At a vertex $u$'s deadline, continuously match $u$ to the neighbor $v$ with lowest water-level.
+\paragraph{Smart Eager Water-Filling} At a vertex $u$'s arrival time, continuously match $u$ to the neighbor $v$ with lowest water-level until $y_u \geq a(y_v)$. At a vertex $u$'s deadline, continuously match $u$ to the neighbor $v$ with lowest water-level, where $g(a(y_v)) + g(y_v) \geq 1$ and $a(y_v)\cdot (1-g(y_v)) \geq \int_0^{a(y_v)} g(y)dy$. 
+
+\section{Analysis of Smart Eager Water-Filling}
+\zhihao{What is smart eager water-filling?}
+For any fixed vertex pair $(u,v)$, and $u$'s deadline is earlier than $u$. Consider the following two cases. We define $p_u$ and $p_v$ be the water level of $u$ and $v$ before their deadline.
+\paragraph{$v$ arrive earlier than $u$}
+At $u$'s arrival time, $v$ has arrived and we assume $v$'s water level is $p_v'$ which is at most $p_v$. We give a lower bound of $u$ and $v$'s gain.
+$$
+\text{gain of $u$ and $v$} \geq \int_0^{p_v} g(y) dy + a(p_v')\cdot (1-g(p_v')) + \int_{a(p_v')}^{p_u} g(y) dy + (1-p_u)\cdot(1-g(p_v)). 
+$$
+We have that $1-g(p_v') \geq 1 - g(p_v)$ and $\forall a(p_v')\leq y \leq p_u,~ g(y) \geq 1-g(p_v')$. Hence, 
+\begin{align*}
+    \text{gain of $u$ and $v$} 
+    &\geq \int_0^{p_v} g(y) dy + a(p_v')\cdot (1-g(p_v)) + \int_{a(p_v')}^{p_u} (1-g(p_v)) dy + (1-p_u)\cdot(1-g(p_v)) \\
+    &\geq \int_0^{p_v} g(y) dy + (1-g(p_v)).
+\end{align*}
+
+\paragraph{$u$ arrive earlier than $v$} At $v$'s arrival time, $u$ has arrived and we assume $u$'s water level is $p_u'$ which is at most $p_u$. We give a lower bound of $u$ and $v$'s gain.
+\begin{align*}
+    \text{gain of $u$ and $v$} 
+    &\geq \int_0^{p_u} g(y) dy + a(p_u')\cdot (1-g(p_u')) + \int_{a(p_u')}^{p_v} g(y) dy + (1-p_u)\cdot(1-g(p_v)) \\
+    &\geq \int_0^{p_u'} g(y) dy + a(p_u')\cdot (1-g(p_u')) + \int_{a(p_u')}^{p_v} g(y) dy + (1-p_u')\cdot(1-g(p_v)) 
+\end{align*}
+The second line holds because $\forall p_u'\leq y\leq p_u,~g(y) \geq (1-g(a(p_u'))\geq (1-g(p_v))$.

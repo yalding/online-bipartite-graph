@@ -1,0 +1,102 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+
+\usepackage[english]{babel}
+\usepackage[numbers,sort]{natbib}
+\usepackage[colorinlistoftodos]{todonotes}
+\renewcommand{\epsilon}{\varepsilon}
+
+\usepackage[colorlinks=true,citecolor=blue,urlcolor=blue]{hyperref}
+
+\let\proof\relax
+\usepackage{amsmath}
+\let\endproof\relax
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{dsfont}
+\usepackage{thm-restate}
+\usepackage{nicefrac}
+\usepackage{footnote}
+\usepackage[linesnumbered,boxed, vlined]{algorithm2e}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{tikzsymbols}
+\usepackage{tikz}
+
+\tikzstyle{vertex}=[circle, draw,fill=gray!30, inner sep=0pt, minimum size=16pt]
+\tikzstyle{svertex}=[circle, draw,fill=gray!30, inner sep=0pt, minimum size=10pt]
+\tikzstyle{sgvertex}=[circle, draw,fill=gray!15, inner sep=0pt, minimum size=10pt]
+\tikzstyle{ssgvertex}=[circle, draw,fill=gray!15, inner sep=0pt, minimum size=6pt]
+\tikzstyle{sssgvertex}=[circle, draw,fill=gray!15, inner sep=0pt, minimum size=4pt]
+\tikzstyle{sssagvertex}=[circle, draw,fill=gray!15, inner sep=0pt, minimum size=3.2pt]
+\tikzstyle{ssssgvertex}=[circle, draw,fill=gray!15, inner sep=0pt, minimum size=2pt]
+
+
+\usepackage[capitalize]{cleveref}
+\usepackage{algorithm2e}
+\usepackage{algorithmic}
+\usepackage{enumerate}
+
+\newtheorem{claim}{Claim}
+\newcommand{\wt}[1]{\widetilde{#1}}
+\input{header}
+
+\begin{document}
+
+\title{Online Matching with General Arrivals}
+ \author{
+   Buddhima Gamlath \\
+   EPFL\\
+  \texttt{buddhima.gamlath@epfl.ch}
+     \and
+   Michael Kapralov\footnote{Supported in part by ERC Starting Grant 759471.} \\
+  EPFL\\
+   \texttt{michael.kapralov@epfl.ch}
+     \and
+   Andreas Maggiori\\
+  EPFL\\
+   \texttt{andreas.maggiori@epfl.ch}
+     \and
+   Ola Svensson\\
+  EPFL\\
+   \texttt{ola.svensson@epfl.ch}
+   \and 
+   David Wajc\footnote{Work done in part while the author was visiting EPFL. Supported in part by NSF grants CCF-1618280, CCF-1814603, CCF-1527110, NSF CAREER award CCF-1750808, and a Sloan Research Fellowship.} \\
+   CMU \\
+   \texttt{dwajc@cs.cmu.edu}
+ }
+\date{}
+
+\maketitle
+
+\pagenumbering{gobble}
+\begin{abstract}
+  The online matching problem was introduced by Karp, Vazirani and Vazirani nearly three decades ago. In that seminal work, they studied this problem in bipartite graphs with vertices arriving only on one side, and presented optimal deterministic and randomized algorithms for this setting.
+  In comparison, more general arrival models, such as edge arrivals and general vertex arrivals,  have proven more challenging and positive results are known only for various relaxations of the problem. In particular, even the basic question of whether randomization allows one to beat the trivially-optimal deterministic competitive ratio of $\nicefrac{1}{2}$ for either of these models was open. In this paper, we resolve this question for both these natural arrival models, and show the following. 
+  \begin{enumerate}
+      \item For edge arrivals, randomization does not help --- no randomized algorithm is better than $\nicefrac{1}{2}$ competitive.
+      \item For general vertex arrivals, randomization helps --- there exists a randomized $(\nicefrac{1}{2}+\Omega(1))$-competitive online matching algorithm.
+  \end{enumerate}
+\end{abstract}
+
+\newpage
+\pagenumbering{arabic}
+
+\input{introduction}
+\input{edge_arrival}
+\input{general_vertex_arrival}
+
+\appendix
+\section*{Appendix}
+\input{app-WW.tex}
+
+\bibliographystyle{acmsmall}
+\bibliography{refs.bib}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

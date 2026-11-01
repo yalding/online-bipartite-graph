@@ -1,0 +1,141 @@
+%!TEX root = ./main.tex
+\subsection{An improved algorithm}\label{sec:imrpoved-algorithm}
+
+In this section, we build on \Cref{algo:warmup_algorithm} and show how to improve it to get a 
+$(1/2 + \Omega(1))$ competitive ratio.
+
+There are two concerns when modifying \Cref{algo:warmup_algorithm} to work for a general
+function from the family $W$.
+The first is how to compute the probability that a vertex $u$ is free when vertex $v$ arrives, 
+in \Cref{line:zu}.
+In the simpler version, we inductively showed that this probability is simply $1 - y_u$, where 
+$y_u$ is the dual value of $u$ as of $v$'s arrival (see the proof of \Cref{lem:z-distribution}). 
+With a general function $f$, this probability is no longer given by a simple formula. 
+Nevertheless, it is easily fixable: We can either use Monte Carlo sampling to estimate the 
+probability of $u$ being free at $v$'s arrival to a given inverse polynomial accuracy, 
+or we can in fact exactly compute these probabilities by maintaining their marginal values 
+as the algorithm progresses. 
+In what follows, we therefore assume that our algorithm can compute these probabilities 
+exactly.
+
+The second and more important issue is with the sampling step in \Cref{line:sample}.
+In the simpler algorithm, this step is well-defined as the sampling probabilities indeed form a 
+valid distribution: 
+I.e., $\sum_{u \in N_v(v)}z_u \leq 1$ for all vertices $v$.
+However, with a general function $f$, this sum can exceed one, rendering the sampling step in 
+\Cref{line:sample} impossible.
+Intuitively, we can normalize the probabilities to make it a proper distribution, but by doing so,
+we end up losing some amount from the approximation guarantee.
+We hope to recover this loss using a second sampling step, as we mentioned in \Cref{sec:techniques}
+and elaborate below.
+
+Suppose that, instead of $\beta = 2$ and $f = f_1$ (i.e., the function $f(\theta) = 1 - \theta$), 
+we use $f = f_{1 + 2 \e}$ and $\beta = 2 - \e$ to define $x_{uv}$ and $y_u$ values.
+As we show later in this section, for an $\e$ sufficiently small, we then have $\sum_{u \in N_v(v)} 
+z_u \leq 1 + O(\e)$, implying that the normalization factor is at most $1 + O(\e)$.
+However, since the approximation factor of the fractional solution is only $1/2 + O(\e)$ for such 
+a solution, (i.e., $\sum_{\{u,v\} \in E} x_{uv} \geq (1/\beta) \cdot \sum_{u \in V} y_u$), the 
+loss due to normalization is too significant to ignore.
+
+Now suppose that we allow arriving vertices to sample a second edge with a small 
+(i.e., $\sqrt{\e}$) probability and match that second edge if the endpoint of the first sampled 
+edge is already matched.
+Consider the arrival of a fixed vertex $v$ such that $\sum_{u \in N_v(v)}z_u > 1$, and let 
+$z'_u$ denote the normalized $z_u$ values. Further let $F_w$ denote the event that vertex $w$ is free (i.e, unmatched) at the arrival of $v$. 
+Then the probability that $v$ matches $u$ for some $u \in N_v(v)$ using either of the two sampled
+edges is
+\begin{align}
+    \Pr[F_u] \cdot \left(z'_{u} + z'_u \sqrt{\e} \cdot 
+    \sum_{w\in N_v(v)} z'_w \cdot (1-\Pr[F_w \mid F_u]) \right), \label{prob-match}
+\end{align}
+which is the same expression from \eqref{eq:03hg329hg} from \Cref{sec:techniques}, restated here for quick reference. 
+Recall that the first term inside the parentheses accounts for the probability that $v$ matches 
+$u$ via the first sampled edges, and the second term accounts for the probability that the same 
+happens via the second sampled edge. 
+Note that the second sampled edge is used only when the first one
+is incident to an already matched vertex and the other endpoint of the second edge is free. 
+Hence we have the summation of conditional probabilities in the second term, 
+where the events are conditioned on the other endpoint, $u$, being free.
+If the probability given in \eqref{prob-match} is $x_{uv}$ for all $\{u,v\} \in E$, we would have 
+the same guarantee as the fractional solution  $x_{uv}$, and the rounding would be lossless. 
+This seems unlikely, yet we can show that the quantity in \eqref{prob-match} is at least  
+$(1 - \e^2) \cdot x_{uv}$ for most (not by number, but by the total fractional value of $x_{uv}$'s) of 
+the edges in the graph, showing that our rounding is \emph{almost} lossless. 
+We postpone further discussion of the analysis to Section~\ref{sec:analysis} where we highlight the main ideas 
+before proceeding with the formal proof. 
+
+
+
+\begin{algorithm}[h]
+	\DontPrintSemicolon
+	\SetKwInOut{Input}{Input}
+	\SetKwInOut{Output}{Output}
+	\Input{A stream of vertices $v_1, v_2, \dots, v_n$. At step $i$, vertex $v_i$ and $N_{v_i}(v)$ are revealed.}
+	\Output{A matching $M$.}  
+	Let $y_u \gets 0$ for all $u$, let $x_{uv} \gets 0$ for all $u, v$. \;
+	Let $M \gets \emptyset$. \;
+	\ForEach{$v$ in the stream}{ 
+		Update $y_u$'s and $x_{uv}$'s using~\Cref{algo:TOBVC} with $\beta = 2 - \epsilon$ and $f = f_{1 + 2\epsilon}$. \label{line:fractional-to-round} \;
+		\ForEach{$u \in N_v(v)$}{
+          \tcc{Compute $\Pr[\text{$u$ is free when $v$ arrives}]$ as explained in \Cref{sec:imrpoved-algorithm}}
+          $z_u \gets \frac{x_{uv}}{\Pr[\text{$u$ is free when $v$ arrives}]}$. \label{line:sample-improved-alg} 
+		}
+		\ForEach{$u \in N_v(v)$}{
+			$z'_u \gets z_u / \max\left\{1,\sum_{u \in N_v(v)} z_u \right\}$.\label{line:normalize}
+		}		
+		Pick (at most) one $u_1 \in N_v(v)$ with probability $z'_{u_1}$. \label{line:first-pick} \;
+		\If{$\sum_{u\in N_v(v)} z_u > 1$}{
+			With probability $\sqrt{ \epsilon}$, pick (at most) one $u_2 \in N_v(v)$ with probability $z'_{u_2}$. \label{line:second-pick} \;
+            \tcc{Probability of dropping edge $\{u, v\}$  can be computed using \eqref{prob-match}.}
+			Drop $u_2$ with minimal probability ensuring $\{u_2,v\}$ is matched with probability at most $x_{u_2 v}$.\label{line:second-pick-drop} 
+		}		
+		\If{a free neighbor $u_1$ is sampled}{Add $\left\{ u_1, v \right\}$ to $M$.
+		}
+        \ElseIf{a free neighbor $u_2$ is sampled}{Add $\left\{ u_2, v \right\}$ to $M$.} 		
+	\caption{A randomized online matching algorithm under general vertex arrivals.}
+	\label{algo:wwrounding}  
+}
+\end{algorithm}
+
+Our improved algorithm is outlined in~\cref{algo:wwrounding}. Up until \Cref{line:sample-improved-alg}, it is 
+similar to \Cref{algo:warmup_algorithm} except that it uses $\beta = 2 - \e$ and $f = f_{1 + 2\e}$ where
+we choose $\e > 0$ to be any constant small enough such that the results in the analysis hold.
+In \Cref{line:normalize}, if the
+sum of $z_u$'s exceeds one we normalize the $z_u$ to obtain a valid probability distribution $z'_u$.
+In \Cref{line:first-pick}, we sample the first edge incident to an arriving vertex $v$.
+In \Cref{line:second-pick}, we sample a second edge incident to the same vertex with probability $\sqrt{\e}$ 
+if we had to scale down $z_u$'s in \Cref{line:normalize}.
+Then in \Cref{line:second-pick-drop}, we drop the sampled second edge with the minimal probability
+to ensure that no edge $\{u, v\}$ is matched with probability more than $x_{uv}$. 
+Since \eqref{prob-match} gives the exact probability of $\{u, v\}$ being matched, this probability of 
+dropping an edge $\{u, v\}$ can be computed by the algorithm.
+However, to compute this, we need the conditional probabilities $\Pr[F_w \mid F_u]$, which again
+can be estimated using Monte Carlo sampling\footnote{It is also possible to compute them exactly if we 
+allow the algorithm to take exponential time.}.
+In the subsequent lines, we match $v$ to a chosen free neighbor (if any) among its chosen neighbors, 
+prioritizing its first choice.
+
+
+For the purpose of analysis we view \Cref{algo:wwrounding} as constructing a greedy matching on a directed acyclic graph (DAG) $H_\tau$ defined in the following two definitions.
+
+\begin{Def}[Non-adaptive selection graph $G_\tau$]\label{def:g-tau}
+Let $\tau$ denote the random choices made by the vertices of $G$. Let $G_\tau$ be the DAG defined by all the arcs $(v, u_1)$, $(v, u_2)$ for all vertices $v \in V$. 
+We call the arcs $(v, u_1)$ \emph{primary} arcs, and the arcs $(v, u_2)$ the \emph{secondary} arcs. 
+\end{Def}
+
+\begin{Def}[Pruned selection graph $H_\tau$]\label{def:h-tau}
+Now construct $H_\tau$ from $G_\tau$ by removing all arcs $(v, u)$ (primary or secondary) such that there exists 
+a \emph{primary} arc $(v', u)$ with $v'$ arriving before $v$. We further remove a secondary arc $(v,u)$ if there is a primary arc $(v,u)$; 
+i.e., if a vertex $u$ has at least one incoming primary arc, remove all incoming primary arcs 
+that came after the first primary arc and all secondary arcs that came after or from the same vertex as the first primary arc. 
+\end{Def}
+
+It is easy to see that the matching constructed by \Cref{algo:wwrounding} is a greedy matching constructed on $H_\tau$ based on order of arrival and prioritizing primary arcs. The following lemma shows that the set of matched vertices obtained by this greedy matching does not change much for any change in the random choices of a single vertex $v$, which will prove useful later on. 
+It can be proven rather directly by an inductive argument showing the size of the symmetric difference in matched vertices in $G_\tau$ and $G_{\tau'}$ does not increase after each arrival besides the arrival of $v$, whose arrival clearly increases this symmetric difference by at most two. See \Cref{app:imrpoved-algorithm} for details.
+
+\begin{restatable}{lem}{freevertices}\label{lem:freevertices}
+  Let $G_{\tau}$ and $G_{\tau'}$ be two realizations of the random digraph where all the vertices in 
+  the two graphs make the same choices except for \emph{one} vertex $v$. 
+  Then the number of vertices that have different \emph{matched status} (free/matched) in the matchings computed in $H_{\tau}$ and $H_{\tau'}$
+  at any point of time is at most two.
+\end{restatable}

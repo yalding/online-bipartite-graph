@@ -1,0 +1,133 @@
+{
+  "blueprint_value": "3/16",
+  "average_forced_hidden_weight": "3",
+  "vertex_arrival_lower_bound": "29/26",
+  "decimal_ratio": 1.1153846153846154,
+  "properness_verified": true,
+  "independence_verified_all_shifts": true,
+  "per_shift": [
+    {
+      "shift": 0,
+      "forcing_credit": "3",
+      "retained_edges": 16,
+      "illegal_edges_discarded": 0
+    },
+    {
+      "shift": 1,
+      "forcing_credit": "3",
+      "retained_edges": 16,
+      "illegal_edges_discarded": 0
+    },
+    {
+      "shift": 2,
+      "forcing_credit": "3",
+      "retained_edges": 16,
+      "illegal_edges_discarded": 0
+    },
+    {
+      "shift": 3,
+      "forcing_credit": "3",
+      "retained_edges": 16,
+      "illegal_edges_discarded": 0
+    },
+    {
+      "shift": 4,
+      "forcing_credit": "3",
+      "retained_edges": 16,
+      "illegal_edges_discarded": 0
+    },
+    {
+      "shift": 5,
+      "forcing_credit": "3",
+      "retained_edges": 16,
+      "illegal_edges_discarded": 0
+    },
+    {
+      "shift": 6,
+      "forcing_credit": "3",
+      "retained_edges": 16,
+      "illegal_edges_discarded": 0
+    },
+    {
+      "shift": 7,
+      "forcing_credit": "3",
+      "retained_edges": 16,
+      "illegal_edges_discarded": 0
+    },
+    {
+      "shift": 8,
+      "forcing_credit": "3",
+      "retained_edges": 16,
+      "illegal_edges_discarded": 0
+    },
+    {
+      "shift": 9,
+      "forcing_credit": "3",
+      "retained_edges": 16,
+      "illegal_edges_discarded": 0
+    },
+    {
+      "shift": 10,
+      "forcing_credit": "3",
+      "retained_edges": 16,
+      "illegal_edges_discarded": 0
+    },
+    {
+      "shift": 11,
+      "forcing_credit": "3",
+      "retained_edges": 16,
+      "illegal_edges_discarded": 0
+    },
+    {
+      "shift": 12,
+      "forcing_credit": "3",
+      "retained_edges": 16,
+      "illegal_edges_discarded": 0
+    },
+    {
+      "shift": 13,
+      "forcing_credit": "3",
+      "retained_edges": 16,
+      "illegal_edges_discarded": 0
+    },
+    {
+      "shift": 14,
+      "forcing_credit": "3",
+      "retained_edges": 16,
+      "illegal_edges_discarded": 0
+    },
+    {
+      "shift": 15,
+      "forcing_credit": "3",
+      "retained_edges": 16,
+      "illegal_edges_discarded": 0
+    }
+  ],
+  "phases": 4,
+  "alphabet": 2,
+  "edges": [
+    [
+      1,
+      0,
+      8
+    ],
+    [
+      1,
+      1,
+      9
+    ],
+    [
+      1,
+      13,
+      5
+    ]
+  ],
+  "solver": {
+    "message": "Time limit reached. (HiGHS Status 13: Time limit reached)",
+    "upper_bound_on_edge_count": 13.0,
+    "mip_gap": 3.3333333333333335,
+    "variables": 784,
+    "constraints": 6688
+  },
+  "scope": "Small blueprint cleanup experiment; not an improved universal bound"
+}

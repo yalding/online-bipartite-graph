@@ -1,0 +1,171 @@
+\section{Introduction}
+\label{sec:intro}
+Matching theory is a focal topic in the area of combinatorial optimization, with a wide range of applications. %Besides its wide range of applications, the elegant theory also develops quite a few fundamental mathematical techniques. 
+Online matching problems, arguably one of the most intriguing branches of matching theory, stays as a central point in the online algorithm literatures since the celebrated work of Karp, Vazirani, and Vazirani~\cite{stoc/KarpVV90}.
+Karp et al. introduced the online bipartite matching problem with one-sided vertex arrival, i.e. one side of the vertices of an underlying bipartite graph arrive online and each vertex reveals its neighbors on its arrival. The algorithm makes immediate and irrevocable matching decisions for every online vertex and the goal is to maximize the size of the matching. It is shown that the na\"ive greedy algorithm achieves the optimal competitive ratio of $0.5$ among deterministic algorithms, and the Ranking algorithm achieves the optimal competitive ratio of $1-1/e$ among random algorithms. 
+Since then, a fruitful line of research has been established based on the one-sided arrival model, including simplifications of the analysis of Ranking~\cite{soda/GoelM08,sigact/BenjaminM08,soda/DevanurJK13}, the vertex-weighted version~\cite{soda/AggarwalGKM11,talg/HuangTWZ19}, the edge-weighted version~\cite{teco/DevanurHKMY16, fahrbach2020edge, wine/FeldmanKMMP09, wine/KorulaMZ13,gao2021improved,blanc2021multiway}, the random arrival version~\cite{stoc/MahdianY11,stoc/KarandeMT11}, $b$-matching~\cite{tcs/KalyanasundaramP00}, and Adwords~\cite{jacm/MehtaSVV07, esa/BuchbinderJN07, stoc/DevanurJ12, focs/HuangZZ20}.
+
+
+On the other hand, the one-sided arrival model is restricted and is not able to capture more dynamic scenarios in reality. To this end, two generalizations of the classical one-sided arrival model have been proposed that allow all vertices of a graph arriving online and allow non-bipartite graphs.
+
+%the arrival extensions (general vertex arrivals \cite{icalp/WangW15,algorithmica/BuchbinderST19,focs/GamlathKMSW19}, , and fully online \cite{jacm/HuangKTWZZ20,focs/HuangTWZ20,orl/EcklKLS21}), 
+
+\paragraph{General Vertex Arrival.}
+Wang and Wong~\cite{icalp/WangW15} proposed the online matching with general vertex arrival.
+In this model, all vertices of an underlying graph arrive online. Upon the arrival of a vertex, the edges between it and all previously arrived vertices are revealed. The algorithm can either match the new vertex to its unmatched neighbors, or leave it unmatched for future.
+
+The one-sided arrival model is a special case when offline vertices all arrive before online vertices.
+%Comparing to the one-side online bipartite matching problem, the general vertex arrival model no longer allows one-side vertices to be offline, however, it let all vertices arrive online. Upon the arrival of a vertex, we reveal all the edges between it and the \emph{already arrived vertices}, and these edges can only be matched (fractionally) at this time. We remark that those vertices can be still matched after arrival if some other arriving vertices are connected to it. 
+
+\paragraph{Fully Online Matching.}
+Huang et al.~\cite{jacm/HuangKTWZZ20} proposed the fully online matching problem. In this model, each time step can either be the arrival or the deadline of a vertex. On the arrival of a vertex, all edges between it and all previously arrived vertices are revealed. However, the algorithm does not need to make matching decisions at this point. On the deadline of a vertex, the algorithm must decide whether to match it to an unmatched neighbor, or leave it unmatched. It is assumed that all neighbors of a vertex arrives before its deadline.  
+
+The one-sided arrival model is a special case when offline vertices arrive at the beginning and have deadlines at the end, and each online vertex has its deadline right after its arrival. Moreover, observe that any algorithm for the general vertex arrival model can be directly applied to the fully online matching model and would attain the same competitive ratio. 
+
+% In other words, the fully online model is no easier than the one-sided arrival model and the general arrival model is no easier than the fully online model.
+%The fully online model also captures the scenario that all vertices arrive online, but comparing to the general vertex arrival model, it additionally introduces a deadline for each vertex. We can match a vertex any time before its deadline, and it will not be connected to any other vertices that arrive after its deadline. Any $\Gamma$-competitive algorithm under the general vertex arrival model can imply a $\Gamma$-competitive algorithm under the fully online model. On the other hand, the restriction ``vertices can not be connected to any other vertices that arrive after its deadline" makes the ``deadline" actually helpful, which means it is meaningful to let vertices wait until its deadline to seek more information in the fully online model.
+
+\paragraph{Previous Results.} For the general vertex arrival model, Wang and Wong proposed a dual-based $0.526$-competitive fractional algorithm and proved an upper bound of $0.625$ for hardness. Gamlath et al.~\cite{focs/GamlathKMSW19} gave the first non-trivial randomized integral algorithm that achieves a competitive ratio of $0.5+\epsilon$. Buchbinder et al.~\cite{algorithmica/BuchbinderST19} improved the upper bound to $0.591$. 
+
+For the fully online matching model, Huang et al. \cite{jacm/HuangKTWZZ20} showed that the Ranking algorithm is $0.5671$-competitive on bipartite graphs and $0.5211$-competitive on general graphs. Huang et al.~\cite{soda/HuangPTTWZ19} proved that the Water-filling algorithm is $2-\sqrt{2} \approx 0.585$-competitive for the fractional version of the problem. Recently, Huang et al.~\cite{focs/HuangTWZ20} beat the two classical algorithm Ranking and Water-filling by designing a $0.569$-competitive integral algorithm on bipartite graphs, and a $0.592$-competitive fractional algorithm on general graphs. On the negative side, Eckl et al.~\cite{orl/EcklKLS21} proved that no fractional algorithm can be better than $0.629$-competitive.
+
+%On the positive side, Wang and Wong proposed a dual-based fractional algorithm which archive $0.526$-competitive for the general vertex arrival model, and Gamlath et al.~\cite{focs/GamlathKMSW19} first beat the $0.5$ barrier with a small constant by an integral algorithm. Huang et al. \cite{jacm/HuangKTWZZ20} first try Ranking on the fully online model, they archive a competitive ratio of $0.5671$ on bipartite graph and $0.5211$-competitive on general graphs. The result has been improved by $0.569$-competitive integral algorithm for bipartite graphs~\cite{focs/HuangTWZ20}, and a $0.592$-competitive fractional algorithm for general graphs~\cite{focs/HuangTWZ20}. On the negative side, the state-of-art result shows that no fractional algorithm can beat $0.629$~\cite{orl/EcklKLS21} and $0.591$~\cite{algorithmica/BuchbinderST19} for Fully Online Model and General Vertex Arrival Model. Both of them also imply the upper bound for any randomized integral algorithms. 
+
+\subsection{Our Contributions}
+
+
+%\zhihao{It might be easier to state the results and highlight the technical contributions together.}
+
+% \zhihao{Despite the growing interests on these two problems, there are large gaps between the current best and lower bounds. In this work, we advance the study of this line of research by focusing on fractional algorithms. We improve three state-of-the-art upper and lower bounds. For the positive result of General Arrival, we give an arguably more intuitive algorithm.}
+
+Despite the growing interests on the general vertex arrival model and the fully online model, there are large gaps between the state-of-the-art upper and lower bounds. In this work, we advance the study of this line of research by focusing on the \emph{fractional} versions of the two settings.
+
+
+On the positive side, we provide a $0.6$-competitive fractional algorithm for the fully online model, improving the previous $0.592$ competitive ratio of Huang et al.~\cite{focs/HuangTWZ20}, and a new $0.526$-competitive fractional algorithm for the general vertex arrival model, matching the competitive ratio of Wang and Wong~\cite{icalp/WangW15}.
+On the negative side, We improve the hardness of the fully online model to $0.6132$ and the hardness of the general vertex arrival model to $0.584$, respectively. Both of them hold even for bipartite graphs. Refer to Figure~\ref{fig:results} for a summary of previous and our results. 
+%For details, we first illustrate the positive side.
+\begin{figure}[H]
+    \center
+    \includegraphics[scale = 0.55]{fig/results.png}
+    \caption{A summary of previous results and our results for the fractional online matching problems.}
+    \label{fig:results}
+\end{figure}
+
+%To sum up, we improve three out of the four upper and lower bounds of the two models. Moreover, we give an arguably more intuitive algorithm for the general vertex arrival model, compared to the fractional algorithm of Wang and Wong~\cite{icalp/WangW15}, and attain the same competitive ratio of $0.526$. 
+
+
+% \paragraph{Economic View of Online Matching Algorithms} 
+% There is an intuitive technical tool used to understand many online matching algorithms and to build a connection to the online primal dual analysis, which is already widely and successfully applied \cite{jacm/HuangKTWZZ20,focs/HuangTWZ20,soda/DevanurJK13,eden2021economics}. We maintain a dynamic price of each vertex with a fixed pricing function $g$, which may depends on the current status of the vertex such as its water level (i.e., its matched portion) or rank (in the Ranking algorithm). For example, there is an economic definition of the Water-filling algorithm in the classic online bipartite matching model. 
+
+% \textsf{Water-filling (Economic View)}
+% Fix an increasing pricing function $g$, upon the arrival of an online vertex, keep matching it with the offline neighbor with the smallest $g(x_u)$, where $x_u$ is $u$'s water level, and we update it during the matching. 
+
+% However, despite the success for most other model, we do not have a proper economic view for the algorithm in the general vertex arrival setting, and the existed $0.526$-competitive algorithm by Wang and Wong \cite{icalp/WangW15} is a dual-based water-filling algorithm. Notice that there is a naive way to design a primal-based and economic-based algorithm as follows:
+
+% Fix an increasing pricing function $g$, upon the arrival of an online vertex $v$, keep matching it with the least matched neighbor (i.e., with the smallest $g(x_u)$), until $g(x_v)+g(x_u)\leq 1$, because the gain $v$ can get from its neighbor $1-g(x_u)$ start to become smaller than its potential gain that $v$ may get from later arriving vertices. 
+
+% We observe that this naive approach fails, and we can not beat a competitive ratio of $0.5$ by this algorithm. We observe that it is mainly because of the loss of information when we use a 1d-pricing function that only depends on vertices' current water level. 
+
+
+
+
+% \zhihao{Positive: I wanna sell two things: 1) economic view for general arrival; 2) we provide a way of using/aggregating more information (historical information) for each vertex.
+% \begin{itemize}
+% \item Our starting point is the economic view of water-filling/eager water-filling for online bipartite matching/fully online matching.
+% \item However, a straightforward generalization to general vertex arrival fails if we match until $f(x_u)+f(x_v) \le 1$ on the arrival of $u$.
+% \item This is because the loss of information. The price only depends on the current water level. Consider the case when two neighbors have the same water level $x$, the first is being matched actively and the second is being matched passively. According to the definition, the gain of the first neighbor is larger than the gain of the second neighbor. Intuitively, we should match the second neighbor while the algorithm cannot distinguish between the two case.
+% \item We fix the algorithm by aggregating the historical information into the pricing function $g(a_u,x_u)$. As a result, it fixes the general arrival setting and we have a unified economic view for all online matching problems. Previously, the algorithm of Wang and Wong~\cite{icalp/WangW15} is dual based.
+% \item Furthermore, the same algorithmic insight can be straightforwardly applied to fully online matching and we achieve an improved ratio.
+% \end{itemize}}
+ 
+
+% When we consider the fractional relaxation of the classic one-side bipartite matching problem, it is equivalent to the online $b$-matching problem proposed by Kalyanasundaram and Pruhs~\cite{tcs/KalyanasundaramP00} when $b$ tends to infinity. The deterministic algorithm Water-filling (a.k.a., Balance), can archive the optimal competitive ratio of $1-1/e$. In the algorithm, the main approach is that we always tend to match a vertex with its less matched neighbor. This approach has been extended to the fully online model~\cite{jacm/HuangKTWZZ20}, with making this Water-filling style matching decision only on the deadline of vertices. It is proved to be $0.585$-competitive, which is tight for Water-filling. Later, the algorithm has been improved by an eager matching approach (called Eager Water-filling), which let vertices match some portion upon its arrival, and the competitive ratio has been improved to $0.592$. 
+
+\paragraph{Economic View: History-based Pricing.}
+
+
+%\begin{theorem}
+%    There exits a Historical-based-pricing Algorithm can archive a competitive ratio of $0.6$ for the fractional fully online matching problem on general graphs (also refer to subsection~\ref{subsec:technique}). 
+%\end{theorem}
+
+%\begin{theorem}
+%    The Historical-based-pricing Algorithm can archive a competitive ratio of $0.526$ for the fractional online matching problem with general vertex arrivals on general graphs. 
+%\end{theorem}
+
+
+% Interestingly, we find it can archive the same competitive ratio of $0.526$ as the fractional algorithm studied by Wang and Wong~\cite{icalp/WangW15}. We remake that their algorithm can be viewed as a Water-filling algorithm from the dual side (the vertex cover problem), and it is natural to consider how to make an algorithm from the primal view. We observe that the $0.526$ ratio is hard to archive when we simply apply the Water-filling approach from the primal side with a 1d-pricing function, but we succeed to make with the help of 2d-pricing. 
+
+Our algorithms are designed based on the economic view of the primal dual analysis. 
+We start with the classical water-filling algorithm in the one-sided arrival model as an example. On the arrival of each online vertex, the algorithm continuously matches it to the least matched neighbor. Associated with the primal dual analysis, we interpret this algorithm as the following two steps: 1) each offline vertex $v$ maintains a dynamic price $f(x_v)$ that only depends on its current matched portion; 2) each online vertex $u$ continuously matches to the neighbor $v$ with the cheapest price and attains utility $1-f(x_v)$.
+Based on it, Huang et al.~\cite{focs/HuangTWZ20} designed Eager Water-filling algorithm for the fully online model. We also present it in an economic view: 1) every vertex matches a dynamic price depending on its matched portion; 2) on the arrival of each vertex $u$, it continuously matches to the cheapest neighbor $v$ until $f(x_u)+f(x_v) > 1$; 3) Finally, on the deadline of each vertex, it continuously matches to the cheapest neighbor.
+
+Unfortunately, prior to our work, there is no such an intuitive interpretation for the general vertex arrival model, although the $0.526$-competitive algorithm by Wang and Wong~\cite{icalp/WangW15} is also based on a primal dual analysis. A straightforward adaption of the eager water-filling algorithm to the general vertex arrival model is to apply the same first two steps, since there is no deadline in the general vertex arrival model.
+However, this natural algorithm fails to achieve any non-trivial competitive ratio for arbitrary choice of $f$. (See Appendix~\ref{app:fail} for a detailed discussion.)
+
+We resolve this issue and restore an intuitive economic interpretation for the general vertex arrival model by modifying the pricing step of the above algorithm. We introduce a novel pricing scheme called \emph{history-based pricing} that captures more information of the current matching status, than the current matched portion alone. Specifically, we use an extra number $a_u$ to record the active matched portion of each vertex $u$, i.e. the matched portion on its arrival, and then set a dynamic pricing of $g(a_u,x_u)$. The original pricing scheme is a special case of ours when the function $g$ is irrelevant from the first dimension. We recover the $0.526$-competitive fractional algorithm using the history-based pricing.
+
+Furthermore, the same algorithmic idea leads to an immediate improvement of eager water-filling in the fully online model. By optimizing the function $g$ using factor-revealing LP techniques, we improve the competitive ratio from $0.592$ to $0.6$.
+
+%Such a local-pricing function $g$ is enough for us to implement the Water-filling approach, and helps to connect to a primal dual analysis. But let us consider the general vertex arrival model, vertices are required to make a part of matching decisions upon its arrival, and it may be again matched after then. So, the water level (matched portion) of the vertex may come from two different tunnels, active (at arrival)  and passive (after arrival). The naive Water-filling approach and the corresponding local-pricing function only care the local information of a vertex (current water level), that can not capture the historical information (how does the water level come from). In fact, a naive try with such local-pricing function is even hard to beat a competitive ratio of $0.5$ (Refer to Appendix). We also notice that in the fully online setting, the eager matching approach~\cite{focs/HuangTWZ20} also make vertices water-level comes from different tunnels, while they still apply a local-pricing function in their eager Water-filling Algorithm. Naturally, the question is: ``Can we develop a way to capture those historical information?" In our paper, we succeed to extend the local-pricing function to a historical-based-pricing function, which makes it possible to capture those historical information behind the current water-level. 
+
+%and the Eager Water-filling algorithm 
+
+ %We maintain a dual variable for each vertex during the matching updating, via a gain sharing rule defined by a fixed pricing function $g$ (see Pre for detail). Motivated by the analysis, we can build an economic view for online matching algorithms. 
+ 
+ %A Vertex has a dynamic price over time define by the pricing function $g$ that may depend on its current water level (matched portion) or any other information. Then, when we decide to match a vertex $u$, we will let it keep matching the cheapest neighbor and updating the matching status (may also update the price) simultaneously. For example, if we fix a non-decreasing pricing function $g$ that only depends on vertices' current water-level, it is the same to say we tend to match vertices with its least matched neighbor, which is equivalent to the Water-filling approach, and hence it builds an economic view of the Water-filling algorithm. 
+
+%We build on the eager matching algorithm proposed by Huang et al. \cite{focs/HuangTWZ20} in the fully online setting, and bring in our novel technique, which we name as \emph{history-based pricing} method under the economic view (see subsection~\ref{subsec:technique} for a discussion of the economic view and the historical-based-pricing), and make an improved algorithm that archive $0.6$-competitive.  
+
+%We also observe that the historical-based-pricing do not only help the specific fully online model, but also the less restrictive general vertex arrival model. We use it to design a more intuitive primal-based algorithm that archive the same $0.526$ as the dual-based algorithm studied by Wang and Wong~\cite{icalp/WangW15}. We remark that such primal-based algorithm is even not easy to beat $0.5$-competitive if we only use a local-pricing method. 
+
+
+%Such a local-pricing function $g$ is enough for us to implement the Water-filling approach, and helps to connect to a primal dual analysis. But let us consider the general vertex arrival model, vertices are required to make a part of matching decisions upon its arrival, and it may be again matched after then. So, the water level (matched portion) of the vertex may come from two different tunnels, active (at arrival)  and passive (after arrival). The naive Water-filling approach and the corresponding local-pricing function only care the local information of a vertex (current water level), that can not capture the historical information (how does the water level come from). In fact, a naive try with such local-pricing function is even hard to beat a competitive ratio of $0.5$ (Refer to Appendix). We also notice that in the fully online setting, the eager matching approach~\cite{focs/HuangTWZ20} also make vertices water-level comes from different tunnels, while they still apply a local-pricing function in their eager Water-filling Algorithm. Naturally, the question is: ``Can we develop a way to capture those historical information?" In our paper, we succeed to extend the local-pricing function to a historical-based-pricing function, which makes it possible to capture those historical information behind the current water-level. 
+
+% \zhihao{Passive: Fully: structure similar to the 0.567 result for Ranking; Probably mention we slightly believe the $0.631$ is tight. 
+% General Arrival: similar to Wang and Wong with an extra third stage. ***Need to think more about the language. I want to say that we provide a gadget that allows a sequence of upper triangles structure.}
+
+%  At first, we have already known that both of the two models are strictly ``easier" than the one-side online bipartite matching problem. Wang and Wong~\cite{icalp/WangW15} show the $0.625<1-1/e$ hardness for the general arrival (Water-filling can archive $1-1/e$ in the one-side online bipartite matching problem), and it has been improved to $0.591$ by Buchbinder et al.~\cite{algorithmica/BuchbinderST19}. Huang et al.  \cite{jacm/HuangKTWZZ20} proved the $0.6317<1-1/e$ hardness for fully online model, and it has been improved to $0.5297$ by Eckl et al.~\cite{orl/EcklKLS21}. One can also notice that the harness of the two models has also already been separated by combining the $0.592$ positive result for the fully online model and the $0.591$ negative result for the general vertex arrival model. 
+
+\paragraph{Hardness Results.}
+For the fully online model, the previous hardness results of Huang et al.~\cite{jacm/HuangKTWZZ20} and Eckl et al.~\cite{orl/EcklKLS21} is only slightly smaller than $1-1/e$, and their constructions share the same structure of a tree plus an upper triangle at the end. Moreover, as observed by Eckl et al.~\cite{orl/EcklKLS21}, a similar structure cannot lead to a much smaller upper bound. 
+We construct a different family of instances, that has a tree structure and an upper triangle structure alternatively. Our construction substantially improves the upper bound to $0.613$. We remark that Huang et al.~\cite{jacm/HuangKTWZZ20} used a similar alternating structure to show a tight upper bound of the Ranking algorithm. 
+% We slightly believe that our upper bound of $0.613$ is tight for the fully online matching problem.
+
+%We remark that our new structure uses an ``alternating structure" that is similar to the $0.567$ hardness result~\cite{jacm/HuangKTWZZ20}, and we slightly believe the $0.6132$ ratio is tight with some weak evidence by our observation. 
+For the general vertex arrival mode, we build on the bad instance of \cite{icalp/WangW15}. Their construction is a two-stage instance that the adversary can choose when to stop. The first stage is a simple complete bipartite graph for which any $\Gamma$-competitive algorithm must match on average $\Gamma$ fraction for all vertices. Then they introduce extra vertices together with an upper-triangle structure as the second stage. The intuition is that all matchings made at the first stage are wrong and are punished by the second stage. However, since the algorithm knows the instance would end afterwards, it would greedily match vertices at the second stage.
+
+Our idea is to further punish/forbidden the greedy behavior at the second stage by having a third stage. Though the intuition is straightforward, it is hard to implement since the matching status after the second stage need quite a few parameters to fully capture. We believe a tight hardness of the general arrival model would necessarily need multiple stages, and our construction would be useful for future studies of the problem.
+Finally, we remark the two upper bounds are proved for any fractional algorithms, that directly imply upper bounds for any randomized algorithms. 
+
+
+
+
+%\begin{table}[H]
+%\centering
+%\caption{Previous and Our Results}
+%\label{table:result}
+%\begin{tabular}{|c|c|c|}
+%\hline
+%                                        & Previous Results    & Our Results         \\ \hline
+%\multirow{2}{*}{Fully Online Matching}  & $[0.592,0.629]$  & $[0.6, 0.613]$   \\
+%                                        & \cite{focs/HuangTWZ20},~\cite{orl/EcklKLS21}                   & Sec.~\ref{sec:fully_lower},~\ref{sec:fully_upper}                   \\ \hline
+%\multirow{2}{*}{General Vertex Arrival} & $[0.526, 0.591]$ & $[0.526, 0.584]$ \\
+%                                        & \cite{icalp/WangW15},~\cite{algorithmica/BuchbinderST19}                   & Sec.~\ref{sec:general_lower},~\ref{sec:general_upper}                   \\ \hline
+%\end{tabular}
+%\end{table}
+
+
+%\subsection{Our Technique}
+%\label{subsec:technique}
+%\paragraph{Primal Dual Analysis and The Economic View}
+%Our analysis is built on the online randomized primal dual technique initiated by Devanur et al. \cite{soda/DevanurJK13}. We maintain a dual variable for each vertex during the matching updating, via a gain sharing rule defined by a fixed pricing function $g$ (see Pre for detail). Motivated by the analysis, we can build an economic view for online matching algorithms. A Vertex has a dynamic price over time define by the pricing function $g$ that may depend on its current water level (matched portion) or any other information. Then, when we decide to match a vertex $u$, we will let it keep matching the cheapest neighbor and updating the matching status (may also update the price) simultaneously. For example, if we fix a non-decreasing pricing function $g$ that only depends on vertices' current water-level, it is the same to say we tend to match vertices with its least matched neighbor, which is equivalent to the Water-filling approach, and hence it builds an economic view of the Water-filling algorithm. 
+%
+%\paragraph{Historical-based-pricing}
+%Such a local-pricing function $g$ is enough for us to implement the Water-filling approach, and helps to connect to a primal dual analysis. But let us consider the general vertex arrival model, vertices are required to make a part of matching decisions upon its arrival, and it may be again matched after then. So, the water level (matched portion) of the vertex may come from two different tunnels, active (at arrival)  and passive (after arrival). The naive Water-filling approach and the corresponding local-pricing function only care the local information of a vertex (current water level), that can not capture the historical information (how does the water level come from). In fact, a naive try with such local-pricing function is even hard to beat a competitive ratio of $0.5$ (Refer to Appendix). We also notice that in the fully online setting, the eager matching approach~\cite{focs/HuangTWZ20} also make vertices water-level comes from different tunnels, while they still apply a local-pricing function in their eager Water-filling Algorithm. Naturally, the question is: ``Can we develop a way to capture those historical information?" In our paper, we succeed to extend the local-pricing function to a historical-based-pricing function, which makes it possible to capture those historical information behind the current water-level. 
+%
+
+\subsection{Other Related Works}
+Simultaneous to the work of Huang et al.~\cite{jacm/HuangKTWZZ20}, Ashlagi et al.~\cite{ec/AshlagiBDJSS19} proposed the online windowed matching problem that is an edge-weighted version of fully online matching with the first-in-first-out assumption.
+The general vertex arrival model has also been applied to the prophet matching setting and the secretary matching setting by Ezra et al.~\cite{ec/EzraFGT20, corr/EzraFGT20}. In the prophet setting, each edge has a weight that is drawn independently from a priori known distribution. In the secretary setting, edges are also weighted and all vertices arrive in a random order. The goal is to maximize the total weight of the matching in both models. Ezra et al. give an optimal $\frac{1}{2}$-competitive algorithm for the prophet setting and an optimal $\frac{5}{12}$-competitive algorithm for the secretary setting.
+
+Besides two arrival models studied in this paper, researches have also studied the edge arrival model. Gamlath et al.~\cite{focs/GamlathKMSW19} gave a strong negative result showing that the $0.5$-competitive greedy algorithm is the best possible. Buchbinder, Segev, and Tkach~\cite{algorithmica/BuchbinderST19} provided a positive result in the edge arrival setting when the underlying graph is a forest. Epstein et al.~\cite{stacs/EpsteinLSW13} studied a relaxed setting of edge arrival by allowing free disposals of edges and designed constant competitive algorithms for weighted graphs.

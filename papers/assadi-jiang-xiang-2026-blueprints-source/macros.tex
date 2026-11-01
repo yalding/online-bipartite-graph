@@ -1,0 +1,237 @@
+% General:
+
+\newcommand{\Leq}[1]{\ensuremath{\underset{\textnormal{#1}}\leq}}
+\newcommand{\Geq}[1]{\ensuremath{\underset{\textnormal{#1}}\geq}}
+\newcommand{\Eq}[1]{\ensuremath{\underset{\textnormal{#1}}=}}
+
+
+\newcommand{\inner}[2]{\ensuremath{\langle #1 \; , \; #2 \rangle}}
+\newcommand{\tvd}[2]{\ensuremath{\norm{#1 - #2}_{\mathrm{tvd}}}}
+\newcommand{\Ot}{\ensuremath{\widetilde{O}}}
+\newcommand{\eps}{\ensuremath{\varepsilon}}
+\newcommand{\Paren}[1]{\Big(#1\Big)}
+\newcommand{\Bracket}[1]{\Big[#1\Big]}
+\newcommand{\bracket}[1]{\left[#1\right]}
+\newcommand{\paren}[1]{\ensuremath{\left(#1\right)}\xspace}
+\newcommand{\card}[1]{\left\vert{#1}\right\vert}
+\newcommand{\Omgt}{\ensuremath{\widetilde{\Omega}}}
+\newcommand{\half}{\ensuremath{{1 \over 2}}}
+
+\newcommand{\IR}{\ensuremath{\mathbb{R}}}
+\newcommand{\IQ}{\ensuremath{\mathbb{Q}}}
+\newcommand{\IIZ}{\ensuremath{\mathbb{Z}}}
+\newcommand{\IN}{\ensuremath{\mathbb{N}}}
+\newcommand{\IS}{\ensuremath{\mathbb{S}}}
+\newcommand{\IB}{\ensuremath{\mathbb{B}}}
+
+\newcommand{\norm}[1]{\ensuremath{\|#1\|}}
+\newcommand{\abs}[1]{\ensuremath{|#1|}}
+
+\newcommand{\lee}{\leqslant}
+\newcommand{\gee}{\geqslant}
+\newcommand{\ceil}[1]{{\left\lceil{#1}\right\rceil}}
+\newcommand{\floor}[1]{{\left\lfloor{#1}\right\rfloor}}
+\newcommand{\prob}[1]{\Pr\paren{#1}}
+\newcommand{\expect}[1]{\Exp\bracket{#1}}
+\newcommand{\var}[1]{\textnormal{Var}\bracket{#1}}
+\newcommand{\cov}[1]{\textnormal{Cov}\bracket{#1}}
+\newcommand{\eexp}[1]{\exp\paren{#1}}
+\newcommand{\set}[1]{\ensuremath{\left\{ #1 \right\}}}
+\newcommand{\poly}{\mbox{\rm poly}}
+\newcommand{\polylog}{\mbox{\rm  polylog}}
+
+\newcommand{\OPT}{\ensuremath{\mbox{\sc opt}}\xspace}
+\newcommand{\opt}{\textnormal{\ensuremath{\mbox{opt}}}\xspace}
+\newcommand{\APX}{\ensuremath{\mbox{APX}}}
+\newcommand{\apx}{\ensuremath{\mbox{apx}}}
+\newcommand{\ALG}{\ensuremath{\mbox{\sc alg}}\xspace}
+\newcommand{\alg}{\ensuremath{\mathcal{A}}\xspace}
+
+\DeclareMathOperator*{\Exp}{\ensuremath{{{E}}}}
+\DeclareMathOperator*{\Prob}{\ensuremath{\textnormal{Pr}}}
+\renewcommand{\Pr}{\Prob}
+\newcommand{\EX}{\Exp}
+\newcommand{\Ex}{\Exp}
+\newcommand{\bigO}[1]{\ensuremath{O\Paren{#1}}}
+
+\newcommand{\etal}{{\it et al.\,}}
+\newcommand{\goodetal}{{\it et al.\/}}
+
+
+
+% Table: 
+\newenvironment{tbox}{\begin{tcolorbox}[
+		enlarge top by=5pt,
+		enlarge bottom by=5pt,
+		 breakable,
+		 boxsep=0pt,
+                  left=4pt,
+                  right=4pt,
+                  top=10pt,
+                  arc=0pt,
+                  boxrule=1pt,toprule=1pt,
+                  colback=white
+                  ]%%
+	}
+{\end{tcolorbox}}
+
+\newcommand{\textbox}[2]{
+{
+\begin{tbox}
+\textbf{#1}
+{#2}
+\end{tbox}
+}
+}
+
+% Probabilistic notation:  
+\newcommand{\event}{\ensuremath{\mathcal{E}}}
+
+\newcommand{\rv}[1]{\ensuremath{{\mathsf{#1}}}\xspace}
+\newcommand{\rA}{\rv{A}}
+\newcommand{\rB}{\rv{B}}
+\newcommand{\rC}{\rv{C}}
+\newcommand{\rD}{\rv{D}}
+\newcommand{\rE}{\rv{E}}
+
+\newcommand{\rX}{\rv{X}}
+\newcommand{\rY}{\rv{Y}}
+\newcommand{\rZ}{\rv{Z}}
+
+\newcommand{\rG}{\rv{G}}
+\newcommand{\rProt}{\rv{\Prot}}
+\newcommand{\rR}{\rv{R}}
+
+\newcommand{\supp}[1]{\ensuremath{\textnormal{\text{supp}}(#1)}}
+\newcommand{\distribution}[1]{\ensuremath{\textnormal{dist}(#1)}\xspace}
+\newcommand{\distributions}[2]{\ensuremath{\textnormal{dist}_{#2}(#1)}\xspace}
+
+\newcommand{\kl}[2]{\ensuremath{\mathbb{D}(#1~||~#2)}}
+\newcommand{\II}{\ensuremath{\mathbf{I}}}
+\newcommand{\HH}{\ensuremath{\mathbf{H}}}
+\newcommand{\mi}[2]{\ensuremath{\def\mione{#1}\def\mitwo{#2}\mireal}}
+\newcommand{\mireal}[1][]{
+  \ifx\relax#1\relax%
+    \II(\mione \,; \mitwo)%
+  \else%
+    \II(\mione \,; \mitwo\mid #1)%
+  \fi
+}
+\newcommand{\en}[1]{\ensuremath{\HH(#1)}}
+
+\newcommand{\itfacts}[1]{\Cref{fact:it-facts}-(\ref{part:#1})\xspace}
+
+\newcommand{\mnote}[1]{ \marginpar{\tiny\bf
+		\begin{minipage}[t]{0.5in}
+			\raggedright \color{red}#1
+\end{minipage}}}
+
+
+
+%RS-graph stuff
+
+\newcommand{\Grs}{\ensuremath{G_{\textnormal{\sc ers}}}}
+\newcommand{\Lrs}{\ensuremath{L_{\textnormal{\sc ers}}}}
+\newcommand{\Rrs}{\ensuremath{R_{\textnormal{\sc ers}}}}
+\newcommand{\Ers}{\ensuremath{E_{\textnormal{\sc ers}}}}
+\newcommand{\Mrs}{\ensuremath{M_{\textnormal{\sc ers}}}}
+
+%Paper stuff 
+
+\newcommand{\PS}[1]{\ensuremath{\texttt{Player}^{(#1)}}}
+\newcommand{\ES}[1]{\ensuremath{E^{(#1)}}}
+
+\newcommand{\msg}{\ensuremath{\texttt{msg}}}
+
+
+
+\newcommand{\conc}{\circ}
+
+\newcommand{\EE}[1]{\ensuremath{E}^{(#1)}}
+\newcommand{\FF}[1]{\ensuremath{F}^{(#1)}}
+\newcommand{\LL}[1]{\ensuremath{L}^{(#1)}}
+\newcommand{\RR}[1]{\ensuremath{R}^{(#1)}}
+\newcommand{\LLL}[1]{\ensuremath{L'}^{(#1)}}
+\newcommand{\RRR}[1]{\ensuremath{R'}^{(#1)}}
+\newcommand{\EEE}[1]{\ensuremath{E'}^{(#1)}}
+\newcommand{\LRS}{\ensuremath{L_{RS}}}
+\newcommand{\RRS}{\ensuremath{R_{RS}}}
+% \renewcommand{\eps}{\varepsilon}
+
+
+\newcommand{\expand}[3]{\ensuremath{\textnormal{\texttt{Expansion}}(#1,#2,#3)}\xspace}
+\newcommand{\sexpand}[3]{\ensuremath{\textnormal{\textsc{Strong-Expand}}_{#3}(#1,#2)}\xspace}
+\newcommand{\inputs}[3]{\ensuremath{\textnormal{\textsc{Input}}_{#3}(#1,#2)}\xspace}
+
+\newcommand{\bG}{\mathbb{G}}
+\newcommand{\bV}{\mathbb{V}}
+\newcommand{\bE}{\mathbb{E}}
+\newcommand{\bL}{\mathbb{L}}
+\newcommand{\bR}{\mathbb{R}}
+\newcommand{\bv}{\mathbb{v}}
+\newcommand{\bu}{\mathbb{u}}
+\newcommand{\be}{\mathbb{e}}
+\newcommand{\bff}{\mathbb{f}}
+\newcommand{\bg}{\mathbb{g}}
+\newcommand{\bw}{\mathbb{w}}
+
+\newcommand{\bLL}[1]{\ensuremath{\bL}^{(#1)}}
+\newcommand{\bRR}[1]{\ensuremath{\bR}^{(#1)}}
+\newcommand{\bEE}[1]{\ensuremath{\bE}^{(#1)}}
+
+\newcommand{\Mstar}{\ensuremath{M^{\star}}}
+
+\newcommand{\nrs}{\ensuremath{n_{\textsc{ers}}}}
+
+\newcommand{\Lnew}{\overline{L}}
+\newcommand{\Rnew}{\overline{R}}
+
+\newcommand{\sizes}{\vec{s}}
+
+
+%%%%%%%%%%%%%%%%%
+
+\newcommand{\extend}[3]{\ensuremath{\textnormal{\textsc{Extend}}(#1,#2,#3)}\xspace}
+\renewcommand{\LLL}[1]{\ensuremath{L'}^{(#1)}}
+\renewcommand{\RRR}[1]{\ensuremath{R'}^{(#1)}}
+\renewcommand{\EEE}[1]{\ensuremath{E'}^{(#1)}}
+
+\newcommand{\bLLL}[1]{\ensuremath{\bL}'^{(#1)}}
+\newcommand{\bRRR}[1]{\ensuremath{\bR}'^{(#1)}}
+\newcommand{\bEEE}[1]{\ensuremath{\bE}'^{(#1)}}
+% widehat variables
+\newcommand{\hbG}{\ensuremath{\widehat \bG}}
+\newcommand{\hbL}{\ensuremath{\widehat \bL}}
+\newcommand{\hbR}{\ensuremath{\widehat \bR}}
+\newcommand{\hbE}{\ensuremath{\widehat \bE}}
+\newcommand{\hbe}{\ensuremath{\widehat \be}}
+\newcommand{\hbLL}[1]{\ensuremath{\hbL}^{(#1)}}
+\newcommand{\hbRR}[1]{\ensuremath{\hbR}^{(#1)}}
+\newcommand{\hbEE}[1]{\ensuremath{\hbE}^{(#1)}}
+\newcommand{\hP}{\ensuremath{\widehat P}}
+\newcommand{\hB}{\ensuremath{\widehat B}}
+\newcommand{\hC}{\ensuremath{\widehat C}}
+\newcommand{\hbw}{\ensuremath{\widehat \bw}}
+
+\newcommand{\hsizes}{\ensuremath{\widehat \sizes}}
+
+
+
+\newcommand{\ssize}[1]{\ensuremath{size\left(#1\right)}}
+\newcommand{\rratio}[1]{\ensuremath{ratio\left(#1\right)}}
+\newcommand{\sscore}[1]{\ensuremath{score\left(#1\right)}}
+\newcommand{\sscores}[1]{\ensuremath{score_s\left(#1\right)}}
+
+
+
+\newcommand{\bX}{\mathbb{X}}
+\newcommand{\bY}{\mathbb{Y}}
+
+\newcommand{\bM}{\mathbb{M}}
+
+\newcommand{\indextext}[1]{\ensuremath{\textnormal{\texttt{#1}}}\xspace}
+\newcommand{\pstart}{\indextext{start}}
+\newcommand{\pdelay}{\indextext{delay}}
+\newcommand{\pwalk}{\indextext{walk}}
+
+\newcommand{\barW}{\overline{W}}

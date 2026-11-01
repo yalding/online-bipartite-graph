@@ -1,0 +1,234 @@
+\begin{thebibliography}{10}
+
+\bibitem{BernsteinDisserGrossHimburg22}
+Aaron Bernstein, Yann Disser, Martin Groß, and Sandra Himburg.
+\newblock General bounds for incremental maximization.
+\newblock {\em Mathematical Programming}, 191(2):953--979, 2022.
+\newblock \href {https://doi.org/10.1007/s10107-020-01576-0}
+  {\path{doi:10.1007/s10107-020-01576-0}}.
+
+\bibitem{BlumChalasaniCoppersmithEtAl94}
+Avrim Blum, Prasad Chalasani, Don Coppersmith, William~R. Pulleyblank,
+  Prabhakar Raghavan, and Madhu Sudan.
+\newblock The minimum latency problem.
+\newblock In {\em Proceedings of the 26th Annual ACM Symposium on Theory of
+  Computing (STOC)}, pages 163--171, 1994.
+\newblock \href {https://doi.org/10.1145/195058.195125}
+  {\path{doi:10.1145/195058.195125}}.
+
+\bibitem{BuchbinderJainNaor07}
+Niv Buchbinder, Kamal Jain, and Joseph~(Seffi) Naor.
+\newblock Online primal-dual algorithms for maximizing ad-auctions revenue.
+\newblock In {\em Proceedings of the 15th Annual European Symposium on
+  Algorithms (ESA)}, pages 253--264, 2007.
+\newblock \href {https://doi.org/10.1007/978-3-540-75520-3_24}
+  {\path{doi:10.1007/978-3-540-75520-3_24}}.
+
+\bibitem{BuchbinderSegevTkach19}
+Niv Buchbinder, Danny Segev, and Yevgeny Tkach.
+\newblock Online algorithms for maximum cardinality matching with edge
+  arrivals.
+\newblock {\em Algorithmica}, 81(5):1781--1799, 2019.
+\newblock \href {https://doi.org/10.1007/s00453-018-0505-7}
+  {\path{doi:10.1007/s00453-018-0505-7}}.
+
+\bibitem{ChrobakKenyonNogaYoung08}
+Marek Chrobak, Claire Kenyon, John Noga, and Neal~E. Young.
+\newblock Incremental medians via online bidding.
+\newblock {\em Algorithmica}, 50(4):455--478, 2008.
+\newblock \href {https://doi.org/10.1007/s00453-007-9005-x}
+  {\path{doi:10.1007/s00453-007-9005-x}}.
+
+\bibitem{CohenWajc18}
+Ilan~Reuven Cohen and David Wajc.
+\newblock Randomized online matching in regular graphs.
+\newblock In {\em Proceedings of the 29th Annual ACM-SIAM Symposium on Discrete
+  Algorithms (SODA)}, pages 960--979, 2018.
+
+\bibitem{DevanurJainKleinberg13}
+Nikhil~R. Devanur, Kamal Jain, and Robert~D. Kleinberg.
+\newblock Randomized primal-dual analysis of ranking for online bipartite
+  matching.
+\newblock In {\em Proceedings of the 24th Annual ACM-SIAM Symposium on Discrete
+  Algorithms (SODA)}, pages 101--107, 2013.
+\newblock \href {https://doi.org/10.1137/1.9781611973105.7}
+  {\path{doi:10.1137/1.9781611973105.7}}.
+
+\bibitem{DisserKlimmLutzWeckbecker24}
+Yann Disser, Max Klimm, Annette Lutz, and David Weckbecker.
+\newblock Fractionally subadditive maximization under an incremental knapsack
+  constraint with applications to incremental flows.
+\newblock {\em SIAM Journal on Discrete Mathematics}, 38(1):764--789, 2024.
+\newblock \href {https://doi.org/10.1137/23M1569265}
+  {\path{doi:10.1137/23M1569265}}.
+
+\bibitem{DisserKlimmMegowStiller17}
+Yann Disser, Max Klimm, Nicole Megow, and Sebastian Stiller.
+\newblock Packing a knapsack of unknown capacity.
+\newblock {\em SIAM Journal on Discrete Mathematics}, 31(3):1477--1497, 2017.
+\newblock \href {https://doi.org/10.1137/16M1070049}
+  {\path{doi:10.1137/16M1070049}}.
+
+\bibitem{DisserKlimmSchewiorWeckbecker23}
+Yann Disser, Max Klimm, Kevin Schewior, and David Weckbecker.
+\newblock Incremental maximization via continuization.
+\newblock In {\em Proceedings of the 50th International Colloquium on Automata,
+  Languages, and Programming (ICALP)}, pages 47:1--47:17, 2023.
+\newblock \href {https://doi.org/10.4230/LIPIcs.ICALP.2023.47}
+  {\path{doi:10.4230/LIPIcs.ICALP.2023.47}}.
+
+\bibitem{DisserWeckbecker25}
+Yann Disser and David Weckbecker.
+\newblock Incremental maximization for a broad class of objectives.
+\newblock In {\em Proceedings of the 33rd Annual European Symposium on
+  Algorithms (ESA)}, pages 92:1--92:13, 2025.
+\newblock \href {https://doi.org/10.4230/LIPIcs.ESA.2025.92}
+  {\path{doi:10.4230/LIPIcs.ESA.2025.92}}.
+
+\bibitem{FujitaKobayashiMakino13}
+Ryo Fujita, Yusuke Kobayashi, and Kazuhisa Makino.
+\newblock Robust matchings and matroid intersections.
+\newblock {\em SIAM Journal on Discrete Mathematics}, 27(3):1234--1256, 2013.
+\newblock \href {https://doi.org/10.1137/100808800}
+  {\path{doi:10.1137/100808800}}.
+
+\bibitem{Gamlath}
+Buddhima Gamlath, Michael Kapralov, Andreas Maggiori, Ola Svensson, and David
+  Wajc.
+\newblock Online matching with general arrivals.
+\newblock In {\em Proceedings of the 60th Annual IEEE Symposium on Foundations
+  of Computer Science (FOCS)}, pages 26--37, 2019.
+\newblock \href {https://doi.org/10.1109/FOCS.2019.00011}
+  {\path{doi:10.1109/FOCS.2019.00011}}.
+
+\bibitem{GoemansKleinberg98}
+Michel~X. Goemans and Jon~M. Kleinberg.
+\newblock An improved approximation ratio for the minimum latency problem.
+\newblock {\em Mathematical Programming}, 82:111--124, 1998.
+\newblock \href {https://doi.org/10.1007/BF01585867}
+  {\path{doi:10.1007/BF01585867}}.
+
+\bibitem{Gonzalez85}
+Teofilo~F. Gonzalez.
+\newblock Clustering to minimize the maximum intercluster distance.
+\newblock {\em Theoretical Computer Science}, 38:293--306, 1985.
+\newblock \href {https://doi.org/10.1016/0304-3975(85)90224-5}
+  {\path{doi:10.1016/0304-3975(85)90224-5}}.
+
+\bibitem{HassinRubinstein02}
+Refael Hassin and Shlomi Rubinstein.
+\newblock Robust matchings.
+\newblock {\em SIAM Journal on Discrete Mathematics}, 15(4):530--537, 2002.
+\newblock \href {https://doi.org/10.1137/S0895480198332156}
+  {\path{doi:10.1137/S0895480198332156}}.
+
+\bibitem{JiangZhang2026}
+Tianle Jiang and Yuhao Zhang.
+\newblock Edge arrival online matching: The power of free disposal on acyclic
+  graphs.
+\newblock In {\em Proceedings of the 21st International Conference on Web and
+  Internet Economics (WINE)}, pages 591--608, 2026.
+\newblock \href {https://doi.org/10.1007/978-3-032-08560-3_33}
+  {\path{doi:10.1007/978-3-032-08560-3_33}}.
+
+\bibitem{KakimuraMakino13}
+Naonori Kakimura and Kazuhisa Makino.
+\newblock Robust independence systems.
+\newblock {\em SIAM Journal on Discrete Mathematics}, 27(3):1257--1273, 2013.
+\newblock \href {https://doi.org/10.1137/120899480}
+  {\path{doi:10.1137/120899480}}.
+
+\bibitem{KarpVV90}
+Richard~M. Karp, Umesh~V. Vazirani, and Vijay~V. Vazirani.
+\newblock An optimal algorithm for on-line bipartite matching.
+\newblock In {\em Proceedings of the 22nd Annual ACM Symposium on Theory of
+  Computing (STOC)}, pages 352--358, 1990.
+\newblock \href {https://doi.org/10.1145/100216.100262}
+  {\path{doi:10.1145/100216.100262}}.
+
+\bibitem{LeeSingla20}
+Euiwoong Lee and Sahil Singla.
+\newblock Maximum matching in the online batch-arrival model.
+\newblock {\em ACM Transactions on Algorithms}, 16(4):49:1--49:31, 2020.
+\newblock \href {https://doi.org/10.1145/3399676} {\path{doi:10.1145/3399676}}.
+
+\bibitem{LinNagarajanRajaramanWilliamson10}
+Guolong Lin, Chandrashekhar Nagarajan, Rajmohan Rajaraman, and David~P.
+  Williamson.
+\newblock A general approach for incremental approximation and hierarchical
+  clustering.
+\newblock {\em SIAM Journal on Computing}, 39(8):3633--3669, 2010.
+\newblock \href {https://doi.org/10.1137/070698257}
+  {\path{doi:10.1137/070698257}}.
+
+\bibitem{MahdianYan11}
+Mohammad Mahdian and Qiqi Yan.
+\newblock Online bipartite matching with random arrivals: An approach based on
+  strongly factor-revealing {LP}s.
+\newblock In {\em Proceedings of the 43rd Annual ACM Symposium on Theory of
+  Computing (STOC)}, pages 597--606, 2011.
+\newblock \href {https://doi.org/10.1145/1993636.1993716}
+  {\path{doi:10.1145/1993636.1993716}}.
+
+\bibitem{MatuschkeSkutellaSoto18}
+Jannik Matuschke, Martin Skutella, and Jos{\'e}~A. Soto.
+\newblock Robust randomized matchings.
+\newblock {\em Mathematics of Operations Research}, 43(2):675--692, 2018.
+\newblock \href {https://doi.org/10.1287/moor.2017.0878}
+  {\path{doi:10.1287/moor.2017.0878}}.
+
+\bibitem{MegowMestre13}
+Nicole Megow and Julián Mestre.
+\newblock Instance-sensitive robustness guarantees for sequencing with unknown
+  packing and covering constraints.
+\newblock In {\em Proceedings of the 4th Innovations in Theoretical Computer
+  Science Conference (ITCS)}, pages 495--504, 2013.
+\newblock \href {https://doi.org/10.1145/2422436.2422490}
+  {\path{doi:10.1145/2422436.2422490}}.
+
+\bibitem{MettuPlaxton03}
+Ramgopal~R. Mettu and C.~Greg Plaxton.
+\newblock The online median problem.
+\newblock {\em SIAM Journal on Computing}, 32(3):816--832, 2003.
+\newblock \href {https://doi.org/10.1137/S0097539701383443}
+  {\path{doi:10.1137/S0097539701383443}}.
+
+\bibitem{NaorWajc18}
+Joseph~(Seffi) Naor and David Wajc.
+\newblock Near-optimum online ad allocation for targeted advertising.
+\newblock {\em ACM Transactions on Economics and Computation},
+  6(3--4):16:1--16:20, 2018.
+\newblock \href {https://doi.org/10.1145/3105447} {\path{doi:10.1145/3105447}}.
+
+\bibitem{Plaxton06}
+C.~Greg Plaxton.
+\newblock Approximation algorithms for hierarchical location problems.
+\newblock {\em Journal of Computer and System Sciences}, 72(3):425--443, 2006.
+\newblock \href {https://doi.org/10.1016/j.jcss.2005.09.004}
+  {\path{doi:10.1016/j.jcss.2005.09.004}}.
+
+\bibitem{Tang2026}
+Zhihao~Gavin Tang.
+\newblock Optimal competitive ratio of two-sided online bipartite matching,
+  2026.
+\newblock URL: \url{https://arxiv.org/abs/2602.18049}, \href
+  {https://arxiv.org/abs/2602.18049} {\path{arXiv:2602.18049}}.
+
+\bibitem{TangZhang24}
+Zhihao~Gavin Tang and Yuhao Zhang.
+\newblock Improved bounds for fractional online matching problems.
+\newblock In {\em Proceedings of the 25th ACM Conference on Economics and
+  Computation}, pages 279--307, 2024.
+\newblock \href {https://doi.org/10.1145/3670865.3673459}
+  {\path{doi:10.1145/3670865.3673459}}.
+
+\bibitem{WangW2015}
+Yajun Wang and Sam Chiu-wai Wong.
+\newblock Two-sided online bipartite matching and vertex cover: Beating the
+  greedy algorithm.
+\newblock In {\em Proceedings of the 42nd International Colloquium on Automata,
+  Languages, and Programming (ICALP)}, pages 1070--1081, 2015.
+\newblock \href {https://doi.org/10.1007/978-3-662-47672-7_87}
+  {\path{doi:10.1007/978-3-662-47672-7_87}}.
+
+\end{thebibliography}

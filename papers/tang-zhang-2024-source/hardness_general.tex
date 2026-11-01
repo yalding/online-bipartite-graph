@@ -1,0 +1,131 @@
+\section{Improved Hardness for General Vertex Arrival}
+\label{sec:general_upper}
+
+In this section, we show an improved upper bound for the fractional online matching problem with general vertex arrival. Previously, the best known upper bound is $0.592$ by Buchbinder et al.~\cite{algorithmica/BuchbinderST19}. 
+
+\begin{theorem}
+\label{thm:general_upper}
+No algorithm is strictly better than $0.584$-competitive for fractional online matching with general vertex arrivals, even for bipartite graphs.
+\end{theorem}
+
+\paragraph{Hard Instance.} Our construction includes $3$ stages. 
+%The real instance either ends after stage 1, or ends after stage 3. 
+Suppose there exists a $\Gamma$-competitive algorithm.
+We shall fix an arbitrary algorithm with competitive ratio $\Gamma$ and construct an instance that depends on the decision made by the algorithm. In the following, we describe the behavior of the algorithm and our construction at the same time.
+%Hence, a $\Gamma$-competitive online algorithm must maintain its ratio after stage 1 and 3. 
+Refer to Figure~\ref{fig:general}.
+
+\begin{itemize}
+    \item (Fig~\ref{fig:general-1}) The first stage involves $nk$ number of vertices that arrive in a sequence, that form a complete bipartite graph with an even size on the two sides of the graph. Denote these vertices by $A$. We denote the average matched portion of these vertices after the first stage by $\gamma$. If $\gamma < \Gamma$, the instance ends.
+    \item (Fig~\ref{fig:general-2}) The second stage is consisted of $n$ steps. At step $i$, the identities of $\{A_{j}\}_{j<i}$ has been determined. A set of $k$ vertices $B_i$ arrive and it forms a complete bipartite graph with the vertices $A - \cup_{j<i}A_j$. The algorithm makes matching decision between $B_i$ and $A - \cup_{j<i}A_j$. Afterwards, let $A_i$ be the least $k$ matched vertices among $A - \cup_{j<i}A_j$. We use $\alpha_i,\beta_i$ to denote the average matched portion of $A_i,B_i$ after the second stage.
+    \item (Fig~\ref{fig:general-3}) Let $I=\{i \in [n]:1-e^{\alpha_i-1} + 1 - e^{\beta_i-1} < \Gamma\}$.
+    \item (Fig~\ref{fig:general-4}) For each $i \in I$, let there be $k$ vertices $C_i$ and an upper triangle between $C_i$ and $A_i$. The vertices in $C_i$ comes in a sequence. Upon the arrival of the $j$-th vertex $c_{ij}$, the identities of $\{a_{i\ell}\}_{\ell<j}$ has been determined. $c_{ij}$ is connected to all vertices of $A_i - \{a_{i\ell}\}_{\ell<j}$ and the algorithm makes matching decisions for these edges. Afterwards, let $a_{ij}$ be the least matched vertex among $A_i - \{a_{i\ell}\}_{\ell<j}$. Similarly, let there be $k$ vertices $D_i$ and an upper triangle between $D_i$ and $B_i$.
+\end{itemize}
+
+\begin{figure}
+    \center
+    \begin{subfigure}[H]{.15\textwidth}
+        \includegraphics[scale = 0.5]{fig/general1.pdf}
+        \caption{}
+        \label{fig:general-1}
+    \end{subfigure}
+    \begin{subfigure}[H]{.15\textwidth}
+        \includegraphics[scale = 0.5]{fig/general2.pdf}
+        \caption{}
+        \label{fig:general-2}
+    \end{subfigure}
+    \begin{subfigure}[H]{.17\textwidth}
+        \includegraphics[scale = 0.5]{fig/general3.pdf}
+        \caption{}
+        \label{fig:general-3}
+    \end{subfigure}
+    \begin{subfigure}[H]{.4\textwidth}
+        \includegraphics[scale = 0.5]{fig/general4.pdf}
+        \caption{}
+        \label{fig:general-4}
+    \end{subfigure}
+    \caption{An illustration when $n=6$ and $k=4$. Each square denotes a set of $k=4$ vertices. An edge between two squares means a complete bipartite graph in between the two squares. a) $24$ vertices arrive in a sequence and they form a complete bipartite graph. b) $B_3$ arrives and the algorithm makes matching decisions. Afterwards, the identity of $A_3$ is determined. c) $I = \{2,3,5\} = \{i:1-e^{a_i-1} + 1 - e^{b_i-1} < \Gamma\}$. d) Two upper triangles for each $i \in I$.}
+    \label{fig:general}
+\end{figure}
+
+\paragraph{Competitive Ratio.} 
+We first derive the stated competitive ratio of any algorithm for our instance, by making the following intuitive assumptions on the behavior of the algorithm. A formal proof of the theorem is provided in Appendix~\ref{app:general_upper}. 
+\begin{itemize}
+\item The algorithm matches evenly for all vertices in $A$ by $\gamma$ fraction at the first stage. Intuitively, since all vertices are symmetric at the first stage, the algorithm should match them evenly.
+	%Intuitively, all matching decisions made at the stage are wrong since the structure of the optimal matching changes after the second stage. Hence, the algorithm should not match more than $\Gamma$ fraction. Moreover,
+\item On the arrival of each $B_i$, the algorithm matches all remaining vertices, i.e. $A - \cup_{j <i} A_j$ evenly. This is again because all the neighbors of $B_i$ are symmetric on the arrival of $B_i$.
+\item Last, the most crucial assumption we made is that whenever $A_i$ is not fully matched, i.e. $\alpha_i < 1$, on the arrival of $B_i$, we would keep matching until $1-e^{\alpha_i-1} + 1 - e^{\beta_i-1} = \Gamma$, where $\alpha_i,\beta_i$ denote the average matched portion of $A_i,B_i$ respectively. The value $1-e^{\alpha_i-1} + 1 - e^{\beta_i-1}$ is monotonically increasing as we continue matching $B_i$ to its neighbors. This assumption states that the algorithm should stop matching when this value is smaller than $\Gamma$.
+\end{itemize}
+
+The third assumption is the most crucial to achieve the improved upper bound of online matching with general vertex arrival. And this is due to the design of the third stage, which we explain in detail in the following. 
+
+Recall the graph structure of the third stage. The upper triangle construction is essentially the same construction by Karp et al.~\cite{stoc/KarpVV90}, for proving the $1-\frac{1}{e}$ upper bound for the classical online bipartite matching problem. The only difference is that we have an average matched portion $\alpha_i,\beta_i$ of $A_i, B_i$ before the third stage. We analyze the best possible performance of any algorithm at the third stage, that can be viewed as a straightforward generalization of the $1-1/e$ hardness result of Karp et al.~\cite{stoc/KarpVV90}. We remark that when $\alpha_i=0$, our bound in the following lemma equals $1-\frac{1}{e}$. The formal proof of the lemma is deferred to Appendix~\ref{app:general_upper}.
+\begin{lemma}
+For each $i \in I$, the total matching made on the arrival of $C_i$ is at most $\left( 1-e^{\alpha_i-1} + o(1) \right) \cdot k$ and the total matching made on the arrival of $D_i$ is at most $\left( 1-e^{\beta_i-1} + o(1) \right) \cdot k$.
+\end{lemma}
+
+In other words, if an algorithm matches too much between $A_i$ and $B_i$ on the arrival of $B_i$, the arrivals of $C_i, D_i$ from the third stage would penalize the algorithm. Observe that after the arrival of each $C_i,D_i$, the size of the maximum matching increases by $k$, while the algorithm matches at most $(1-e^{\alpha_i-1} + 1-e^{\beta_i-1}) \cdot k$ by the above lemma. Since we are aiming for a competitive ratio of $\Gamma$, it suggests the algorithm to stop matching $B_i$ further if $1-e^{\alpha_i-1} + 1 - e^{\beta_i-1} = \Gamma$. This is exactly the third assumption we made above.  
+
+Now we are ready to calculate the best possible competitive ratio $\Gamma$. We derive the claimed $\Gamma=0.584$ with computer assistance. Concludes all the assumptions above, we can solve all $\alpha_i$ and $\beta_i$ to depict the best algorithm's performance in the following Algorithm~\ref{alg:solve-ratio}.
+\begin{algorithm}[H]
+	\caption{Solve $\alpha$ an $\beta$}
+	\label{alg:solve-ratio}
+	\begin{algorithmic}
+	    \State $\alpha_0=\gamma$.
+	    \For{Each $i\in[n]$}
+	       \State Solve $x$ for $e^{\alpha_{i-1} + \frac{x}{n-i+1} - 1} + e^{x-1} = 2-\Gamma$.
+	       \State $\beta_i=\min\{x,(n-i+1)(1-\alpha_i)\}$.
+	       \State $\alpha_i=\alpha_{i-1}-1+\frac{\beta_i}{n-i+1}$.
+	    \EndFor
+	\end{algorithmic}
+\end{algorithm}
+
+Fixing $n=500$, the algorithm must start with a $\gamma \ge \Gamma$ after the first stage. Then, the competitive ratio of the algorithm after the second stage equals:
+\[
+r(\gamma) = \frac{\left( n\gamma+2\sum_{i=1}^{n} \beta_i \right) \cdot k}{2n \cdot k} = \frac{n\gamma + 2\sum_{i=1}^{n} \beta_i}{2n}.
+\]
+% \zhihao{I think we don't need to tell the relaxation. It is distracting. We can just say it in our code.}
+% First, we slightly relax the third assumption to each $\beta_i$. Specifically, we assume $1-e^{\alpha_{i-1}-1} + 1 - e^{\beta_i-1} = \Gamma$ instead of $1-e^{\alpha_{i}-1} + 1 - e^{\beta_i-1} = \Gamma$.
+% This only benefits the algorithm since we allow $\beta_i$ to be larger given $\alpha_{i-1}$. 
+% %The relaxed $\alpha_i$ and $\beta_{i}$ are enough to depict an upper bound of the best algorithm's performance after the second stage, which can be calculated iteratively:
+% Then, we can calculate the values of $\alpha_i, \beta_i$ iteratively by the following:
+% \zhihao{Can you make the following a pseudocode?
+% \begin{itemize}
+% 	\item $\alpha_0 = \gamma$.
+% 	\item For $i\in[n]$, solve $x$ for $e^{\alpha_{i-1} + \frac{x}{n-i+1} - 1} + e^{x-1} = 2-\Gamma$.
+% 	\item Let $\beta_i = \min \{x, (n-i+1)\cdot (1-\alpha_i)\}$ and $\alpha_i = \alpha_{i-1} - 1 + \frac{\beta_i}{n-i+1}$.
+% \end{itemize}
+% }
+
+
+
+%\begin{itemize}
+%    \item $\beta_1 = \ln(2 - \Gamma-e^{\gamma-1})$;
+%    \item $\alpha_i = \min \{\alpha_{i-1} + \beta_i / (n-i+1),~1\}$; 
+%    \item For $i>1$, $\beta_i = \min \{\ln(2 - \Gamma-e^{\alpha_{i-1}-1}),~1-{\alpha_{i-1}}\}$.
+%\end{itemize}
+We search for every possible value of $\gamma \ge \Gamma$ (discretized) and plot the following figure for the function $r(x)$.
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale = 0.5]{fig/general-upper.png}
+    \caption{Function $r(x)$ and $y=x$}
+    \label{fig:general-upper-func}
+\end{figure}
+Observe that $r(x) < \Gamma$ for all $x\ge \Gamma$. We conclude that there is no algorithm has a competitive ratio better than $\Gamma=0.584$.
+
+%Because the advertiser can either stop at the first stage or after the second stage, the competitive ratio can be upper bounded by
+%$$
+%\min_{\gamma\in[0,1]}\{\gamma,r(\gamma)\}.
+%$$
+%Finally, we observe that $r(0.584) < 0.584$ and $\min_{\gamma\in[0,1]}\{\gamma,r(\gamma)\} < 0.584$. 
+
+
+
+
+
+
+
+
+	
+
+ 

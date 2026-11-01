@@ -1,0 +1,22 @@
+{
+  "beta_numerator": 82435,
+  "beta_denominator": 100000,
+  "grid_per_unit": 24000,
+  "cutoff": 2,
+  "scale": "1000000000000000000",
+  "first_violation": {
+    "depth": 754,
+    "integral_numerator": "21251184980771902215610",
+    "integral_denominator": "24000000000000000000000",
+    "integral": 0.885466040865496
+  },
+  "previous": {
+    "depth": 753,
+    "integral_numerator": "19427546276079206873701",
+    "integral_denominator": "24000000000000000000000",
+    "integral": 0.8094810948366337
+  },
+  "elapsed_seconds": 5.3275042999885045,
+  "exact_integer_comparison": true,
+  "scope": "Truncated continuous recurrence; not an explicit graph"
+}

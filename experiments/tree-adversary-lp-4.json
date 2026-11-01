@@ -1,0 +1,41 @@
+{
+  "family": "Every vertex after the first attaches to exactly one earlier vertex",
+  "maximum_vertices": 4,
+  "public_prefixes": 10,
+  "exact_minimax_ratio": "3/2",
+  "decimal_ratio": 1.5,
+  "primal": {
+    "competitive_ratio": "3/2",
+    "y_node1_v0": "1/2",
+    "y_node1_v1": "1/2",
+    "y_node2_v0": "1",
+    "y_node2_v1": "1/2",
+    "y_node3_v0": "1/2",
+    "y_node3_v1": "1",
+    "y_node4_v0": "1",
+    "y_node4_v1": "1/2",
+    "y_node5_v0": "1",
+    "y_node5_v1": "1",
+    "y_node6_v0": "1",
+    "y_node6_v1": "1",
+    "y_node6_v2": "1",
+    "y_node7_v0": "1",
+    "y_node7_v1": "1",
+    "y_node8_v0": "1/2",
+    "y_node8_v1": "1",
+    "y_node9_v0": "1",
+    "y_node9_v1": "1",
+    "y_node9_v2": "1"
+  },
+  "dual": {
+    "cover_node1_0_1": "1/2",
+    "monotone_node2_v1": "1/2",
+    "cover_node2_0_2": "1/2",
+    "cost_node2_opt1": "1/2",
+    "monotone_node3_v0": "1/2",
+    "cover_node3_1_2": "1/2",
+    "cost_node3_opt1": "1/2"
+  },
+  "exact_primal_and_dual_verified": true,
+  "limitation": "Small pilot family, not a tight bound for general vertex arrivals"
+}

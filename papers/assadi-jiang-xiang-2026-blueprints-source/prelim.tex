@@ -1,0 +1,67 @@
+% !TeX root = main.tex 
+%!TEX root = main.tex
+
+\newcommand{\maxwalk}[1]{\ensuremath{\textnormal{\textsf{w}}_{\textnormal{max}}(#1)}}
+\newcommand{\timemax}[1]{\ensuremath{\textnormal{\textsf{t}}_{\textnormal{max}}(#1)}}
+
+\newcommand{\maxwalkW}{\ensuremath{\textnormal{\textsf{w}}_{\textnormal{max}}}}
+\newcommand{\timemaxW}{\ensuremath{\textnormal{\textsf{t}}_{\textnormal{max}}}}
+
+\newcommand{\dist}{\ensuremath{\mathcal{D}}}
+
+
+
+\section{Preliminaries}\label{sec:prelim}
+
+\paragraph{Notation.} For integers $1 \leq a \leq b$, we define $[a:b] := \set{a,a+1,\ldots,b}$ and $[b] := \set{1,\ldots,b}$. For a tuple $x=(x_1,\ldots,x_t)$ and $i \in [2:t]$, 
+we denote $x_{<i} := (x_1,\ldots,x_{i-1})$.  
+
+For a random variable $X$, we sometimes write the subscript $X$ in $\Pr_X(f(X))$ (for some $f$), to 
+explicitly specify the randomness is coming from $X$.  
+For a random variable $X$ and a set $S$, we write $X \in_R S$ to mean $X$ is sampled uniformly at random from $S$. 
+
+\paragraph{Gambler's ruin.} We use a standard type of random walks on integer line $\set{0,1,\ldots,2m}$ for some integer $m \geq 1$, often called the \emph{gambler's ruin}; see, e.g.~\cite[Section 2.1]{levin2026markov}. 
+
+The walk $W=w_1,w_2,\cdots$ starts at some integer $w_1 \in [2m-1]$ and in each time $t \geq 1$, it updates $w_{t+1} = w_{t}+1$ with probability half and $w_{t+1} = w_{t}-1$ otherwise. 
+The walk terminates at the first time $t$ when $w_t = 0$ or $w_t = 2m$ and remains in this state. Throughout, by a random walk, we always mean the above type of walk unless explicitly stated otherwise. 
+
+\begin{fact}[{c.f.~\cite[Proposition 2.1]{levin2026markov}}]\label{fact:ruin}
+	For a random walk $W$ over $\set{0, \ldots, 2m}$ and an integer $k$ in $\set{0,\ldots,2m}$,
+	\[
+		\Pr_{W}\paren{\text{$W$ reaches $0$ before $2m$} \mid \text{$W$ starts at $k$}} = \frac{2m-k}{2m}. 
+	\]
+	Moreover, the expected length of the walk before terminating is at most $m^2$. 
+\end{fact}
+
+For a (finite) random walk $W = w_1,\cdots,w_T$, where $w_T \in \set{0,2m}$ is a terminating state, define: 
+\begin{align*}
+	\maxwalkW &= \maxwalk{W} := \max_{t \in [T]} \set{w_t} \quad \text{and}\quad 
+	\timemaxW = \timemax{W} := \min \set{t \in [T] : w_t=\maxwalk{W}},  
+\end{align*}
+as the \emph{largest} state seen on the walk and the \emph{first} time the walk sees its eventual largest state. 
+
+A corollary of~\Cref{fact:ruin} is the following. 
+\begin{claim}\label{clm:ruin}
+	For a random walk $W$ over $\set{0,\ldots,2m}$ and any $1 \leq i \leq j < 2m$,
+	\[
+		\Pr_W\paren{\text{$W$ ends in $0$} \wedge \maxwalk{W} = j \mid \text{$W$ starts at $i$}} = \frac{i}{j \cdot (j+1)}. 
+	\]
+\end{claim}
+\begin{proof}
+	For this to happen, we need $W$ to reach $j$ before $0$, and once on $j$, to reach $0$ before $j+1$. Given the random walk is memoryless, these two events are independent and thus we have
+	\begin{align*}
+		&\Pr_W\paren{\text{$W$ ends in $0$} \wedge \maxwalk{W} = j \mid \text{$W$ starts at $i$}} = \\
+		&\hspace{15pt} \Pr_W\paren{\text{$W$ reaches $j$ before $0$} \mid \text{$W$ starts at $i$}} \cdot  \Pr_W\paren{\text{$W$ reaches $0$ before $j+1$} \mid \text{$W$ starts at $j$}}. 
+	\end{align*}
+	The first term is about a random walk on $\set{0,\ldots,j}$ starting from $i$ and thus by~\Cref{fact:ruin} has probability $i/j$. The second term is about a random walk on $\set{0,\ldots,j+1}$ starting from $j$
+	and thus by~\Cref{fact:ruin} has probability $1/(j+1)$. Multiplying these two concludes the proof. 
+\end{proof}
+We also have the following standard claim on the length of random walks. 
+\begin{claim}\label{clm:walk-length}
+	The probability that a random walk $W$ starting from any state does not terminate within $2m^3$ steps is at most $2^{-m}$. 
+\end{claim}
+\begin{proof}
+	The expected time for a walk $W$ to terminate, starting from any state, is at most $m^2$ by~\Cref{fact:ruin}. 
+	Thus, by Markov bound, the probability that the walk has not terminated after $2m^2$ steps is at most half. Repeating the argument from current state, 
+	the probability that $m$ repetitions, each of length $2m^2$, does not terminate the walk is at most $2^{-m}$. 
+\end{proof}

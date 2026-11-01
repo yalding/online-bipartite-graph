@@ -1,0 +1,690 @@
+===== PDF PAGE 1 =====
+Online Algorithms for Maximum Cardinality
+Matching with Edge Arrivals∗
+Niv Buchbinder 1, Danny Segev 2, and Yevgeny Tkach 3
+1 Department of Statistics and Operations Research, School of Mathematical
+Sciences, T el A viv University , Israel
+niv.buchbinder@gmail.com
+2 Department of Statistics, University of Haifa, Haifa 31905, Israel
+segevd@stat.haifa.ac.il
+3 Department of Statistics and Operations Research, School of Mathematical
+Sciences, T el A viv University , Israel
+ivgitk@gmail.com
+Abstract
+In the adversarial edge arrival model for maximum cardinality matching, edges of an unknown
+graph are revealed one-by-one in arbitrary order, and should be irrevocably accepted or rejected.
+Here, the goal of an online algorithm is to maximize the number of accepted edges while main-
+taining a feasible matching at any point in time. For this model, the standard greedy heuristic
+is 1/2-competitive, and on the other hand, no algorithm that outperforms this ratio is currently
+known, even for very simple graphs.
+We present a clean Min-Index framework for devising a family of randomized algorithms,
+and provide a number of positive and negative results in this context. Among these results, we
+present a 5/9-competitive algorithm when the underlying graph is a forest, and prove that this
+ratio is best possible within the Min-Index framework. In addition, we prove a new general
+upper bound of 23+1/φ2 ≈ 0.5914 on the competitiveness of any algorithm in the edge arrival
+model. Interestingly, this bound holds even for an easier model in which vertices (along with
+their adjacent edges) arrive online, and when the underlying graph is a tree of maximum degree
+at most 3.
+1998 ACM Subject ClassiﬁcationF.1.2 Online computation; G.2.2 Graph algorithms.
+Keywordsandphrases Maximummatching, onlinealgorithms, competitiveanalysis, primal-dual
+method.
+Digital Object Identiﬁer10.4230/LIPIcs.ESA.2017.22
+1 Introduction
+Graph matchings are cornerstone problems in combinatorial optimization, that have extens-
+ively been studied by the discrete mathematics, computer science, and operations research
+communities. In the most fundamental setting, given an undirected graphG = (V,E ), our
+objective is to identify a maximum cardinality matching, namely, a subset of edgesM⊆E
+without any vertices in common. Motivated by emerging applications in online advertising,
+numerous generalizations of this classic problem have been investigated in the last two
+decades from the perspective of both oﬄine and online settings.
+∗ The research of Niv Buchbinder is supported by ISF grant 1585/15 and US-Israel BSF grant 2014414.
+The research of Danny Segev is supported by ISF grant 148/16.
+© Niv Buchbinder, Danny Segev, and Yevgeny Tkach;
+licensed under Creative Commons License CC-BY
+25th Annual European Symposium on Algorithms (ESA 2017).
+Editors: Kirk Pruhs and Christian Sohler; Article No.22; pp.22:1–22:14
+Leibniz International Proceedings in Informatics
+Schloss Dagstuhl – Leibniz-Zentrum für Informatik, Dagstuhl Publishing, Germany
+
+===== PDF PAGE 2 =====
+22:2 Online Algorithms for Maximum Cardinality Matching
+In online computation, the seminal work of Karp, Vazirani, and Vazirani [14] studies an
+online model of maximum cardinality matching in which the underlying graph is bipartite.
+Speciﬁcally, the vertices on one side of the partition are known in advance, whereas those
+on the other side arrive one-by-one in online fashion. Upon the arrival of a vertex, all its
+adjacent edges are revealed simultaneously; the algorithm is then required to irrevocably
+decide how to match the newly arrived vertex. For this setting, Karp et al. designed a
+randomized (1− 1/e)-competitive algorithm, and showed that the latter factor is best possible.
+Due to the breadth and depth of subsequent research on this one-sided arrival model, it
+is beyond the scope of this paper to provide a comprehensive literature review. For this
+purpose, we refer the reader to a number of selected papers on this topic [12, 3, 18, 1, 6, 7],
+as well as to additional work on non-adversarial settings, in which the input sequence is
+randomly generated [10, 5, 9, 15, 13, 16], and ﬁnally, to the excellent survey of Mehta [17].
+Additional online models, most of which are somewhat more diﬃcult in terms of the
+achievable competitive ratio, have been proposed in recent years. Wang and Wong [20]
+introduced a vertex arrival model, where vertices from either side of the partition arrive
+online. Here, whenever a vertex arrives, all edges connecting this vertex to previously arrived
+vertices are revealed simultaneously. Wang and Wong demonstrated that this model is strictly
+harder than the one-sided vertex arrival model of Karp et al. [14] by proving an upper bound
+of 0.6252 < 1− 1/e. In addition, they presented a fractional matching algorithm with a
+competitive ratio of0.526. An even harder setting is theedge arrival model, where edges
+are revealed one-by-one in arbitrary order, and should be irrevocably accepted or rejected.
+For this model, the simple greedy heuristic, that deterministically adds an arriving edge to
+the current matching whenever possible, is1/2-competitive. Consequently, the main open
+question is whether we can attain competitiveness strictly better than1/2.
+Existing results for relaxed models. As addressing the above question in the edge arrival
+model seems particularly challenging, recent eﬀorts have mainly concentrated on various
+relaxations. One such relaxation allows for preemption, where the algorithm is allowed to
+discard previously accepted edges. For this model, Epstein, Levin, Segev, and Weimann [8]
+established an upper bound of 11+ln 2≈ 0.591 on the competitiveness of any algorithm, even
+on bipartite graphs. To our knowledge, this is the best known upper bound for the edge
+arrival model without preemption as well. Chiplunkar, Tirodkar, and Vishwanathan [4]
+designed a 15/28≈ 0.535-competitive algorithm for a special case of the vertex arrival model
+on a tree graph. Very recently, Tirodkar and Vishwanathan [19] devised a 33/64≈ 0.515-
+competitive algorithm for trees in the edge arrival model. As mentioned earlier, these results
+are heavily based on preemptions. Guruganesh and Singla [11] studied a diﬀerent type of
+relaxation, in which edges arrive according to a uniformly-picked random permutation, rather
+than in an arbitrary adversarial order. Under this assumption, they were able to design
+a (1/2 +δ)-competitive algorithm, for some absolute constantδ >0. Nevertheless, for the
+adversarial edge arrival model, no algorithm that outperforms the basic greedy heuristic
+is known at present time, even for seemingly-simple network topologies, such as trees or
+bounded-degree graphs.
+The Min-Index framework. In this paper, we consider the adversarial edge arrival model
+for maximum cardinality matching. Here, a randomized algorithm can be thought of as
+a procedure that maintains at any given time, explicitly or implicitly, a distribution over
+matchings. These are updated whenever a new edge arrives, subject to the respective online
+constraints on the allowable updates. However, since maintaining a general distribution of this
+
+===== PDF PAGE 3 =====
+N. Buchbinder, D. Segev, and Y. Tkach 22:3
+Algorithm 1 Min-Index(k,p 1,...,p k)
+Initialization: Mi← ∅, for everyi = 1,...,k .
+When edgee arrives:
+Ife cannot be added to any of the matchingsM1,...,M k, reject this edge. Otherwise, update
+Mi←Mi∪{e}, wherei is the minimal index for whichMi∪{e} is a feasible matching.
+Return Mi with probabilitypi.
+nature may be a diﬃcult task, we propose a simple family of randomized algorithms, which is
+referred to as theMin-Index framework. Our generic algorithm maintains a pre-determined
+distribution overk matchings,M1,...,M k, and associates each matchingMi with a ﬁxed
+probabilitypi, such that∑ki=1pi = 1. Whenever a new edge arrives, it is greedily accepted
+to the ﬁrst matching (index-wise) for which this augmentation is possible; when no such
+matching exists, the current edge is rejected. As a result, we obtain a clean framework that
+directly leads to a randomized online matching algorithm, whose formal statement is given
+in Algorithm 1.
+1.1 Our results
+Our main contribution is to prove tight upper and lower bounds of5/9≈ 0.555 for the
+Min-Index framework on forest graphs, as stated in the following theorem.
+▶ Theorem 1. For a forest graph, the generic Min-Index algorithm instantiated with k = 3
+and (p1,p 2,p 3) = (5/9, 3/9, 1/9) is 5/9-competitive for the edge arrival model. Moreover, any
+instantiation of Min-Index, with any number of matchings and respective probabilities, is at
+most 5/9-competitive for forest graphs.
+This result improves on that of Chiplunkar et al. [4], who obtained (in a vertex arrival
+model) a competitive ratio of15/28≈ 0.535 on forests, as well as on the results of Tirodkar
+and Vishwanathan [19], who obtained (for the edge arrival model) a33/64≈ 0.515-competitive
+algorithm. In fact, as mentioned earlier, both of these bounds are in an easier model, allowing
+the online algorithm to preempt edges.
+As a warmup, we also show that for graphs of maximum degree2 (i.e., union of paths
+and cycles) the Min-Index algorithm with k = 2 matchings, picked with probabilities
+(p1,p 2) = ( 2/3, 1/3), is 2/3-competitive. This result is shown to be best possible for any
+algorithm in the edge arrival model.
+For graphs of maximum degreed, we prove that any instantiation of Min-Index is at
+most 12(1 + 12d−1)-competitive, even on bipartite graphs. In spite our best eﬀorts, we could
+not match this bound. However, inspired by the general idea behind this framework, we
+design a fractional 12(1 + 12d−1)-competitive algorithm on graphs of maximum degreed. In
+other words, our online procedure computes a fractional matching whose objective value
+with respect to the standard LP-relaxation of maximum cardinality matching (see Figure 1)
+is within factor 12(1 + 12d−1) of optimal.
+Our ﬁnal contribution is to establish a general upper bound for any online algorithm.
+▶ Theorem 2. The competitive ratio of any fractional (or randomized) online algorithm for
+maximum matching in the vertex arrival model even for subcubic trees is at most 23+1/φ2≈
+0.5914, where φ = 1+
+√
+5
+2 is the golden ratio.
+Interestingly, this result holds even in the vertex arrival model, when the underlying
+graph is a tree of maximum degree3. On the one hand, this bound still leaves some marginal
+ESA 2017
+
+===== PDF PAGE 4 =====
+22:4 Online Algorithms for Maximum Cardinality Matching
+(P) maximize
+∑
+e∈E
+ye (D) minimize
+∑
+v∈V
+xv
+subject to:
+∑
+e∈δ(v)
+ye≤ 1 ∀v∈V subject to:xu +xv≥ 1 ∀e∈E
+ye≥ 0 ∀e∈E x v≥ 0 ∀v∈V
+Figure 1 The primal matching problem (P) and its dual the vertex cover problem (D).
+room for improvements in comparison to our5/9≈ 0.555-competitive algorithm on forests,
+and our fractional4/7≈ 0.571 algorithm for subcubic graphs (note that12(1 + 12d−1) = 4/7
+for d = 3). On the other hand, 23+1/φ2≈ 0.5914 improves on the currently best-known upper
+bound of0.6252 for the vertex arrival model, due to Wang and Wong [20]. We note in passing
+that, for the more restrictive edge arrival model (even with preemption), a slightly better
+upper bound of 11+ln 2≈ 0.5906 was proven by Epstein et al. [8]. However, their bound holds
+for high-degree bipartite graphs, while our bound holds even for trees of maximum degree3.
+Organization. All algorithms are given in Section 2, with corresponding upper bounds on
+the Min-Index framework in Section 3. Our general upper bound is established in Section 4.
+1.2 Techniques
+The main technical ingredient in proving lower bounds on the competitiveness of our
+algorithms is based on a primal-dual approach. Speciﬁcally, we make use of the standard
+fractional matching LP and its dual, the fractional vertex cover LP, both stated in Figure 1.
+To analyze the performance of our algorithms on various classes of graphs, we construct in
+each setting a feasible fractional vertex cover, that will eventually allow us to bound the
+expected cardinality of the resulting matching with respect to the optimal vertex cover,
+and in turn, with respect to the optimal matching via weak duality. In some cases, this
+construction is performed in an oﬄine fashion, requires complete knowledge of the ﬁnal input
+graph, and hence can be viewed as employing a dual-ﬁtting approach. In other cases, our
+construction is fully online, and therefore also yields a monotonically increasing fractional
+vertex cover. Such solutions can be rounded online with no loss in optimality on bipartite
+graphs [20].
+To prove upper bounds for the Min-Index algorithm, we construct adversarial sequences
+that allow us to derive linear inequalities on the achievable competitive ratio in terms of
+the choice probabilities of the diﬀerent matchings. These inequalities naturally induce
+a linear program whose optimal solution provides an upper bound on the best-possible
+competitiveness. An approach in this spirit has recently been employed by Azar, Cohen, and
+Roytman [2]. For our general upper bound of 23+1/φ2, the adversarial sequences we consider
+are parameterized according to the phase numberm upon which they terminate. As a result,
+in order to derive an upper bound on the competitiveness of any fractional online algorithm,
+we are required to solve a corresponding linear program, parameterized bym as well. Rather
+than solving this LP numerically, we obtain an explicit closed-form solution for its optimum,
+thereby proposing an analytical proof for the desired upper bound, as the number of phases
+m tends to inﬁnity.
+
+===== PDF PAGE 5 =====
+N. Buchbinder, D. Segev, and Y. Tkach 22:5
+2 Algorithms
+In this section, we establish lower bounds on the competitive ratio of the generic Min-Index
+framework. Speciﬁcally, in Section 2.1, we show that for graphs of maximum degree2, an
+appropriate instantiation of the Min-Index algorithm is2/3-competitive. In Section 2.2, we
+prove the ﬁrst part of Theorem 1, arguing that the right instantiation of the Min-Index
+algorithm is 5/9-competitive on forest graphs. Finally, in Section 2.3, we design a fractional
+1
+2(1 + 12d−1)-competitive algorithm for graphs of maximum degree at mostd.
+2.1 A 2/3-competitive algorithm for graphs of maximum degree2
+As a warm-up, we demonstrate some of our ideas by analyzing how the Min-Index algorithm
+performs on graphs of maximum degree2. Such graphs can be viewed as a union of vertex-
+disjoint cycles and paths, whose edges are revealed to the algorithm one-by-one. Due to
+space limitations, the proof of Theorem 3 below is omitted. We remark that this proof also
+shows that a competitive ratio of3/2 can be attained for the online fractional vertex cover
+problem in graphs of maximum degree2.
+▶ Theorem 3. On graphs on maximum degree 2, the Min-Index algorithm with k = 2
+matchings, picked with probabilities (p1,p 2) = (2/3, 1/3), is 2/3-competitive.
+2.2 A 5/9-competitive algorithm for forest graphs
+In this section, we design a randomized5/9-competitive algorithm when the underlying graph
+is a forest. Speciﬁcally, as stated in the next theorem, this competitive ratio is attained by
+our Min-Index algorithm.
+▶ Theorem 4. On forests, the Min-Index algorithm with k = 3 matchings, picked with
+probabilities (p1,p 2,p 3) = (5/9, 3/9, 1/9), is 5/9-competitive.
+Proof. Clearly, the algorithm returns a feasible matching. Thus, it remains to analyze the
+expected cardinality of its output matching, given byp1·|M1| +p2·|M2| +p3·|M3| =
+5
+9·|M1| + 39·|M2| + 19·|M3|. To this end, we use once again a primal-dual approach, by
+constructing a feasible fractional vertex cover to the dual LP(D), shown in Figure 1. We
+then prove that the expected cardinality of the matching produced by the algorithm is at
+least 5/9 times the value of this fractional vertex cover.
+In the (omitted) proof of Theorem 3, we construct a dual solution step-by-step, resulting
+in an algorithm with a similar competitive ratio for the online fractional vertex cover problem.
+On the other hand, in this case the (dual) fractional vertex cover is constructed retrospectively,
+once the input sequence has ended. As the ﬁnal graph is guaranteed to be a forest, we
+separately deﬁne a feasible vertex cover for each tree of the forest. To this end, consider such
+a tree,T. We ﬁrst rootT at an arbitrarily-picked vertexr, and orient the edges from the
+root down toward the leaves, such that each vertex other thanr has one ingoing edge. With
+respect to this orientation, for each edgee = (u,v ) that was orientedu→v, we update the
+fractional vertex cover according to the 4 possible decisions of our algorithm:
+1. When e =u→v is accepted toM1: xu←xu + 3/5 and xv←xv + 2/5.
+2. When e =u→v is accepted toM2 (after being rejected fromM1): xu←xu + 2/5 and
+xv←xv + 1/5.
+3. When e = u→ v is accepted to M3 (after being rejected from both M1 and M2):
+xu←xu + 1/5 and xv is not updated.
+4. When e = u→ v is rejected fromM1, M2, and M3: The values xu and xv are not
+updated.
+ESA 2017
+
+===== PDF PAGE 6 =====
+22:6 Online Algorithms for Maximum Cardinality Matching
+First, we claim that the expected cardinality of the matching produced by our algorithm
+is precisely 59 times the value of the fractional vertex cover solution we have just constructed.
+This claim is straightforward, as whenever an edgee is accepted to one of the matchingsMi,
+corresponding to cases 1-3 above, the expected cardinality of the matching increases bypi.
+On the other hand, it is easy to verify that, by our construction, the increase in the fractional
+vertex cover solution is exactly95pi. In case 4, when an edgee is not accepted to any of the
+matchings, the vertex cover solution remains unchanged. Thus, it remains to prove that the
+fractional vertex cover is indeed feasible. To this end, we show thatxu +xv≥ 1 for every
+edge e =u→v by inspecting the 4 possible decisions of our algorithm.
+Case 1: The edge e = u→ v is accepted to M1. In this case, due to the updates
+xu←xu + 3/5 and xv←xv + 2/5, we clearly havexu +xv≥ 1.
+Case 2: The edgee = u→ v is accepted toM2. Since e was rejected fromM1, there
+must be an edgee′∈M1 that is adjacent toe. By construction, the vertex cover update due
+to the edgee increases xu +xv by 35, whereas that ofe′ contributes at least 25 to xu +xv,
+meaning thate is fractionally covered.
+Case 3: The edge e = u→ v is accepted to M3. Since e was rejected from bothM1
+and M2, there must be a pair of edges,e1∈ M1 and e2∈ M2, that are both adjacent to
+e. Due to the update rule in this case, the edgee caused xu +xv to increase by 15, and it
+remains to show that the combined contribution ofe1 and e2 to xu +xv is at least 45. Note
+that the orientation ofT guarantees thatu has at most one ingoing edge. Therefore, at most
+one ofe1 and e2 is of the formw→u, and we are left with considering the following cases:
+When e1 =w→u: Here,e2 is necessarily of the formv→z or u→z. It follows thate1
+contributes 25 to xu whereas e2 contributes 25 to eitherxv or xu.
+When e2 =w→u: Then,e1 is of the formv→z or u→z. In this case,e2 contributes
+1
+5 to xu, ande1 contributes 35 to eitherxv or xu.
+When bothe1 and e2 are of the formv→z or u→z: The respective contributions ofe1
+and e2 to xu +xv are 35 and 25.
+Case 4: The edge e = u→ v is rejected from M1, M2, and M3. Since e is rejected
+from M1, M2, andM3, this edge must be adjacent to somee1∈M1, e2∈M2, ande3∈M3.
+We prove that the total contribution of these three edges toxu +xv is at least1. Similar to
+the argument used in case 3, at most one edge out ofe1, e2, ande3 is of the formw→u,
+and we therefore consider the following cases:
+When e1 =w→u: The contribution ofe1 to xu is 25. The contribution ofe2 to xv or xu
+is 25, and the contribution ofe3 to xv or xu is 15. Hence,xu +xv≥ 1.
+When e2 =w→u: The contribution ofe2 to xu is 15. The contribution ofe1 to xv or xu
+is 35, and the contribution ofe3 to xv or xu is 15. Once again,xu +xv≥ 1.
+Whene3 =w→u: Even thoughe3 does not contribute toxu, the respective contributions
+of e1 and e2 to xv +xu are 35 and 25, implying thatxu +xv≥ 1.
+When e1, e2, ande3 are all of the formv→z or u→z: The contributions ofe1, e2, and
+e3 to xv +xu are 35, 25, and 15, respectively, and we havexu +xv = 65 > 1. ◀
+2.3 Fractional 12 (1 + 12d−1 )-competitiveness for maximum degreed
+In this section, we design a12(1 + 12d−1)-competitive algorithm for fractional matching and
+vertex cover in graphs with maximum degreed, assuming that the valued is known to the
+
+===== PDF PAGE 7 =====
+N. Buchbinder, D. Segev, and Y. Tkach 22:7
+Algorithm 2 Fractional matching and vertex cover for graphs of maximum degree d:
+Initialize y← 0 and x← 0.
+When edgee = (u,v ) arrives:
+Let 0≤i≤d− 1 be the maximal integer for whichψi≤ 1− max{∑e′∈δ(u)ye′,∑e′∈δ(v)ye′}.
+Primal update: Setye =ψi = 2i2d−1.
+Dual update: Setxu←xu + 2i2d and xv←xv + 2i2d.
+algorithm in advance. A fractional algorithm should irrevocably assign each arriving edge
+e a fractionye, subject to the constraint that the total sum of fractions assigned to edges
+emanating from each vertexv can be at most1, i.e.,∑e∈δ(v)ye≤ 1. Although the algorithm
+proposed here deviates from our general Min-Index framework, it has the same ﬂavor. As
+shown is Algorithm 2, each new edge is assigned a certain fraction, out ofd possible values,
+which is (greedily) chosen as the largest possible such value. In order to simplify subsequent
+notation, fori = 0, 1,...,d − 1, letψi = 2i2d−1, noting that∑d−1i=0 ψi = 1.
+At ﬁrst, it is not clear that our algorithm is well-deﬁned, i.e., that upon the arrival of
+(u,v ) an integer0≤i≤d− 1 satisfying ψi≤ 1− max{∑e′∈δ(u)ye′,∑e′∈δ(v)ye′} necessarily
+exists. The next claim proves this property, which is useful for our analysis later on.
+▶ Lemma 5. For every vertex u, as long as fewer than d edges adjacent to u have arrived,
+we have 1−∑e∈δ(u)ye≥ 12d−1 .
+Proof. Let us focus on a particular point in time, such that at mostd− 1 edges adjacent to
+u have arrived thus far. For0≤i≤d− 1, letai be the number of edgese∈δ(u) for which
+we currently haveye =ψi. With this notation,∑e∈δ(u)ye =∑d−1i=0 aiψi≤ 1 and in addition∑d−1
+i=0 ai≤d− 1.
+Givena0,...,a d−1, we deﬁne a corresponding sequenceb0,...,b d−1 through the following
+iterative procedure. Initially,bi =ai for everyi. Then, while there exists an indexi with
+bi≥ 2, we decreasebi by 2 and increasebi+1 by 1. Sinceψi+1 = 2ψi, this operation keeps the
+sum∑d−1i=0 biψi unchanged (and always equal to∑d−1i=0 aiψi) and strictly decreases∑d−1i=0 bi.
+It is worth noting that we could never havebd−1≥ 2, or otherwise∑d−1i=0 aiψi =∑d−1i=0 biψi≥
+2ψd−1 = 2· 2d−12d−1 > 1. At the end of this procedure, each ofb0,...,b d−1 takes a binary value,
+and moreover,∑d−1i=0 bi≤∑d−1i=0 ai≤d− 1. The desired claim now follows by observing that
+∑
+e∈δ(u)
+ye =
+d−1∑
+i=0
+aiψi =
+d−1∑
+i=0
+biψi≤
+d−1∑
+i=1
+ψi =
+d−1∑
+i=1
+2i
+2d− 1 = 1− 12d− 1 ,
+where the above inequality holds since the binary vector with∑d−1i=0 bi≤d−1 that maximizes∑d−1
+i=0 biψi = 12d−1·∑d−1i=0 bi· 2i is clearlyb0 = 0 and b1 =··· =bd−1 = 1. ◀
+▶ Theorem 6. On graphs of maximum degree d, Algorithm 2 is 12(1 + 12d−1)-competitive for
+online fractional matching and fractional vertex cover.
+Proof. First, the fractional matchingy returned by the algorithm is feasible, as our choice of
+ψi in each step guarantees that the matching constraints are satisﬁed. In addition, our dual
+update rule ensures that the total contribution of the edge(u,v ) to the fractional vertex
+cover value is∆xu + ∆xv = 2i2d−1 = 2d−12d−1·ye = [ 12(1 + 12d−1)]−1·ye. Thus, the ﬁnal fractional
+matching value is exactly12(1 + 12d−1) times the fractional vertex cover produced by the
+algorithm. It remains to prove that the latter is indeed feasible.
+For this purpose, lete = (u,v ) be an edge that has just arrived. We prove that, after its
+dual update step, this edge is fractionally covered. For any vertexu, letyu =∑e′∈δ(u)ye′ be
+ESA 2017
+
+===== PDF PAGE 8 =====
+22:8 Online Algorithms for Maximum Cardinality Matching
+the total fractions assigned to edges adjacent tou just before the arrival of the edgee. Since
+the input graph is guaranteed to be of degree at mostd, by Lemma 5, we necessarily assigned
+ye with one of the valuesψ0,...,ψ d−1. If ye =ψd−1, then ∆xu = ∆xv = 12, and we have
+xu+xv +∆xu+∆xv≥ 1. In the opposite case, whereye =ψi for some0≤i≤d−2, since the
+edgee could not be assigned with the valueψi+1, we must havemax{yu,yv}> 1− 2i+12d−1. As
+ψ0,...,ψ d−1 are all integer multiples of 12d−1, it follows thatyu and yv are such multiples as
+well, meaning that the latter inequality impliesmax{yu,yv}≥ 1− 2i+12d−1 + 12d−1. In addition,
+our primal and dual update rules ensure thatxu = 2d−12d ·yu and hence, max{xu,xv} =
+2d−1
+2d · max{yu,yv}≥ 2d−12d · (1− 2i+1−12d−1 ). By these observations, after the current update we
+have
+xu +xv +∆xu +∆xv≥ max{xu,xv}+∆xu +∆xv≥ 2d− 12d ·(1− 2i+1− 12d− 1 )+ 2i+12d = 1.◀
+3 Upper Bounds for our Framework
+In this section, we prove upper bounds on the competitive ratio of the Min-Index algorithm,
+as stated in the following theorem.
+▶Theorem 7. For any number of matchings k≥ 1 and probabilitiesp1,...,p k, the Min-Index
+algorithm is:
+1. At most 2/3-competitive on graphs of maximum degree at most 2.
+2. At most 5/9-competitive on forest graphs.
+3. At most 12(1 + 12d−1)-competitive for bipartite graphs of maximum degree at most d.
+3.1 A 2/3 upper bound for graphs of maximum degree at most2
+Proof of Theorem 7, Part (1).Consider any instantiation of the Min-Index algorithm that
+makes use ofk matchings with probabilitiesp1,...,p k. We deﬁne two simple adversarial
+sequences of edge arrivals.
+Sequence 1: A single edgee = (u,v ) arrives.
+Sequence 2: First, an edgee = (u,v ) arrives. Then, two additional edgese1 = (u,z ) and
+e2 = (v,w ) arrive (in any order).
+Clearly, both sequences form graphs of maximum degree at most2. Letc be the competitive
+ratio of the algorithm. In Sequence 1, the optimal matching consists of the single edge
+e, whereas Min-Index addse to M1 and obtains a matching with expected cardinalityp1,
+meaning thatc≤p1. In Sequence 2, the optimal matching consists ofe1 and e2. However,
+Min-Index addse to M1, and subsequently addse1 and e2 to M2. As a result, a matching
+with expected cardinalityp1 + 2p2 is obtained, and thereforec≤ p12 +p2. To derive an upper
+bound on the competitive ratioc, it remains to solve the following linear program, wherep1
+and p2 are treated as probabilities (i.e., required to satisfyp1 +p2≤ 1 and p1,p 2≥ 0):
+maximize c
+subject to p1≥c
+p1
+2 +p2≥c
+p1 +p2≤ 1
+p1,p 2≥ 0
+The optimal solution to this LP isp1 = 23, p2 = 13, andc = 23, concluding our proof. ◀
+
+===== PDF PAGE 9 =====
+N. Buchbinder, D. Segev, and Y. Tkach 22:9
+M2 M1 M2 M1 M2 M1 M2
+M3 M3 M3 M3 M3 M3
+Figure 2 An example for Sequence 2.
+▶ Remark. For graphs of maximum degree at most2, a similar proof actually shows that2/3
+is the best competitive ratio achievable by any algorithm (not necessarily in our framework),
+even when the algorithm is allowed to produce a fractional matching.
+3.2 A 5/9 upper bound for forests
+Proof of Theorem 7, Part (2).The proof follows the same lines as that of Part(1), with
+more involved adversarial sequences. Consider an algorithm in our Min-Index framework
+that makes use ofk matchings with probabilitiesp1,...,p k. LettingN =⌈1/ϵ⌉, we deﬁne
+the following 3 adversarial sequences of edge arrivals, each forming a tree graph.
+Sequence 1: A single edgee = (u,v ) arrives.
+Sequence 2: In this sequence, a path of length2N + 1 is constructed, one edge after the
+other. By ﬁrst presenting edges located at even positions of the path, and then those in
+odd positions, we ensure that the algorithm picksN edges inM1 and N + 1 edges inM2.
+Once the entire path is constructed, we add next to each internal vertexu an additional
+edge (u,v ) connecting it to a distinct vertexv. In total, there are2N such edges. The
+ﬁnal tree is depicted in Figure 2.
+Sequence 3: Figure 3 describes our last sequence. Here, the overall tree is comprised ofN
+copies of a basic gadget, that consists of a9-edge path with3 additional edges emanating
+from middle vertices. Two edges are “going up” from the5-th and 6-th vertex on the
+path (marked with bold lines) and another edge is “going down” from the6-th vertex
+(marked with dashed lines). The edge arrival sequence proceeds as follows: First, all
+edges marked withM1 over all copies arrive, then those marked withM2, thenM3, and
+ﬁnally M4. Clearly, Min-Index accepts each edge according to its marked matching, since
+every edge inMi is adjacent upon arrival to edges that have already been accepted to
+M1,...,M i−1. Note that all edges marked with bold lines are accepted toM4, except for
+a single edge in the ﬁrst copy.
+Let c be the competitive of the algorithm. To obtain bounds onc in terms of the
+probabilities p1,...,p 4, for each arrival sequence we compare between the cardinality of the
+optimal matching and the expected cardinality of the matching produced by the algorithm:
+In Sequence 1, the optimal matching consists of the single edgee, whereas Min-Index
+adds e to M1 and obtains a matching with expected cardinalityp1, meaning thatc≤p1.
+In Sequence 2, the optimal matching is composed of all2N edges inM3, whereas the
+expected cardinality of the matching returned by Min-Index isN·p1 +(N +1)·p2 +2N·p3.
+Thus,c≤ 12p1 + 12p2 +p3 + 12Np2≤ 12p1 + 12p2 +p3 +ϵ, where the last inequality holds
+since N =⌈1/ϵ⌉.
+In Sequence 3, the optimal matching consists of6N edges, by picking from each gadget
+the two edges marked in bold and the 1-st, 3-rd, 7-th, and 9-th edges on the path. It is
+easy to verify that this matching is indeed optimal, as its cardinality is equal to the vertex
+cover created by picking the 2-nd, 4-th, 5-th, 6-th, 7-th, and 9-th vertices on each path.
+On the other hand, copies2,...,N of the gadget have3 edges inM1, 4 edges inM2, 3
+ESA 2017
+
+===== PDF PAGE 10 =====
+22:10 Online Algorithms for Maximum Cardinality Matching
+1
+M2 M1 M3 M2
+M1
+M2 M3 M1 M2
+M3
+M3
+M4
+2
+M2 M1 M3 M2
+M1
+M2 M3 M1 M2M3
+M4 M4
+3
+M2 M1 M3 M2
+M1
+M2 M3 M1 M2M3
+M4 M4
+Figure 3 An example for Sequence 3.
+edges inM3, and 2 edges ofM4 each. The ﬁrst copy has one more edge inM3 and one
+less edge inM4. Thus, the expected cardinality of the matching returned by Min-Index is
+N·(3p1 + 4p2 + 3p3 + 2p4)+p3−p4. Therefore,c≤ 12p1+ 23p2+ 12p3+ 13p4+ 16N (p3−p4)≤
+1
+2p1 + 23p2 + 12p3 + 13p4 +ϵ, where the last inequality holds sinceN =⌈1/ϵ⌉.
+To obtain an upper bound on the competitive ratioc, we now solve the following linear
+program, wherep1,...,p 4 are treated as probabilities:
+LP(ϵ) =maximize c
+subject to p1≥c
+1
+2p1 + 12p2 +p3 +ϵ≥c
+1
+2p1 + 23p2 + 12p3 + 13p4 +ϵ≥c
+p1 +p2 +p3 +p4≤ 1
+p1,p 2,p 3,p 4≥ 0
+It is easy to verify that the optimal solution toLP(ϵ) has c≤ 59 +ϵ. To see this, note that
+LP(0)≤ LP(ϵ)≤ LP(0) +ϵ and that the optimal solution toLP(0) is given byp1 = 59,
+p2 = 39, p3 = 19, p4 = 0, and c = 59. We conclude that 59 is the best competitive ratio
+achievable through the Min-Index framework, even for trees with maximum degree4. ◀
+3.3 A 12 (1 + 12d−1 ) upper bound for bipartite graphs
+Proof of Theorem 7, Part (3).Consider an algorithm in our Min-Index framework that
+makes use ofk matchings with probabilitiesp1,...,p k. Given an integer parameterd, we
+deﬁne the followingd adversarial sequences of edge arrivals, each forming a bipartite graph
+of maximum degree at mostd:
+Sequence 1: A single edgee = (u,v ) arrives.
+Sequences 𝓁 = 2 , . . . , d: Let G be an (𝓁− 1)-regular bipartite graph, withn vertices on
+each side. It is well-known, as an immediate corollary of Hall’s Marriage Theorem, that
+the edge set of such graphs can be partitioned into𝓁− 1 perfect matchings. In the
+
+===== PDF PAGE 11 =====
+N. Buchbinder, D. Segev, and Y. Tkach 22:11
+e𝓁4 e𝓁3 e𝓁2 e1 er2 er3 er4
+ˆe𝓁1 ˆer1ˆe𝓁2 ˆer2
+Figure 4 A sequence terminated at round n = 4.
+sequence of edge arrivals, these matchings are presented one after the other, with an
+arbitrary order for the edges within each matching. Clearly, Min-Index accepts the ﬁrst
+matching intoM1, the second intoM2, and so on. Next, we create a new edge emanating
+from each of the2n vertices into a new distinct vertex. As these edges are disjoint and
+cannot be accepted to any of the matchingsM1,...,M 𝓁−1, they are all accepted intoM𝓁.
+Let c be the competitive of the algorithm. To obtain bounds onc in terms of the
+probabilities p1,...,p k, for each arrival sequence we compare between the cardinality of the
+optimal matching and the expected cardinality of the matching produced by the algorithm:
+In Sequence 1, the optimal matching consists of the single edgee, whereas Min-Index
+adds e to M1 and obtains a matching with expected cardinalityp1, meaning thatc≤p1.
+In Sequence 2≤ 𝓁≤ d, the optimal matching consists of all2n edges inM𝓁, whereas
+the expected cardinality of the matching returned by Min-Index isn·∑𝓁−1t=1pt + 2n·p𝓁.
+Therefore, c≤ 12·∑𝓁−1t=1pt +p𝓁.
+Multiplying both sides of the upper bound due to Sequence𝓁 by 12d−𝓁, and summing the
+resulting inequalities over all1≤𝓁≤d, we get∑d𝓁=1p𝓁≥c·∑d𝓁=1 12d−𝓁 =c·(2− 12d−1 ). Since∑d
+𝓁=1p𝓁≤ 1, it follows that the competitive ratio satisﬁesc≤ (2− 12d−1 )−1 = 12(1+ 12d−1). ◀
+4 Upper Bound for any Algorithm
+In this section, we present our general upper bound, formally stated in Theorem 2. In
+particular, we prove that the competitive ratio of any fractional (or randomized) online
+algorithm for maximum matching is at most 23+1/φ2≈ 0.5914, whereφ = 1+
+√
+5
+2 is the golden
+ratio. In fact, this result holds even in the vertex arrival model, when the underlying graph
+is a tree of maximum degree3.
+We ﬁrst note that any randomized algorithm induces a marginal expected value ofye
+for accepting each edgee. As these marginal values must satisfy the packing constraints of
+the standard matching linear program(P), shown in Figure 1, they induce a valid fractional
+algorithm. Therefore, proving an upper bound for fractional online algorithms suﬃces.
+Arrival sequence. To understand the upcoming construction, we advise the reader to
+consult Figure 4. Consider an adversarial sequence consisting of 2n− 1 edges (and 2n
+vertices) that eventually forms a path as follows. In the ﬁrst round, an edgee1 = (v𝓁1,vr1)
+arrives. Then, fori≥ 2, thei-th round introduces two edges of the forme𝓁i = (v𝓁i,v𝓁i−1) and
+eri = (vri−1,vri ), that augment the path on both sides. The adversary may terminate the
+sequence once roundn ends. Terminating the sequence for anyn≥ 3 is done by introducing
+2(n− 2) additional “leaf edges”, adjacent to the inner verticesv𝓁1,...,v 𝓁n−2 and vr1,...,v rn−2.
+The leaf edges adjacent tov𝓁i and vri are denoted byˆe𝓁i and ˆeri, respectively.
+Upper bound as a linear program.Consider any fractional algorithm. For an edgee, let
+ye be the fraction given to this edge. In addition, fori≥ 2, the sum of fractions given to the
+edges e𝓁i and eri is denoted byyi =ye𝓁i +yeri; it is convenient to denotey1 =ye1 as well.
+ESA 2017
+
+===== PDF PAGE 12 =====
+22:12 Online Algorithms for Maximum Cardinality Matching
+First observe that, since the algorithm is required to meet the matching constraints∑
+e∈δ(v)ye≤ 1 at any point in time, as soon ase𝓁2 and er2 arrive we must haveye1 +ye𝓁2≤ 1
+and ye1 +yer2≤ 1. By adding up these inequalities, it follows that
+2y1 +y2≤ 2 . (1)
+Based on precisely the same logic, fori ≥ 2, once e𝓁i+1 and eri+1 arrive we would get
+ye𝓁i +ye𝓁i+1≤ 1 and yeri +yeri+1≤ 1, implying in turn that
+yi +yi+1≤ 2 . (2)
+Now letc be the competitive ratio of the algorithm. After rounds1 and 2, the optimal
+matchings are of cardinality1 and 2, respectively, and therefore
+c≤y1 and c≤ 12 (y1 +y2) . (3)
+In addition, if the adversarial sequence ends at roundn≥ 3, the matching constraints due to
+the inner verticesv𝓁1,...,v 𝓁n−2 and vr1,...,v rn−2 lead to the aggregate inequality
+2(n− 2)≥
+n−2∑
+i=1
+
+ ∑
+e∈δ(v𝓁i )
+ye +
+∑
+e∈δ(vri )
+ye
+(
+( =yn−1 + 2·
+n−2∑
+i=1
+yi +
+n−2∑
+i=1
+(
+yˆe𝓁i +yˆeri
+)
+.
+Consequently, it follows that the total fractions assigned by the algorithm to all edges is
+n∑
+i=1
+yi +
+n−2∑
+i=1
+(
+yˆe𝓁i +yˆeri
+)
+≤
+n∑
+i=1
+yi + 2(n− 2)−yn−1− 2·
+n−2∑
+i=1
+yi = 2(n− 2) +yn−
+n−2∑
+i=1
+yi .
+However, the optimal matching consists of2(n− 1) edges: e𝓁n,ern, ˆe𝓁1,..., ˆe𝓁n−2, ˆer1,..., ˆern−2.
+Thus, we get the following upper bound on the competitive ratioc:
+c≤ 12(n− 1)·
+(
+2(n− 2) +yn−
+n−2∑
+i=1
+yi
+)
+∀n≥ 3 (4)
+To summarize, the competitive ratio is upper bounded by the supremum value ofc that
+satisﬁes Inequalities(1), (2), (3), and(4), noting that the latter actually provides a separate
+inequality for eachn≥ 3. Therefore, any ﬁnite subset of these inequalities provides a concrete
+upper bound on the valuec. For everym≥ 4, letcm be the bound attained by the following
+(ﬁnite) LP, consisting of a subset of the constraints that are equivalent to truncating the
+input sequence afterm rounds:
+cm =maximize c
+subject to c≤y1 (5)
+c≤ 12 (y1 +y2) (6)
+c≤ 12(n− 1)·
+(
+2(n− 2) +yn−
+n−2∑
+i=1
+yi
+)
+∀n = 3,...,m (7)
+ym−1 +ym≤ 2 (8)
+▶ Lemma 8.cm = 2Fm+1−23Fm+1+Fm−1−4 , where Fm is the m-th Fibonacci number.
+Due to space limitations, we omit the proof. As the competitive ratio of any algorithm
+is at mostcm for anym≥ 4, and limm→∞ Fm−1Fm+1 = 1φ2, we conclude the proof by observing
+that, limm→∞cm = limm→∞ 2Fm+1−23Fm+1+Fm−1−4 = 23+1/φ2≈ 0.591372.
+
+===== PDF PAGE 13 =====
+N. Buchbinder, D. Segev, and Y. Tkach 22:13
+References
+1 Gagan Aggarwal, Gagan Goel, Chinmay Karande, and Aranyak Mehta. Online vertex-
+weighted bipartite matching and single-bid budgeted allocations. In Proceedings of the
+22nd Annual ACM-SIAM Symposium on Discrete Algorithms , pages 1253–1264, 2011.
+2 Yossi Azar, Ilan Reuven Cohen, and Alan Roytman. Online lower bounds via duality.
+In Proceedings of the 28th Annual ACM-SIAM Symposium on Discrete Algorithms , pages
+1038–1050, 2017.
+3 Niv Buchbinder, Kamal Jain, and Joseph Naor. Online primal-dual algorithms for max-
+imizing ad-auctions revenue. In Proceedings of the 15th Annual European Symposium on
+Algorithms, pages 253–264, 2007.
+4 Ashish Chiplunkar, Sumedh Tirodkar, and Sundar Vishwanathan. On randomized al-
+gorithms for matching in the online preemptive model. InProceedings of the 23rd Annual
+European Symposium on Algorithms, pages 325–336, 2015.
+5 Nikhil R. Devanur and Thomas P. Hayes. The adwords problem: online keyword matching
+with budgeted bidders under random permutations. InProceedings 10th ACM Conference
+on Electronic Commerce, pages 71–78, 2009.
+6 Nikhil R. Devanur and Kamal Jain. Online matching with concave returns. InProceedings
+of the 44th ACM Symposium on Theory of Computing , pages 137–144, 2012.
+7 NikhilR.Devanur, KamalJain, andRobertD.Kleinberg. Randomizedprimal-dualanalysis
+of RANKING for online bipartite matching. InProceedings of the 24th Annual ACM-SIAM
+Symposium on Discrete Algorithms , pages 101–107, 2013.
+8 Leah Epstein, Asaf Levin, Danny Segev, and Oren Weimann. Improved bounds for online
+preemptive matching. In Proceedings of the 30th International Symposium on Theoretical
+Aspects of Computer Science , pages 389–399, 2013.
+9 JonFeldman, AranyakMehta, VahabS. Mirrokni, and S.Muthukrishnan. Online stochastic
+matching: Beating 1− 1/e. In Proceedings of the 50th Annual IEEE Symposium on Found-
+ations of Computer Science , pages 117–126, 2009.
+10 Gagan Goel and Aranyak Mehta. Online budgeted matching in random input models with
+applications to adwords. In Proceedings of the 19th Annual ACM-SIAM Symposium on
+Discrete Algorithms, pages 982–991, 2008.
+11 Guru Prashanth Guruganesh and Sahil Singla. Online matroid intersection: Beating half
+for random arrival. Preprint, arXiv:1512.06271, 2015.
+12 Bala Kalyanasundaram and Kirk Pruhs. An optimal deterministic algorithm for online
+b-matching. Theoretical Computer Science, 233(1-2):319–325, 2000.
+13 Chinmay Karande, Aranyak Mehta, and Pushkar Tripathi. Online bipartite matching
+with unknown distributions. In Proceedings of the 43rd ACM Symposium on Theory of
+Computing, pages 587–596, 2011.
+14 Richard M. Karp, Umesh V. Vazirani, and Vijay V. Vazirani. An optimal algorithm for
+on-line bipartite matching. InProceedings of the 22nd Annual ACM Symposium on Theory
+of Computing, pages 352–358, 1990.
+15 Mohammad Mahdian and Qiqi Yan. Online bipartite matching with random arrivals: an
+approachbasedonstronglyfactor-revealinglps. In Proceedings of the 43rd ACM Symposium
+on Theory of Computing , pages 597–606, 2011.
+16 Vahideh H. Manshadi, Shayan Oveis Gharan, and Amin Saberi. Online stochastic matching:
+Online actions based on oﬄine statistics.Mathematics of Operations Research , 37(4):559–
+573, 2012.
+17 Aranyak Mehta. Online matching and ad allocation.Foundations and Trends in Theoretical
+Computer Science, 8(4):265–368, 2013.
+18 Aranyak Mehta, Amin Saberi, Umesh V. Vazirani, and Vijay V. Vazirani. Adwords and
+generalized online matching.Journal of the ACM , 54(5):22, 2007.
+ESA 2017
+
+===== PDF PAGE 14 =====
+22:14 Online Algorithms for Maximum Cardinality Matching
+19 Sumedh Tirodkar and Sundar Vishwanathan. Maximum matching on trees in the online
+preemptive and the incremental dynamic graph models. Preprint, arXiv:1612.05419, 2016.
+20 Yajun Wang and Sam Chiu-wai Wong. Two-sided online bipartite matching and vertex
+cover: Beating the greedy algorithm. InProceedings of the 42nd International Colloquium
+on Automata, Languages, and Programming , pages 1070–1081, 2015.

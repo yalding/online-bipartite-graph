@@ -1,0 +1,173 @@
+\section{Improved Hardness for Fully Online Matching}
+\label{sec:fully_upper}
+
+In this section, we show an improved upper bound for the fractional fully online matching problem. Previously, the best known upper bound is $0.6297$ by Eckl et al.~\cite{orl/EcklKLS21}. 
+
+\begin{theorem}
+No algorithm is strictly better than $0.6132$-competitive for the fractional fully online matching problem, even for bipartite graphs.
+\end{theorem}
+
+\paragraph{Hard Instance.} Our construction includes $2n \cdot \ell$ vertices, that are divided into $\ell$ identical groups. Each group consists of $4$ parts, that are denoted by $A_k, B_k, C_k$, and $D_k$. Each group of $A_k, B_k$ has $\alpha \cdot n$ vertices and $C_k, D_k$ has $(1-\alpha) \cdot n$ vertices, where $\alpha$ is a constant to be fixed later.
+
+We first describe the structure of the underlying graph and then define the arrivals and departures of the vertices. Refer to Figure~\ref{fig:upper}.
+
+%It is constructed by infinity number of vertices, which are organized into identical groups. In each group $k$, there are four vertex types, denoted by $A_k$, $B_k$, $C_k$, and $D_k$. The number of vertices is $n_{ab}$ in both $A_k$ and $B_k$, and it is $n_{cd}$ in both $C_k$ and $D_k$. Refer to Figure~\ref{fig:upper}, we first introduce the underlying graph structure of the instance.
+
+\begin{itemize}
+    \item Upper triangle between $A_k$ and $B_k$. Let $A_k = \{a_{ki}\}_{i}$ and $B_k = \{b_{ki}\}_{i}$. The $i$-th vertex $a_{ki}$ in $A_k$ is connected to every $b_{kj}$ for $j\geq i$.
+    \item Complete bipartite graph between $A_k$ and $C_k$. 
+    \item Complete bipartite graph between $C_k$ and $D_k \cup B_{k+1} \cup C_{k+1}$.
+\end{itemize}
+ 
+%\begin{itemize}
+%    \item $A_k$ is connected to $B_k$ and $C_k$ as an upper triangle. That means, the $i$-th vertex in $A_k$ (i.e., $a_{ki}$) is connected to all $j$-th vertices in $B_k$ (i.e., $b_{kj}$) such that $j\geq i$, and it is connected to all vertices in $C_k$. 
+%    \item $C_k$ is completed connected to $D_k$, $B_{k+1}$ and $C_{k+1}$. That means, each vertex in $A_k$ is adjacent to every vertex in $D_k$, $B_{k+1}$ and $C_{k+1}$.
+%\end{itemize}
+\begin{figure}[H]
+    \center
+    \includegraphics[scale = 0.5]{fig/upper-bound.png}
+    \caption{An illustration when $\alpha \cdot n =4$ and $(1-\alpha)\cdot n=3$.}
+    \label{fig:upper}
+\end{figure}
+
+Next, we define the arrivals and deadlines of the vertices. Let there be $\ell$ stages. At the end of the $(k-1)$-th stage, all vertices in $\{A_i\}_{i \in [k-1]}, \{B_i\}_{i \in [k]}, \{C_i\}_{i \in [k]}, \{D_i\}_{i \in [k-1]}$ have arrived. Furthermore, all vertices in $\{A_i\}_{i \in [k-1]}, \{B_i\}_{i \in [k-1]}, \{C_i\}_{i \in [k-1]}, \{D_i\}_{i \in [k-1]}$ have left. In other words, the only remaining vertices in the graph belongs to $B_k \cup C_k$. Refer to Figure~\ref{fig:construction-1}. 
+
+We shall define the arrivals and deadlines in the $k$-th stage.
+\begin{enumerate}
+    \item (Fig~\ref{fig:construction-2}) The vertices of $A_{k}$ arrive and leave immediately one by one. Upon the arrival and departure of $a_{ki}$, $a_{ki}$'s neighbors $\{b_{kj}\}_{j\ge i} \cup C_k$ are still alive (i.e., the vertex arrives but not depart) in the graph.
+    \item (Fig~\ref{fig:construction-2}) The vertices of $B_k$ leave. There is no alive neighbor for vertices in $B_k$. 
+    \item (Fig~\ref{fig:construction-3}) The vertices of $D_k \cup B_{k+1} \cup C_{k+1}$ arrive and the vertices of $C_k$ leave ony by one. $c_{ki}$'s neighbors $D_k \cup B_{k+1} \cup C_{k+1}$ are still alive.
+    \item (Fig~\ref{fig:construction-3}) The vertices of $D_k$ leave. There is no alive neighbor for vertices in $D_k$.  
+\end{enumerate}
+
+%Then, we give the arriving and leaving order for these defined vertices. We remark that the types of vertices are determined adversarially over time which are related to algorithms' decision. The instance is defined by a repeated process, which is start with the arrival of the first vertex of $A_k$. We need to assume there are $n_{cd} + n_{ab}$ vertices arrived before the process (i.e., they arrive in the previous process, or arrive at the beginning if we are in the first process.), which are the candidates of $B_k$ and $C_k$. Therefore, at the end of this process, we should prepare $n_{cd} + n_{ab}$ vertices that have not reached deadline for the next process. Next, we define what happens in the process between the arrival of $A_k$ and the preparation of the $n_{cd} + n_{ab}$ candidates, also see Figure~\ref{fig:construction} as an example. 
+\begin{figure}[H]
+    \center
+    \begin{subfigure}[H]{.15\textwidth}
+        \includegraphics[scale = 0.5]{fig/construction-1.png}
+        \caption{}
+        \label{fig:construction-1}
+    \end{subfigure}
+    \begin{subfigure}[H]{.15\textwidth}
+        \includegraphics[scale = 0.5]{fig/construction-2.png}
+        \caption{}
+        \label{fig:construction-2}
+    \end{subfigure}
+    \begin{subfigure}[H]{.3\textwidth}
+        \includegraphics[scale = 0.5]{fig/construction-3.png}
+        \caption{}
+        \label{fig:construction-3}
+    \end{subfigure}
+    \begin{subfigure}[H]{.3\textwidth}
+        \includegraphics[scale = 0.5]{fig/construction-4.png}
+        \caption{}
+        \label{fig:construction-4}
+    \end{subfigure}
+    \caption{An illustration when $\alpha \cdot n =4$ and $(1-\alpha)\cdot n=3$. The vertices become grey means that they have already left.}
+    \label{fig:construction}
+\end{figure}
+
+%\begin{enumerate}
+%    \item $n_{cd} + n_{ab}$ arriving vertices are given, as the candidates of $B_k$ and $C_k$, refer to Figure~\ref{fig:construction-1}
+%    \item The vertices in $A_{k}$ arrives and leaves immediately one by one. When the $i$-th vertex of $A_{k}$, i.e., $a_{ki}$ arrives and leave, we choose the least matched vertex among all undetermined candidates to be the $i$-th vertex of $B_k$, and let it leave.   
+%    \item After all $A_k$ arrive and leave, all $B_k$ are determined and leave, the left $n_{cd}$ vertices are determined to be in $C_k$, refer to Figure~\ref{fig:construction-2}.
+%    \item $2 n_{cd} + n_{ab}$ arrives in an arbitrary order, as the candidates of $D_k$, $B_{k+1}$, and $C_{k+1}$, refer to Figure~\ref{fig:construction-3}.  
+%    \item $C_k$ leaves in an arbitrary order, when the $i$-th vertex of $C_k$, i.e., $c_{ki}$ leave, choose the least matched vertex among all undetermined candidate to be the $i$-th vertex of $D_k$, and let it leave. 
+%    \item After all $C_k$ leave, all $D_k$ are determined and leave, the left $n_{cd} + n_{ab}$ vertices are prepared for the next process as the candidates of $B_{k+1}$ and $C_{k+1}$, refer to Figure~\ref{fig:construction-4}.  
+%\end{enumerate} 
+
+
+
+% Thus far, we completely define the instance. It's not hard to check the underlying graph of the instance offers a perfect matching ($A$ with $B$, and $C$ with $D$). Next, We analyze the Water-filling algorithm on the given instance, and we prove it dominates all the other online fractional algorithms on the instance and thus it gives an upper bound of Fully Online Fractional Matching.  
+
+% \begin{lemma}
+%     If a vertex is not fully matched at its deadline, it is not worse to continue matching it if it still has unsaturated neighbor that does not reach its deadline. 
+% \end{lemma}
+
+\paragraph{Competitive Ratio.}
+
+First, we observe that the maximum matching of the graph has size $n\ell$. Indeed, the graph has a perfect matching by matching $A_k$ with $B_k$ and matching $C_k$ with $D_k$ for all $k \in [\ell]$.
+
+Next, we shall assume that the algorithm only makes matching decisions on the departures of vertices, and the algorithm would like to fully match a vertex unless there is no feasible neighbor. This assumption is without loss of generality by a simple exchange argument (see e.g. \cite{jacm/HuangKTWZZ20}).
+
+A crucial property of our construction is that on the departure of each vertex, all its remaining neighbors in the graph are indistinguishable. Indeed, on the departure of each $a_{ki}$, all its neighbors $\{b_{kj}\}_{j \ge i} \cup C_k$ are indistinguishable; on the departure of each $c_{ki}$, all its neighbors $D_k \cup B_{k+1} \cup C_{k+1}$ are indistinguishable. 
+Applying a similar argument as~\cite{orl/EcklKLS21}, we can then, without loss of generality, restrict ourselves to the Water-Filling algorithm that treats all neighbors symmetrically. That is, on the departure of each vertex, we match its remaining portion equally to all its neighbors. A more formal construction need to decide the identity of each $b_{ki}$ after $a_{ki}$'s departure and decide the identities of $D_k$ after $C_k$'s departure. We omit the detailed derivation here.
+
+Based on the discussion above, we are left to calculate the performance of Water-filling on the constructed instance. Since we treat all vertices in $B_k \cup C_k$ equally at the $(k-1)$-th stage, all vertices of $B_k \cup C_k$ would have the same water level right before the $k$-th stage. Let $x_{k}$ be value of the water level. Initially, we have $x_1 = 0$. We derive the recurrent formula of $x_{k+1}$ in the following.
+
+On the deadline of the vertex $a_{ki}$ of $A_k$, it has $|\{b_{kj}\}_{j \ge i} \cup C_k| = n-i+1$ number of neighbors. Hence, the increment of the water level of $C_k$ equals $\frac{1}{n-i+1}$ on the departure of $a_{ki}$. Then, after the departure of the last vertex of $A_k$, the water level of $C_k$ becomes
+\[
+y_k = x_{k} + \frac{1}{n} + \frac{1}{n-1} + \cdots + \frac{1}{(1-\alpha)n + 1}~. %\to x_k - \ln(1-\alpha),
+\]
+Next, on the departure of $C_k$, each vertex matches its remaining portion to all vertices in $D_k \cup B_{k+1} \cup C_{k+1}$ equally. Thus, we have
+\[
+x_{k+1} = (1 - y_k) \cdot \frac{1-\alpha}{2-\alpha} = \left(1 - \left(x_k + \frac{1}{n} + \frac{1}{n-1} + \cdots + \frac{1}{(1-\alpha)n+1}\right)\right) \cdot \frac{1-\alpha}{2-\alpha}~.
+\]
+Fix $n$ and let the number of stage $k$ goes to infinity. We have that the sequence $\{x_k\}$ converges to the solution $x^*$ of the following equation:
+\[
+x = \left(1 - \left(x + \frac{1}{n} + \frac{1}{n-1} + \cdots + \frac{1}{(1-\alpha)n+1}\right)\right) \cdot \frac{1-\alpha}{2-\alpha}~.
+\]
+Moreover, the total matching made in stage $k$ equals 
+\[
+1 \cdot \alpha n + (1-y_k) \cdot (1-\alpha) n = \left(\alpha + (2-\alpha)\cdot x_{k+1}\right) \cdot n,
+\]
+where the term $1 \cdot \alpha n$ corresponds to the matchings made on the departures of $A_k$ and the term $(1-y_k)\cdot(1-\alpha) n$ corresponds to the matchings made on the departures of $C_k$.
+Hence, when $\ell \to \infty$, the ratio between the matching produced by Water-filling and the optimal matching is
+\[
+\lim_{k \to \infty} \frac{\left(\alpha + (2-\alpha)\cdot x_{k+1}\right) \cdot n}{n} = \alpha + (2-\alpha)\cdot x^*~.
+\]
+Finally, let $n$ goes to infinity, we have $x^*$ satisfies that
+\[
+x^* = \left( 1-x^*+\ln(1-\alpha) \right) \cdot \frac{1-\alpha}{2-\alpha} \iff x^*= \frac{1-\alpha}{3-2\alpha} \cdot (1+\ln(1-\alpha)) ~,
+\]
+where we use the fact that 
+\[
+\lim_{n\to \infty}\left( \frac{1}{n} + \frac{1}{n-1} + \cdots + \frac{1}{(1-\alpha)n+1} \right) = -\ln(1-\alpha)~.
+\]
+By optimizing $\alpha$, we conclude an upper bound of
+\[
+\min_{\alpha} \left\{ \alpha+(2-\alpha)\cdot x^* \right\} = \min_{\alpha} \left\{\alpha+\frac{(2-\alpha)(1-\alpha)}{3-2\alpha} \cdot (1+\ln(1-\alpha)) \right\} \approx 0.6132,
+\]
+when $\alpha \approx 0.43$.
+
+ 
+%Thus far, we completely define the instance. It's not hard to check the underlying graph of the instance offers a perfect matching ($A$ with $B$, and $C$ with $D$). It means that OPT can increase $n_{ab} + n_{cd}$ in each process. It remains to upper bound algorithms' performance. 
+
+%For technical convenience, we relax the problem a little. We allow the matched portion of an edge to be any real number no more than $1$, even negative. We also allow vertices' matched portion to be negative and even greater than $1$ before its deadline. However, we still require the matched portion of a vertex is at most $1$ after its deadline. 
+
+%Under this relaxation, let $y_v$ be the matched portion before $v$'s deadline, the best we can do is try to match it to $1$, i.e., we should make $1-y_v$ fractional matching if $v$ has at least one neighbor that has not reached deadline. Comparing to not doing so, i.e., the matched portion of $v$ is finally smaller than $1$, additionally make it to $1$ always forms a non-negative fractional alternating path which does not make the solution worse. Therefore, we will analyze the algorithms' performance under this assumption and relaxation, which suffices to upper bound the competitive ratio. 
+
+%For each $k$, we assume the average matched portion of $D_{k} \cup C_{k+1} \cup B_{k+1}$ before $A_{k}$ arrives to be $x_{k}$. By the definition of the instance, the average matched portion in $B_k$ and $C_k$ is at least $x_{k-1}$ before $A_k$ arrives. 
+
+%Then we discuss what happens when vertices in $A_k$ arrive and leave. Consider the time when $a_{ki}$ arrive and leave, recall that the one selected to be $b_{ki}$ is the one matched less, and $C_k$ are the left vertices which have large matched portion, we can prove that the average matched portion in $C_k$ is at least 
+%$$
+%    x_{k-1} + \frac{1}{n_{ab} + n_{cd}} + \frac{1}{n_{ab}+n_{cd}-1} + ... + \frac{1}{n_{ab} +n_{cd}-i+1}.
+%$$
+%When $n_{ab}$ and $n_{cd}$ tends to infinity, it becomes
+%$$
+%    x_{k-1} + \ln (n_{ab} + n_{cd}) - \ln n_{cd}.
+%$$
+
+% let $y_i$ be the total matched portion for the first $a_{ki}$ vertices in $A$, $b_{ki}$ is at least $x + \frac{y_1}{n_{ab} + n_{cd}} + \frac{y_2}{n_{ab}+n_{cd}-1} + ... + \frac{y_i}{n_{ab}+n{cd}-i+1}$. Therefore, fix $y = y_1 + y_2 + .... y_{n_{ab}}$, the matched portion of vertices in 
+
+%Then, at vertices' deadline in $C_k$, they can continue to match vertices in $D_k$, $B_{k+1}$ and $C_{k+1}$, but the matched portion of vertices in $C_k$ can not exceed $1$. Recall that the average water-level of $D_k$, $B_{k+1}$ and $C_{k+1}$ is denoted by $x_k$, we have: 
+%$$
+%    n_{cd} (x_{k-1} + \ln (n_{ab} + n_{cd}) - \ln n_{cd}) + (2n_{cd} + n_{ab}) x_k <= n_{cd}.
+%$$
+%Therefore, for an large enough $K$, we have
+%$$
+%    (3n_{cd} + n_{ab})\sum_{k=1}^K x_{k}  \leq K n_{cd} (1-\ln \frac{(n_{ab}+n_{cd})}{n_{cd}} ). 
+%$$
+%Consider one single process, the matching increases at the deadline of vertices in $A$ and $C$, which can be written as
+%$$
+%    n_{ab} +  (2n_{cd} + n_{ab}) x_k.
+%$$
+%Thus, the average matching increasing over $K$ process is
+%$$
+%n_{ab} + \frac{2n_{cd} + n_{ab}}{K} \sum_{k=1}^{K} x_k \leq n_{ab} + \frac{(2n_{cd} + n_{ab})(1-\ln \frac{(n_{ab}+n_{cd})}{n_{cd}})}{3n_{cd} + n_{ab}}
+%$$
+%Remark that OPT can increase $n_{ab} + n_{cd}$ in each process, the competitive ratio can be upper bounded by
+%$$
+%(n_{ab} + \frac{(2n_{cd} + n_{ab})(1-\ln \frac{(n_{ab}+n_{cd})}{n_{cd}})}{3n_{cd} + n_{ab}})/(n_{ab}+n_{cd}).
+%$$
+%Set $n_{ab}/n_{cd} = 0.756$, we get the competitive ratio is at most $0.6132$.

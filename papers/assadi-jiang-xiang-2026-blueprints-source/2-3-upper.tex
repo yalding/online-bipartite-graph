@@ -1,0 +1,96 @@
+% !TeX root = main.tex 
+%!TEX root = main.tex
+
+\section{\emph{Upper Bounding} the Value of Blueprints}\label{app:2-3-upper}
+
+For completeness and to provide further intuition about blueprints, we prove an optimal upper bound for~\Cref{eq:sup}. As stated earlier, this bound also follows from~\Cref{thm:framework} of~\cite{AssadiJX26} and the greedy algorithm for the semi-streaming
+matching problem. 
+
+\begin{lemma}\label{thm:value-2/3}
+	$\sup\set{value(\bG):\text{$\bG$ a proper blueprint}} \leq \dfrac23$. 
+\end{lemma}
+
+\begin{proof}
+Fix any blueprint $\bG=(\bL,\bR,\bE)$ with parameters $(P,C)$. Define $\bX_L$ (resp. $\bX_R$) to be the matched vertices in $\bL$ (resp. $\bR$). 
+We use $\nu := value(\bG)$ for the simplicity of notation. We will prove that $\nu \leq 2/3$ (throughout we use the fact that $\nu > 1/2$ to simplify some definitions). 
+
+Consider $\bL$ first. For any vertex $\bL(x)$ for $x \in [C]^P$, define 
+\[
+	D(\bL(x)) := \min_{p \in [P+1]} \quad \Pr_{z \in_R [C]^P}\paren{\bL(z) \in \bX_L \mid z_{<p}=x_{<p}}. 
+\]
+For each $p \in [P+1]$, the corresponding min-term in the RHS measures the \emph{density} of $\bX_L$ inside vertices consistent with $x_{<p}$. Specifically, for $p=1$, that term is simply $\Pr(\bL(z) \in \bX_L) = \nu$ and for 
+$p=P+1$ it is either $1$ or $0$ depending on whether $\bL(x) \in \bX_L$ or not. 
+
+We define this analogously for $\bR$ by replacing $\bX_L$ with $\bX_R$ and considering $\bR(x)$ for $x \in [C]^P$.
+
+\begin{claim}\label{clm:1}
+	For any edge $(\bL(x),\bR(y)) \in \bE$, $D(\bL(x)) + D(\bR(y)) \leq 1$. 
+\end{claim}
+\begin{proof}
+	Fix an edge $(\bL(x),\bR(y)) \in \bEE{p}$ for some $p \in [P]$. By the ban constraint (\Cref{def:proper-blueprint}), for each $z \in [C]^{P-p+1}$, at most one of vertices
+	$\bL(x_{<p} \circ z)$ and $\bR(y_{<p} \circ z)$ can be matched in $\bE$. Thus, 
+	\[
+		\Pr_{w \in_R [C]^P}\paren{\bL(w) \in \bX_L \mid w_{<p}=x_{<p}} + \Pr_{w \in_R [C]^P}\paren{\bR(w) \in \bX_R \mid w_{<p}=y_{<p}} \leq 1. 
+	\]
+	Taking the minimum on each term can only decrease the LHS, implying the claim. \Qed{clm:1} 
+	
+\end{proof}
+
+By~\Cref{clm:1}, we have
+\[
+	\Pr_{(\bL(x),\bR(y)) \in_R \bE}\paren{D(\bL(x)) > \frac12 ~\wedge~ D(\bR(y)) > \frac12} = 0, 
+\]
+which, by union bound and since $\bE$ is a matching, implies that 
+\begin{align}
+	1 &= \Pr_{(\bL(x),\bR(y)) \in_R \bE}\paren{D(\bL(x)) \leq \frac12 \vee D(\bR(y)) \leq \frac12} \notag \\
+	&\leq \Pr_{\bL(x) \in_R \bX_L}\paren{D(\bL(x)) \leq \frac12} + \Pr_{\bR(y) \in_R \bX_R}\paren{D(\bR(y)) \leq \frac12}.\label{eq:one-side} 
+\end{align}
+
+\begin{claim}\label{clm:2}
+	$
+		\Pr_{\bL(x) \in_R \bX_L}\paren{D(\bL(x)) \leq \dfrac12} \leq \dfrac{1-\nu}{\nu}. 
+	$
+\end{claim}
+\begin{proof}
+	We say $x \in [C]^P$ is \textbf{bad} if $D(\bL(x)) \leq 1/2$. We further say $x$ is $\bm{p}$-\textbf{bad} for $p \in [2:P+1]$ iff $p$ is the \emph{smallest} index where
+	\[
+		\Pr_{z \in_R [C]^P}\paren{\bL(z) \in \bX_L \mid z_{<p}=x_{<p}} \leq \frac 12. 
+	\]
+	Any bad vertex is $p$-bad for a unique choice of $p \in [2:P+1]$. We have 
+	\begin{align}
+		\Pr_{\bL(x) \in_R \bX_L}\paren{D(\bL(x)) \leq \frac12} &= \Pr_{x \in_R [C]^P}\paren{\text{$x$ is bad} \mid \bL(x) \in \bX_L} \notag \\
+		&= \frac{\Pr_{x \in_R [C]^P}\paren{\text{$x$ is bad} \wedge \bL(x) \in \bX_L}}{\Pr_{x \in_R [C]^P}\paren{\bL(x) \in \bX_L}}. \label{eq:clm2}
+	\end{align}
+	The denominator in the RHS is $\nu$ by definition. We now bound the numerator. 
+	\begin{align*}
+		\Pr_{x \in_R [C]^P}\paren{\text{$x$ is bad} \wedge \bL(x) \in \bX_L} &= \sum_{p=2}^{P+1} \Pr_{x \in_R [C]^P}\paren{\text{$x$ is $p$-bad} \wedge \bL(x) \in \bX_L} \tag{as a bad $x$ is $p$-bad for a unique $p$} \\
+		&= \sum_{p=2}^{P+1} \Pr_{x \in_R [C]^P}\paren{\text{$x$ is $p$-bad}} \cdot \Pr_{x \in_R [C]^P}\paren{\bL(x) \in \bX_L \mid \text{$x$ is $p$-bad}} \\
+		&\leq \sum_{p=2}^{P+1} \Pr_{x \in_R [C]^P}\paren{\text{$x$ is $p$-bad}} \cdot \frac12 \tag{explained below} \\
+		&= \frac{1}{2} \Pr_{x \in_R [C]^P}\paren{\text{$x$ is bad}} \tag{again, since $p$-bad events partition the bad event}. 
+	\end{align*}
+	The inequality above holds because conditioning on $x$ being $p$-bad requires fixing $x_{<p}$, and so by sampling the remaining coordinates and the definition of $p$-bad, we know $\bL(x)$ belongs to $\bX_L$ with probability at most $1/2$. 
+	
+	Finally, we can upper bound the probability that $x$ is bad (rather crudely) as follows: 
+	\begin{align*}
+		\nu &= \Pr_{x \in_R [C]^P}\paren{\bL(x) \in \bX_L} = \Pr_{x \in_R [C]^P}\paren{\bL(x) \in \bX_L \wedge \text{$x$ is bad}} + \Pr_{x \in_R [C]^P}\paren{\bL(x) \in \bX_L \wedge \text{$x$ is not bad}} \\
+		&\leq \frac12 \cdot \Pr_{x \in_R [C]^P}\paren{\text{$x$ is bad}} + \Pr_{x \in_R [C]^P}\paren{\text{$x$ is not bad}} \tag{by the previous equation} \\
+		&\leq \frac12 \cdot \Pr_{x \in_R [C]^P}\paren{\text{$x$ is bad}} + 1 - \Pr_{x \in_R [C]^P}\paren{\text{$x$ is bad}}.
+	\end{align*}
+	Therefore, we have, 
+	\[
+		\Pr_{x \in_R [C]^P}\paren{\text{$x$ is bad}} \leq 2 \cdot \paren{1-\nu}. 
+	\]
+	Plugging these bounds in~\Cref{eq:clm2} implies that 
+	\[
+		\Pr_{\bL(x) \in_R \bX_L}\paren{D(\bL(x)) \leq \frac12} \leq \frac{1-\nu}{\nu}, 
+	\]
+	concluding the proof. \Qed{clm:2}
+	
+\end{proof}
+
+The same exact proof as~\Cref{clm:2} also holds for vertices in $\bR$ and $\bX_R$ by symmetry. Plugging in these bounds in~\Cref{eq:one-side}, we have, 
+\[
+	1 \leq \Pr_{\bL(x) \in_R \bX_L}\paren{D(\bL(x)) \leq \frac12} + \Pr_{\bR(y) \in_R \bX_R}\paren{D(\bR(y)) \leq \frac12} \leq 2 \cdot \frac{1-\nu}{\nu},
+\]
+which in turn implies that $\nu \leq  2/3$, concluding the proof of~\Cref{thm:value-2/3}. 
+\end{proof}

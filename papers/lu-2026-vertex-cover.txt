@@ -1,0 +1,630 @@
+===== PDF PAGE 1 =====
+A New Lower Bound for Online Vertex Cover under Vertex Arrivals
+
+                                                      Tianhang Lu
+
+
+                                                         Abstract
+           We prove that no randomized integral or fractional algorithm for online vertex cover under
+       general vertex arrivals achieves a competitive ratio strictly below 1 + √e/2≈1.824360635, even
+       on bipartite graphs and against an oblivious adversary.  This improves the previous lower bound
+       of approximately 1.753.  Our proof extends the complete-bipartite alternating construction of
+       Wang and Wong to an arbitrary number of alternations.  The resulting adversary is described
+       by a monotone integral recurrence.  If the recurrence never violates the competitive budget, its
+       iterates converge to an integrable fixed point; classifying all such fixed points forces the excess
+       ratio to be at least √e/2.  A truncated discrete recurrence and a Riemann-sum argument convert
+       every  strict  continuous  violation  into  a  finite,  algorithm-dependent  but  realization-oblivious
+       input.  We also exhibit a critical fixed point showing that 1 + √e/2 is the exact limit of this
+       homogeneous complete-bipartite recurrence, rather than a numerical artifact.
+
+1    Introduction
+
+In the vertex-arrival online vertex cover problem, vertices arrive one at a time, and the arrival of a
+vertex reveals all of its edges to previously arrived vertices.  An online algorithm must maintain a
+vertex cover of the revealed graph, and every decision is irrevocable:  weight assigned to a vertex,
+or a vertex inserted into an integral cover, can never be withdrawn.  The objective is to minimize
+the final cost relative to an optimal offline cover.
+    The  arrival  pattern  sharply  changes  the  difficulty  of  the  problem.   When  only  one  side  of
+a  bipartite  graph  arrives  online,  the  tight  competitive  ratio  ise/(e−1),  matching  the  classical
+thresholds for online bipartite matching and ski rental (Karp et al.,1990;Karlin et al.,1994;Wang
+and Wong,2015).  When vertices from both sides may alternate,Wang and Wong(2015) gave a
+fractional algorithm with competitive ratio about 1.901 and a bipartite lower bound
+                                                     r
+                                                1 +     1 +e   −2   .
+                                                            2     ≈1.7534
+The algorithm applies to general graphs, while the lower-bound construction already lies in bipartite
+graphs.  The gap between these two constants has remained open.
+    Online matching provides useful context but not an automatic lower-bound transfer.  Primal–
+dual  algorithms  give  matching  and  vertex-cover  solutions  with  the  same  upper  ratios,  and  the
+best general-arrival matching bounds also reach approximately 1.901 (Wang and Wong,2015;Tang
+and Zhang,2024).  However, matching requires separate hardness arguments:  the general vertex-
+arrival  ratio  is  tight  for  matching  (Tang, 2026),  while  the  vertex-cover  lower  bound  before  this
+work remained 1.753.  The same separation occurs under edge arrivals, where ratio 2 is tight for
+matching  (Gamlath  et  al., 2019)  and,  by  a  different  argument,  for  vertex  cover  (Demange  and
+Paschos,2005;Tang and Zhang,2026).  Online vertex cover is also a structured instance of online
+covering, but generic covering bounds do not capture the constant threshold created by alternating
+complete-bipartite blocks (Buchbinder and Naor,2009).
+
+                                                              1
+
+===== PDF PAGE 2 =====
+Our result.We improve the lower bound for randomized integral and fractional algorithms to
+an analytic constant.
+
+Theorem 1.For  everyc <1 +            √e/2and  every  randomized  integral  or  fractional  online  vertex
+cover  algorithmA,  there  exists  a  finite  vertex-arrival  inputσsuch  that  the  underlying  graph  is
+bipartite and
+                                                E[ALG  A(σ)]> cOPT(σ).                                                   (1)
+The input is fixed before the random choices ofAare realized.  Consequently,
+                                                                             √e
+                                     CRbipartite, CR general  ≥1 +            2  ≈1.8244.                                      (2)
+
+    The theorem excludes every competitive ratio strictly smaller than 1 + √e/2; it does not assert
+that equality is impossible.  Because the hard instances are bipartite, the general-graph statement
+follows by restriction and does not use an integrality gap or an odd-cycle inequality.  The lower
+bound continues to hold when the bipartition is revealed to the algorithm.
+
+Proof idea.Write a hypothetical ratio as 1 +β.  At a complete-bipartite prefixK                            m,n, a finite
+continuation shows that any persistent cost on one side is at mostβtimes the size of the other
+side.  This budget forces a newly arriving universal vertex to receive positive weight whenever the
+opposite side has small average weight.  Wang and Wong used this observation for two and three
+alternating blocks.  We iterate it:  a future block constrains the present block,  a still later block
+constrains that future block, and so on.
+    After  scaling  block  sizes,  the  depth-hlower  bound  becomes  a  functionD                               h  : R >0   →[0,1]
+satisfying                                                            "              Z  ∞               #
+
+                       D0(t) = [1−βt]             + ,       Dh+1  (t) = 1−βt+t                              .                      (3)
+                                                                                       1/t   Dh(u)du     +
+A (1 +β)-competitive algorithm would require
+                                            Z  ∞
+
+
+                                             0    Dh(t)dt≤β     for everyh.                                            (4)
+The functionsD                  h  increase withh.  If all inequalities inEquation 4held,  monotone convergence
+would produce an integrable fixed point of the operator inEquation 3.  Every such fixed point has
+support [0, R] and forces                                                  √
+                                                   β=         R               e
+                                                          1 + 2 lnR   ≥      2  .                                                       (5)
+Thus, for everyβ <     √e/2, some finite depth violatesEquation 4.
+    The continuous recurrence is an analysis device, not an infinite input.  We define a cutoff version
+with finite sums, prove its convergence toEquation 3under a common integer scaling, and use the
+strict integral violation to select a finite scale.  Every apparent look-ahead in the recurrence is a
+finite counterfactual continuation.  For a fixed randomized algorithm, the adversary reads only the
+deterministic  marginal  behavior  associated  with  public  prefixes  and  then  selects  one  finite  path
+before the algorithm’s random seed is sampled.
+
+
+
+
+
+
+                                                                 2
+
+===== PDF PAGE 3 =====
+Relation  to  the  previous  lower  bound.The  first  level  of  the  recurrence  yields  the  two-
+alternation bound 1 + 1/ √2.  The next level reproduces the approximately 1.753 three-alternation
+bound ofWang and Wong(2015).  The improvement comes from allowing an unbounded but finite
+number of alternating blocks and solving the limiting recurrence analytically.  At the critical value
+β∗  = √e/2,  the  recurrence  admits  an  explicit  fixed  point  that  dominates  every  iterate,  so  this
+particular adversarial mechanism cannot prove a larger constant.
+
+Organization.Section 2defines the model and reduces randomized algorithms to deterministic
+marginal trajectories.Section 3develops the finite multi-alternation recurrence.Section 4proves
+that the continuous formulation has finite oblivious witnesses.Section 5classifies the limiting fixed
+points and provesTheorem 1. Section 6identifies the exact barrier of the recurrence, andSection 7
+discusses the scope of the result.
+
+2    Preliminaries
+
+Let  vertices  of  a  graphG=  (V, E)  arrive  in  an  adversarial  order.   When  a  vertexvarrives,  all
+edges fromvto earlier vertices are revealed.  An integral online algorithm maintains an increasing
+family of setsC    t ⊆V   t such that every edge revealed by timethas an endpoint inC       t.  A fractional
+algorithm maintains a coordinatewise nondecreasing vectory           (t)   ∈[0,1]        Vt  satisfying
+
+                                   y(t)u   +y    (t)v  ≥1       for every revealed edgeuv.                                    (6)
+
+The final costs are|C|and        Pv yv, respectively.  We use the purely multiplicative convention:  an
+algorithm isc-competitive if its expected final cost is at mostcOPT on every finite input.
+    An oblivious adversary may know the algorithm, including its distribution, but fixes the com-
+plete input before the algorithm’s random choices are realized. The input selected below can depend
+on the algorithm’s behavior on public prefixes, as is standard for an impossibility result, but cannot
+depend on the random outcome of one execution.
+
+2.1    Marginalizing randomized algorithms
+The lower-bound argument is stated for deterministic fractional trajectories.  The following obser-
+vation transfers it to both randomized integral and randomized fractional algorithms.
+Lemma  2(Marginalization). LetAbe  a  randomized  integral  or  fractional  online  vertex  cover
+algorithm.  For every public input prefixP, define
+                                                (
+                                    yv(P) =       Pr[v∈C         A(P)],  Ais integral,
+                                                  E[y   Av (P)],         Ais fractional.                                                             (7)
+
+Theny(P)is a deterministic feasible fractional vertex cover, its coordinates are nondecreasing along
+every prefix extension, and          X
+                                                     yv(P) =E[ALG         A(P)].                                                   (8)
+                                                 v
+Proof.For an integral algorithm, every realized cover satisfies1                    u∈C     +1   v∈C    ≥1 on each revealed
+edge;  taking expectations givesEquation 6.  For a randomized fractional algorithm, feasibility is
+preserved  by  expectation  because  the  constraints  are  linear.   Monotonicity  andEquation  8also
+follow coordinatewise by linearity of expectation.  The distribution ofy(P) is integrated out,  so
+y(P) depends only on the algorithm and the public prefix, not on a realized random seed.
+
+                                                                3
+
+===== PDF PAGE 4 =====
+    This argument is a coordinatewise determinization, not an application of Yao’s principle.  Con-
+versely, when a consistent bipartition is known, the single-threshold rounding ofWang and Wong
+(2015) converts any monotone fractional trajectory into an integral cover with the same expected
+cost.  Thus integrality alone cannot strengthen a lower bound within the labeled bipartite model;
+the improvement must come from a stronger adversarial family.
+
+2.2    Complete-bipartite prefixes
+All graphs in the proof are built from complete-bipartite prefixes.  We writeK          m,n for a public prefix
+withmarrived vertices on one side andnarrived vertices on the other side, with all cross edges
+present.  New vertices are universal to the currently arrived vertices on the opposite side.  Vertices
+within a side are independent.
+    The  first  block  may  be  introduced  as  isolated  vertices,  after  which  later  arrivals  reveal  the
+cross edges.  If the algorithm knows the total number of vertices in advance, all leaves of the finite
+adversarial decision tree can be padded with isolated vertices to a common horizon.  The argument
+is therefore valid both with an unknown horizon and with a known finite horizon.
+
+3    A Finite Multi-Alternation Recurrence
+
+Throughout  this  section,  suppose  for  contradiction  that  a  deterministic  fractional  trajectory  is
+(1 +β)-competitive, where 0< β <1.  Every lemma uses only finite input extensions.
+
+3.1    A finite continuation budget
+The basic continuation replaces the “infinitely many future vertices” used in the original alternating
+argument.
+
+Lemma  3(Universal  extension). Consider  a  complete-bipartite  prefixK                               ℓ,r  with  sidesLandR.
+LetPbe the current total fractional weight on any fixed subset of the old sideL.  If the algorithm
+is(1 +β)-competitive on every finite continuation, then
+
+                                                           P≤βr.                                                                  (9)
+
+Proof.Appendrnew vertices to sideL, each adjacent to all vertices ofR.  The new vertices and
+RinduceK                r,r and hence contain a matching of sizer.  Every fractional vertex cover pays at leastr
+on these 2rvertices, while the old costPpersists on a disjoint set.  The algorithm therefore pays at
+leastP+r.  Selecting all vertices ofRis an offline cover of the entire extended graph, so OPT≤r.
+Competitiveness givesP+r≤(1 +β)r, which isEquation 9.
+
+    The same proof applies samplewise to integral covers.  Its role is to cap every block of irrevocable
+old weight by a finite matching certificate.
+
+3.2    The discrete deficit recursion
+Fix a cutoffM >1.  For positive integersm, n, define
+                                                                  h          i
+                                               A(M)0    (m, n) =   1−β     nm  + ,                                                 (10)
+
+
+
+
+
+                                                                4
+
+===== PDF PAGE 5 =====
+and, forh≥0, define                                                                                       
+
+                                                                 max{0,⌊Mn−m⌋}  X
+                        A(M)h+1  (m, n) =   1−β     nm +  1m                        A(M)h    (n, m+j)        .                    (11)
+                                                                         j=1                                 +
+
+The quantityA   (M)h    (m, n) is a lower bound on the marginal of thenth vertex in one side when the
+opposite side has sizem, certified by at mosth+ 1 further alternating tests.
+    To see the base case, letPbe the total current weight on themopposite vertices. ByTheorem 3,
+P≤βn.  At least one opposite vertex has weight at mostP/m, and the new universal vertex must
+cover its incident edge, so its marginal is at least 1−P/m, givingEquation 10.
+    For the inductive step, consider the counterfactual continuation that adds new verticesa             1, a2, . . .
+to the opposite side.  Aftera          j arrives, the two side sizes arenandm+jwith their roles exchanged.
+Unless a finite contradiction has already occurred in a deeper continuation, the induction hypothesis
+gives
+                                                     yaj ≥A    (M)h    (n, m+j).                                                     (12)
+LetPagain denote the weight on the originalmopposite vertices.  The persistent costP+                      Pj yaj
+lies on one side of a complete-bipartite prefix whose other side has sizen, soTheorem 3bounds it
+byβn.  Consequently,
+                                               P≤βn−      X        A(M)h    (n, m+j).                                              (13)
+                                                                j
+Combining the average bound miny       u ≤P/mwith the covering constraints givesEquation 11.  The
+cutoff retains only the finitely many indices with (m+j)/n≤M; discarded nonnegative terms can
+only weaken the lower bound.
+    The outermost phase gives the budget that the recursion must satisfy.
+Lemma  4(Discrete  necessary  condition). If  a  deterministic  fractional  algorithm  is(1 +β)-
+competitive  on  every  finite  input,  then  for  everyM  >1,  everyh≥0,  and  all  positive  integers
+d, k,
+                                                        kX
+                                                            A(M)h    (d, i)≤βd.                                                    (14)
+                                                       i=1
+Proof.Introducedvertices on one side and thenkuniversal vertices on the other side.  For each
+public prefixK           d,i, the preceding induction either finds a finite continuation on which competitive-
+ness  already  fails  or  proves  that  theith  new  vertex  has  weight  at  leastA                  (M)h    (d, i).   If  no  earlier
+continuation fails, the total weight on theknew vertices is at least the left-hand side ofEquation 14.
+ApplyingTheorem 3with these vertices as the persistent side and with the original side of sized
+gives the upper boundβd.
+
+    The proof should be read as a finite decision tree. Different terms inEquation 11may be certified
+by different counterfactual continuations, but the marginal at their common public prefix is already
+fixed.  If every counterfactual must respect competitiveness, all lower bounds hold simultaneously
+at that prefix; if one does not, that finite branch is itself the desired witness.
+
+3.3    The first two levels
+Ignoring  the  cutoff  for  the  moment,  scalen/mto  a  real  variablet.   At  depth  zero,  the  integral
+budget is                             Z  ∞
+
+
+                                                   0    [1−βt]         + dt=      12β   ≤β.                                                (15)
+
+                                                                   5
+
+===== PDF PAGE 6 =====
+Thusβ≥1/        √2, recovering the two-alternation lower bound 1 + 1/ √2.  One more application of
+the recursion reproduces the three-alternation expression ofWang and Wong(2015) and its bound
+1 + p(1 +e   −2  )/2.  The following sections analyze all depths at once.
+
+4    From the Discrete Recurrence to a Finite Witness
+
+We now justify the continuous recurrence and, crucially, convert every strict integral violation back
+to a finite input.
+
+4.1    Truncated continuous recurrence
+For fixedM >1, define
+                                                       D(M)0    (t) = [1−βt]             + ,                                                     (16)
+and                                                     "               Z  M                    #
+                                        D(M)h+1  (t) =    1−βt+t                  h    (u)du        ,                                     (17)
+                                                                          1/t   D(M)              +
+
+where the integral is zero when 1/t≥M.  EachD                  (M)h     is continuous and takes values in [0,1] as
+long as its integral does not exceedβ.
+Lemma 5(Scaling).Fixh≥0andM >1.  Letm                                                    q, nq be positive integers such thatm        q → ∞and
+nq/mq →t∈R         >0  .  Then
+                                                   A(M)h    (m  q, nq)−→D       (M)h    (t).                                                 (18)
+The convergence is locally uniform over ratiosn/min compact subsets ofR                      >0  .
+Proof.The claim is immediate forh= 0.  Assume it holds at depthhand set
+
+                                                             uj = mq +jnq    .                                                            (19)
+
+The indices inEquation 11satisfyu                     j ∈[1/t+o(1), M], and consecutive values ofu                             j differ by 1/n  q.
+Moreover,                                                                                                    
+                            1   X     A(M)                               1     X    A(M)                      .                      (20)
+                           mq           h    (n  q, mq +j) =      nqmq      nq          h    (n  q, mq +j)
+                                  j                                               j
+By the induction hypothesis, the parenthesized expression converges to the moving-endpoint Rie-
+mann  integral R M1/t  D(M)h    (u)du,  whilen                     q/mq  →t.   Local  uniformity  follows  from  the  sequential
+criterion:  a bad sequence of lattice ratios in a compact interval has a convergent subsequence, and
+the  pointwise  argument  applied  to  that  subsequence  contradicts  a  fixed  positive  error.   Finally,
+x7→[x]           + is 1-Lipschitz, so taking the positive part does not enlarge the approximation error.
+
+     Remove the cutoff by defining
+                                                         D0(t) = [1−βt]             + ,                                                       (21)"#
+                                                                          Z  ∞
+                                          Dh+1  (t) =      1−βt+t                                 .                                       (22)
+                                                                            1/t   Dh(u)du       +
+The truncated operators are monotone inMand in their input.  An induction using the monotone
+convergence theorem gives
+                                                D(M)h    (t)↑D       h(t)       asM→ ∞                                          (23)
+for every fixedhandt.
+
+                                                                      6
+
+===== PDF PAGE 7 =====
+4.2    Strict violations yield finite inputs
+Write                                                         Z  ∞
+                                                       Ih =
+                                                                0    Dh(t)dt.                                                    (24)
+Proposition  6(Finite  witness). IfI                       h  >  βfor  some  finiteh,  then  no(1 +β)-competitive  on-
+line vertex cover algorithm exists.  For every purported randomized algorithm, the contradiction is
+witnessed by one finite bipartite input fixed independently of the realized random seed.
+
+Proof.Chooseε >0 withI                   h > β+ 3ε.  ByEquation 23and monotone convergence,  there exist
+finiteM, 0< δ < K <∞, and the sameεsuch that
+                                                  Z  K
+
+                                                    δ    D(M)h    (t)dt > β+ 2ε.                                                 (25)
+
+By the locally uniform form ofTheorem 5, the outer Riemann sum satisfies, for every sufficiently
+large finite integerd,
+                                                  1  ⌊Kd⌋X
+                                                  d         A(M)h    (d, i)> β+ε.                                               (26)
+                                                    i=⌈δd⌉
+All summands are nonnegative, soEquation 26contradictsEquation 14withk=⌊Kd⌋.
+    For completeness, every sum inEquation 11has at most max{0,⌊Mn−m⌋}terms, and every
+use ofTheorem 3adds exactly the finite size of the opposite block.  Unrolling the induction there-
+fore  produces  a  finite  decision  tree  of  depth  at  mosth+ 2.   For  a  randomized  algorithm,  apply
+Theorem 2; the adversary selects branches using the deterministic public-prefix marginals and fixes
+the resulting leaf before the random seed is realized.  The selected input is consequently oblivious
+to the realization.
+
+Corollary 7.Every(1 +β)-competitive algorithm must satisfy
+
+                                                   Ih ≤β     for allh≥0.                                                   (27)
+
+    The  finite  witness  proposition  also  covers  competitive  definitions  with  an  additive  constant.
+Taking a common blow-up of every block makes the additive term negligible after normalization,
+while the strict gap inEquation 26remains.
+
+5    The Fixed-Point Threshold
+
+Define the operator                                      "               Z  ∞             #
+
+                                        (T  βD)(t) =       1−βt+t                             .                                       (28)
+                                                                          1/t   D(u)du      +
+ThenD          h+1   =T   βDh.  The operator preserves pointwise order, andD        1 ≥D    0 because its additional
+tail integral is nonnegative.  It follows inductively that
+
+                                                     D0 ≤D    1 ≤D    2 ≤ ···.                                                     (29)
+
+
+
+
+
+
+                                                                   7
+
+===== PDF PAGE 8 =====
+5.1    A fixed point from a nonviolating trajectory
+Lemma 8(Monotone limit).SupposeI                     h ≤βfor everyh.  Then the iterates converge pointwise to
+an integrable fixed pointDsatisfying
+                                                                                          Z  ∞
+                                  D=T       βD,       0≤D≤1,        I:=
+                                                                                            0    D(t)dt≤β.                            (30)
+Moreover,I < β.
+Proof.ByEquation 29, the pointwise limitD= lim                            h Dh exists. The monotone convergence theorem
+gives R D= lim    h Ih ≤βand permits passage to the limit in every tail integral, provingD=T                     βD.
+Since every tail is at mostI≤β, the expression before the positive part inEquation 28is at most
+1, soD≤1.
+     We next rule outI=β.  LetH(q) =                 R ∞q   D(u)du.  BecauseD≥D                                        0  is positive near zero, for
+everyt >0,                                                                     Z  1/t
+                                            β−H(1/t) =β−I+
+                                                                                 0     D(s)ds >0,                                       (31)
+and henceD(t)<1.  IfI=β, define
+                                                                                Z  q
+                                            F(q) =q−β+H(q) =
+                                                                                  0  (1−D(s))ds.                                  (32)
+ThenF(q)>0 for everyq >0, so the positive part in the fixed-point equation is inactive for every
+t >0.  The functionDis locally absolutely continuous, and differentiation almost everywhere gives
+
+                                                      tD′(t) =D(t) +D(1/t)−1.                                                (33)
+
+Withy(x) =D(e                         x), this becomes
+
+                                                       y′(x) =y(x) +y(−x)−1.                                                  (34)
+
+The right-hand side is unchanged underx7→ −x, soy                   ′(x) =y      ′(−x) almost everywhere andy(x) +
+y(−x) is constant.  Equation34then makesy                             ′ constant.  Boundedness on the whole real line forces
+y′ ≡0,  andEquation 34givesy≡1/2,  contradicting the integrability ofDonR                                         >0  .  Therefore
+I < β.
+
+5.2    Classification of integrable fixed points
+The fixed-point equation has a reciprocal geometry:  the value attdepends on the tail beginning
+at 1/t.  This geometry determines the profile exactly.
+Lemma 9(Fixed-point classification).Let0< β <1.  SupposeD≥D                                                          0 is an integrable fixed point
+ofT    β  with R D≤β.  Then there existsR >1such that the positive set ofDis(0, R), its closed
+support is[0, R], and                                        
+                                                                1−βt,   0< t≤1/R,
+                                                 D(t) =          β                                                                              (35)
+                                                             R ln Rt ,   1/R≤t≤R,
+                                                                0,             t≥R.
+The parameters satisfy
+                                                               β=         R1 + 2 lnR   .                                                          (36)
+
+                                                                          8
+
+===== PDF PAGE 9 =====
+Proof.ByTheorem 8, any fixed point arising from nonviolating iterates hasI < β; the same proof
+applies under the assumptions of this lemma.  LetH(q) =         R ∞q   D(u)duand set
+
+                                                        F(q) =q−β+H(q).                                                     (37)
+
+We haveF(0) =I−β <0,F(q)→ ∞, andF                                 ′(q) = 1−D(q)>0 almost everywhere.  ThusFis
+strictly increasing and has a unique zero, which we write as 1/R.  The expression before the positive
+part in the fixed-point equation equalstF(1/t).  It follows thatD(t)>0 exactly for 0< t < R.
+BecauseD≥D                        0 andD        0(1) = 1−β >0, we haveR >1.
+     For 0< t≤1/R, the tail beginning at 1/t≥Rvanishes, so
+
+                                                             D(t) = 1−βt.                                                         (38)
+
+On the reciprocal core 1/R < t < R, the positive part is inactive andEquation 33holds almost
+everywhere.  Writing againy(x) =D(e                          x) shows thatD(t) +D(1/t) is constant on the core.  The
+endpoint values are
+                                               D(R) = 0,       D(1/R) = 1−                      βR,                                            (39)
+
+so  the  constant  is  1−β/R.   Substitution  intoEquation  33yieldstD                         ′(t)  =−β/R,  and  integra-
+tion fromttoRgives the logarithmic part ofEquation 35.  Matching the linear and logarithmic
+expressions att= 1/Rgives
+                                                           1−   βR = 2βR  lnR,                                                        (40)
+
+which is equivalent toEquation 36.
+
+Proposition 10(Critical excess ratio).Every integrable fixed point described inTheorem 9satisfies
+                                                                            √e
+                                                             β≥β     ∗ :=     2  .                                                           (41)
+
+Proof.ForR >1, differentiate the right-hand side ofEquation 36:
+
+                                                   d         R
+                                                  dR   1 + 2 lnR    =    2 lnR−1(1 + 2 lnR)        2 .                                              (42)
+
+The unique minimum occurs atR=      √e, where the value is  √e/2.
+
+5.3    Proof of the main theorem
+Proof ofTheorem 1. The claim is trivial forc≤1,  so writec= 1 +βwith 0< β  <                         √e/2 and
+suppose  that  a  randomized  algorithm  isc-competitive.   ByTheorem  2,  its  expected  behavior  is
+a  deterministic  monotone  fractional  trajectory  with  the  same  cost  on  every  public  prefix.   By
+Theorem  7,  this  trajectory  would  forceI            h ≤βfor  everyh.   Lemma8would  then  produce  an
+integrable fixed point, whileTheorem 9andTheorem 10would requireβ≥                          √e/2, a contradiction.
+Hence  some  finitehsatisfiesI                           h  >  β.   Proposition6converts  this  strict  violation  into  a  finite
+oblivious bipartite input on whichEquation 1holds.  Because bipartite graphs form a subclass of
+general graphs, the same lower bound applies in the general-graph model.
+
+
+
+
+
+
+                                                                      9
+
+===== PDF PAGE 10 =====
+6    The Exact Barrier of the Recurrence
+
+The preceding argument proves every constant strictly below 1 + √e/2.  We now show that the
+recurrence itself cannot cross the critical value.
+    SetR     ∗ = √eandβ       ∗ = √e/2, and define
+                                                     √e
+                                                     1−     2  t, 0< t≤e        −1/2     ,
+                                       D∗(t) =        1    √e                                                               (43)
+                                                   2 ln t  ,    e−1/2     ≤t≤    √e,
+
+                                                     0,              t≥   √e.
+
+Proposition 11(Critical fixed point).The functionD                    ∗ satisfies
+                                                                Z  ∞                 √e
+                      Tβ∗D∗ =D   ∗,        D0 ≤D   ∗,                                 2  −    14√e < β∗.                   (44)
+                                                                  0    D∗(t)dt=
+Consequently, the iterates atβ=β        ∗ satisfyD            h ≤D   ∗ andI       h < β∗ for every finiteh.
+
+Proof.Direct integration of the two nonzero pieces inEquation 43verifies the fixed-point identity
+on 0< t≤R      ∗.  Fort > R   ∗, the untruncated expression is
+                                                    β∗   1
+                                                     2     t −   tR2∗  ≤0,                                                       (45)
+
+so the positive part is zero there.  The inequalityD   0 ≤D   ∗ is equality up to 1/R  ∗; on the remaining
+interval  whereD            0  is  positive,D   ′∗(t)  =−1/(2t)≥ −β                    ∗  =D   ′0(t),  and  afterwardsD            0  =  0.   The
+integral inEquation 44follows by elementary calculation.  Finally, order preservation ofT            β∗  and
+induction giveD  h ≤D   ∗.
+
+    Thus 1 + √e/2 is the exact threshold of the homogeneous complete-bipartite multi-alternation
+recurrence.  This is a statement about the proof framework, not an upper bound for online vertex
+cover.  A stronger problem lower bound would require a hard family that is not dominated by the
+critical profile inEquation 43.
+
+7    Discussion and Open Problems
+
+The lower bound isolates a source of online cost that is already present in bipartite graphs: irrevoca-
+ble marginal weight accumulates across alternating complete-bipartite blocks before the adversary
+reveals which side will serve as the cheap offline cover.  The finite extension lemma shows that no
+infinite input or adaptive access to a random execution is needed.  The fixed-point analysis then
+converts arbitrarily deep alternation into the closed-form threshold √e/2.
+    The result narrows, but does not close, the gap to the approximately 1.901 algorithm ofWang
+and Wong(2015).  It also leaves open whether randomized integral algorithms on general graphs
+can exploit or suffer from constraints beyond the edge relaxation.  Odd-cycle inequalities provide
+additional restrictions on marginals, but inserting internal edges also changes the offline comparator,
+so  those  inequalities  do  not  automatically  strengthen  the  present  recurrence.   A  non-bipartite
+improvement may require a construction in which mistakes from several partially revealed minimum
+covers overlap and accumulate without an equal increase in the offline comparator.
+
+
+                                                               10
+
+===== PDF PAGE 11 =====
+    At the critical value, the explicit profileD          ∗ leaves a positive slack between its integral andβ      ∗.
+This does not imply the existence of an algorithm with ratio 1 +√e/2; it only explains why further
+alternations  of  the  same  homogeneous  complete-bipartite  form  stop  improving  the  lower  bound.
+Closing the remaining gap will require either a nonhomogeneous recurrence, a different family of
+prefixes, or an algorithmic invariant that matches the stronger lower bound.
+
+A    A Directed-Rounding Regression Certificate
+
+The analytic proof above does not depend on numerical computation.  As a reproducibility check,
+a directed integer implementation lower-bounds the truncated recurrence on a uniform grid.  Letn
+be the number of grid cells per unit interval, letTbe a finite cutoff, and suppose the step function
+dh is a certified lower bound forD    h on every cell [j/n,(j+ 1)/n].  Before the first budget violation,
+dh is nonincreasing and has integral at mostβ.  The raw update
+                                                                     Z  ∞
+                                            Gh(t) = 1−βt+t
+                                                                       1/t   dh(u)du                                          (46)
+is then nonincreasing within every target cell.  Indeed, withq= 1/t, its derivative there is−β+
+Hdh(q) +qd       h(q)≤0, becauseqd                     h(q)≤    R q0 dh and R ∞0   dh ≤β.  Thus the cell’s right endpoint gives
+a valid lower bound.
+    At the right endpointt=a/n, wherea=j+ 1, setk=⌊n                                                 2/a⌋.  Retaining the fractional part
+of the reciprocal cell gives the exact nonnegative tail contribution
+                               Z  T
+                             t                            r=k+1     dh,r +d   h,k a(k+ 1)−n               2
+                                 1/t  dh(u)du=          aPnT−1             n2                          .                            (47)
+
+Storing all cell values on a common integer scale and rounding only this nonnegative contribution
+downward preserves rigor at every iteration.
+    With
+                                β=    82435100000 = 0.82435,       n= 24000,       T= 2,                              (48)
+
+the first certified violation occurs ath= 754:
+
+                L753 = 0.809481094841418. . .≤β,       L                                            754 = 0.885466040873602. . . > β.            (49)
+
+This  check  is  conservative  because  the  complete  tail  beyondT=  2  is  discarded.   It  supplies  a
+near-threshold regression test for the recurrence and corresponds to at most 756 alternating blocks;
+the exact theorem follows from the fixed-point argument, not from these parameters.
+
+References
+
+Niv Buchbinder and Joseph Naor.  Online primal-dual algorithms for covering and packing.Math-
+   ematics of Operations Research, 34(2):270–286, 2009.
+
+Marc Demange and Vangelis Th. Paschos.  On-line vertex-covering.Theoretical Computer Science,
+   332(1–3):83–108, 2005.
+
+Buddhima Gamlath,  Michael Kapralov,  Andreas Maggiori,  Ola Svensson,  and David Wajc.  On-
+   line  matching  with  general  arrivals.   InProceedings  of  the  60th  Annual  IEEE  Symposium  on
+   Foundations of Computer Science, pages 26–37. IEEE Computer Society, 2019.
+
+                                                                11
+
+===== PDF PAGE 12 =====
+Anna R. Karlin, Mark S. Manasse, Lyle A. McGeoch, and Susan Owicki. Competitive randomized
+  algorithms for nonuniform problems.Algorithmica, 11(6):542–571, 1994.
+
+Richard M. Karp,  Umesh V. Vazirani,  and Vijay V. Vazirani.  An optimal algorithm for on-line
+  bipartite matching. InProceedings of the 22nd Annual ACM Symposium on Theory of Computing,
+  pages 352–358. ACM, 1990.
+
+Zhihao Gavin Tang.  Optimal competitive ratio of two-sided online bipartite matching, 2026.
+
+Zhihao Gavin Tang and Yuhao Zhang.  Improved bounds for fractional online matching problems.
+  InProceedings  of  the  25th  ACM  Conference  on  Economics  and  Computation,  pages  279–307.
+  ACM, 2024.
+
+Zhihao Gavin Tang and Yuhao Zhang.  A tight bound on online vertex cover under edge arrivals,
+  2026.
+
+Yajun  Wang  and  Sam  Chiu-wai  Wong.   Two-sided  online  bipartite  matching  and  vertex  cover:
+  Beating the greedy algorithm.  InAutomata, Languages, and Programming (ICALP 2015), Part
+  I, volume 9134 ofLecture Notes in Computer Science, pages 1070–1081. Springer, 2015.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                         12

@@ -1,0 +1,140 @@
+% In the preamble:
+% \usepackage{tikz}
+% \usetikzlibrary{arrows.meta}
+
+\begin{figure}[t!]
+\centering
+\begin{tikzpicture}[x=1.15cm,y=1cm,>=Latex]
+
+    %------------------------------------------------------------
+    % Parameters
+    %------------------------------------------------------------
+    \def\axisy{0}
+    \def\topy{3.15}
+    \def\texty{3.55}
+    \def\circley{0.72}
+    \def\dy{0.23}
+
+    % Arrow levels, with fixed vertical spacing
+    \pgfmathsetmacro{\ya}{2.30}
+    \pgfmathsetmacro{\yb}{\ya-\dy}
+    \pgfmathsetmacro{\yc}{\yb-\dy}
+    \pgfmathsetmacro{\yd}{\yc-\dy}
+    \pgfmathsetmacro{\ye}{\yd-\dy}
+    \pgfmathsetmacro{\yf}{\ye-\dy}
+
+    %------------------------------------------------------------
+    % Styles
+    %------------------------------------------------------------
+    \tikzset{
+        gridline/.style={
+            dashed,
+            draw=black!55,
+            line width=0.5pt
+        },
+        baseline/.style={
+            draw=black,
+            line width=2.2pt
+        },
+        redarrow/.style={
+            -{Latex[length=2.8mm,width=2.2mm]},
+            draw=red!75!black,
+            line width=1.3pt,
+            shorten <=0pt,
+            shorten >=0pt
+        },
+        greenarrow/.style={
+            -{Latex[length=2.8mm,width=2.2mm]},
+            draw=green!60!black,
+            line width=1.3pt,
+            shorten <=0pt,
+            shorten >=0pt
+        },
+        ball/.style={
+            circle,
+            draw=black,
+            fill=yellow!75,
+            minimum size=5mm,
+            inner sep=0pt
+        }
+    }
+
+    %------------------------------------------------------------
+    % Dashed vertical lines at every integer
+    %------------------------------------------------------------
+    \foreach \i in {0,...,12}{
+        \draw[gridline]
+            (\i,\axisy)
+            --
+            (\i,\topy);
+    }
+
+    %------------------------------------------------------------
+    % Horizontal baseline
+    %------------------------------------------------------------
+    \draw[baseline]
+        (0,\axisy)
+        --
+        (12,\axisy);
+
+    %------------------------------------------------------------
+    % Integer labels
+    %------------------------------------------------------------
+    \foreach \i in {0,...,12}{
+        \node[font=\Large]
+            at (\i,-0.55)
+            {\i};
+    }
+
+    %------------------------------------------------------------
+    % Circles and upper labels
+    %------------------------------------------------------------
+    \node[ball] at (2,\circley) {};
+    \node[ball] at (10,\circley) {};
+
+    \node[font=\Large]
+        at (2,\texty)
+        {$W(x_{<p}\circ z)$};
+
+    \node[font=\Large]
+        at (10,\texty)
+        {$\barW(y_{<p}\circ z)$};
+
+    %------------------------------------------------------------
+    % Left side
+    % Every arrow has length exactly one grid interval.
+    %------------------------------------------------------------
+
+    % Red arrows point left
+    \draw[redarrow] (1,\ya) -- (0,\ya);
+    \draw[redarrow] (2,\yb) -- (1,\yb);
+    \draw[redarrow] (3,\yc) -- (2,\yc);
+    \draw[redarrow] (4,\yd) -- (3,\yd);
+
+    % Green arrows point right
+    \draw[greenarrow] (2,\ye) -- (3,\ye);
+    \draw[greenarrow] (3,\yf) -- (4,\yf);
+
+    %------------------------------------------------------------
+    % Right side
+    % Reflected through x=6, with colors exchanged.
+    %------------------------------------------------------------
+
+    % Green arrows point right
+    \draw[greenarrow] (8,\yd) -- (9,\yd);
+    \draw[greenarrow] (9,\yc) -- (10,\yc);
+    \draw[greenarrow] (10,\yb) -- (11,\yb);
+    \draw[greenarrow] (11,\ya) -- (12,\ya);
+
+    % Red arrows point left
+    \draw[redarrow] (10,\ye) -- (9,\ye);
+    \draw[redarrow] (9,\yf) -- (8,\yf);
+
+\end{tikzpicture}
+
+\caption{An illustration of the proof of the ban constraint (\Cref{clm:bG-ban}) for $\bG$ with $m=6$, $j=2$, and $z \approx (\uparrow,\uparrow,\downarrow,\downarrow,\downarrow,\downarrow)$, which by that we mean the $\uparrow$ indices are in $[(C/2)+1:C]$
+and $\downarrow$ ones are in $[1:C/2]$. Suppose the choices of $x_{<p}$ and $y_{<p}$ already ``bring'' the walks $W(x_{<p} \circ z)$ and $\barW(y_{<p} \circ z)$ to 
+states $2$ and $10$, respectively. From there, $W(x_{<p} \circ z)$, increases the state by two and then decreases it by four, whereas by reflection, $\barW(y_{<p} \circ z)$ does the exact opposite; thus, 
+$W(x_{<p} \circ z)$ reaches state $0$ iff $\barW(y_{<p} \circ z)$ reaches $12 (=2m)$. As such, at most one pair of these vertices can be matched in $\bG$ (only vertices whose walk reaches $0$ are matched regardless of being in $\bL$ or $\bR$).}
+\label{fig:W}
+\end{figure}

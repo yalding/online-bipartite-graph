@@ -1,0 +1,107 @@
+\section{Fractional Algorithm for General Vertex Arrival}
+\label{sec:general_lower}
+
+In this section, we provide a primal-based algorithm for the fractional online matching problem with general vertex arrival by Wang and Wong~\cite{icalp/WangW15}. Our algorithm has the same worst case competitive ratio $0.526$ as Wang and Wong~\cite{icalp/WangW15}. 
+
+We argue that our algorithm is more intuitive and we believe it would be helpful for designing integral algorithms for the problem. Our algorithm is inspired by the algorithm we proposed for the fully online matching problem. Indeed, it is the same algorithm but limited to the matching decisions made on the arrivals of vertices.
+\paragraph{Our Algorithm.}
+Fix an increasing function $f:[0,1] \to [0,1]$ and a two-dimensional function $g:[0,1] \to [0,1]$.
+\begin{itemize}
+	\item On the arrival of each vertex $u$, fractionally matches $u$ to the neighbor with the cheapest price $g(a_v, x_v)$, as long as $f(x_u) + g(a_v,x_v) \le 1$. When the process ends, let $a_u = x_u$ be the \emph{active} water level of the vertex $u$.
+\end{itemize}
+When $x_{uv}$ is increased by $dx$ on the arrival of vertex $u$, update $\alpha_u, \alpha_v$ by
+\[
+d\alpha_u = (1-g(a_v, x_v)) dx \quad \text{and} \quad d\alpha_v =g(a_v, x_v) dx.
+\]
+
+Refer to Algorithm~\ref{alg:general} for the pseudocode of our algorithm.
+
+\begin{algorithm}[H]
+	\caption{History-based Pricing Algorithm for General Vertex Arrival}\label{alg:general}
+	\begin{algorithmic}
+	\If{a vertex $u$ arrives} 
+		\For{$\forall v \in N(u)$} \Comment{$N(u)$ denotes $u$'s current neighbor set}
+		\State $x_{u,v} \gets 0$ \Comment{$x_{u,v}$ denotes the matched portion of $(u,v)$}
+		\EndFor
+		\State $x_{u} \gets 0$ \Comment{$x_u$ denotes the water level of $u$}
+		\State $v \gets \arg\min_{v\in N(u)}g(a_v,x_{v})$
+		\While{$f(x_u) + g(a_v,x_v)\leq 1$}
+			\State $x_{u,v}  ~{\scriptstyle  \mathrel{+}=}~ dx$ \Comment{Match $u$, $v$ (small enough portion $dx$).}
+			\State $x_{u} ~{\scriptstyle  \mathrel{+}=}~ dx$, $x_{v}  ~{\scriptstyle  \mathrel{+}=}~ dx$ \Comment{Water level update}
+			\State $\alpha_u   ~{\scriptstyle  \mathrel{+}=}~ (1 - g(a_{v},x_{v}))dx$,  $\alpha_{v}  ~{\scriptstyle  \mathrel{+}=}~ g(a_{v},x_{v})dx$ \Comment{
+				Dual update}
+			\State $v \gets \arg\min_{v\in N(u)}g(a_v,x_{v})$.
+		\EndWhile
+		\State $a_u \gets x_u$ \Comment{Fix $u$'s active water level.}
+	\EndIf
+	\end{algorithmic}
+\end{algorithm}
+
+\paragraph{Analysis.} Fix a pair of neighbors $(u,v)$. Suppose $v$ arrives earlier than $u$. Let $p_v$ be the water level of $v$ right after $u$'s arrival. 
+\begin{lemma}
+\label{lem:gain_general_arrival}
+Right after $u$'s arrival,
+\[
+\alpha_u + \alpha_v \ge a_v \cdot f(a_v) + \int_{a_v}^{p_v} g(a_v, x_v) dx_v + a_u \cdot f(a_u)
+\]	
+\end{lemma}
+\begin{proof}
+	On the arrival of vertex $v$, it fractionally matches to the neighbor with the cheapest price and $d\alpha_v = (1-g(a_z,x_z)) dx \ge f(a_v) dx$. Later, $v$ is passively matched and the water level of $v$ increases from $a_v$ to $p_v$, $\alpha_v$ increases at the rate of $g(a_v, x_v)$. Hence $\alpha_v \ge a_v \cdot f(a_v) + \int_{a_v}^{p_v} g(a_v,x_v)dx_v$.
+	Similarly, the gain of $u$ is at least $a_u \cdot f(a_u)$. Putting the two lower bounds together concludes the lemma.
+\end{proof}
+
+\paragraph{Reformulating the bound.} Again, we introduce a function $h: [0,1]^2 \to [0,1]$ that has a one-one correspondence with $g$:
+\[
+h(\tau,\theta) = \inf \{x: g(f^{-1}(\tau), x) \ge \theta\}. 
+\]
+Our function $g$ shall be only defined on $(a, x) \in [0,1]^2$ with $x \ge a$. Hence, $h(\tau,\tau)=f^{-1}(\tau)$. Moreover, our functions $f,g$ satisfy that $f(x) = g(x,x)$ for all $x \in [0,1]$.
+
+Then for any $0 \le \tau \le \theta \le 1$, we have
+%\zhihao{Seems we need that $g(\alpha, h(\alpha, \alpha)) = \alpha$}
+\[
+\int_{h(\tau,\tau)}^{h(\tau,\theta)} g(f^{-1}(\tau),x) dx = \theta \cdot h(\tau, \theta) - \tau \cdot h(\tau, \tau) - \int_{\tau}^{\theta} h(\tau, y) dy.
+\]
+
+\begin{lemma}
+\label{lem:gain_general}
+Right after $u$'s arrival,
+\[
+\alpha_u + \alpha_v \ge \min_{\substack{\tau_v \le \theta_v \\ \tau_u \ge 1-\theta_v}} \left\{ \theta_v \cdot h(\tau_v, \theta_v) - \int_{\tau_v}^{\theta_v} h(\tau_v, y_v) dy_v + \tau_u \cdot h(\tau_u,\tau_u) \right\}
+\]
+\end{lemma}
+\begin{proof}
+Let $\tau_v = f(a_v), \tau_u = f(a_u)$ and $\theta_v = g(a_v, p_v)$. By Lemma~\ref{lem:gain_general_arrival}, we have 
+\begin{multline*}
+	\alpha_u + \alpha_v = \tau_v \cdot h(\tau_v, \tau_v) + \int_{h(\tau_v,\tau_v)}^{p_v} g(f^{-1}(\tau_v), x_v) dx_v + \tau_u \cdot h(\tau_u,\tau_u) \\
+	\ge \tau_v \cdot h(\tau_v, \tau_v) + \int_{h(\tau_v,\tau_v)}^{h(\tau_v, \theta_v)} g(f^{-1}(\tau_v), x_v) dx_v + \tau_u \cdot h(\tau_u,\tau_u) \\
+	= \theta_v \cdot h(\tau_v, \theta_v) - \int_{\tau_v}^{\tau_v} h(\tau_v, y_v) dy_v + \tau_u \cdot h(\tau_u, \tau_u),
+\end{multline*}
+where the inequality holds by the fact that $p_v \ge h(\tau_v,\theta_v)$, by the definition of $h$.
+Notice that $\tau_u =f(a_u) > 1-g(a_v,p_v) = 1- \theta_v$ after the arrival of $u$, according to the design of our algorithm. We conclude the lemma by taking the minimum over all possible values of $\tau_v, \theta_v$ and $\tau_u$.
+\end{proof}
+
+We are left to optimize the function $h$ and this is again solved by factor revealing lp. We omit the detailed implementation. 
+Our experiment suggests the best ratio to be $\Gamma\approx 0.526$ using our algorithm and analysis. Though we do not optimize the function $h$ in a closed form, we believe it is the same competitive ratio of Wang and Wong~\cite{icalp/WangW15}.
+\begin{lemma}
+\label{lem:opth_general_arrival}
+There exists a function $h:[0,1]^2 \to [0,1]$ such that for $\Gamma = 0.526$:
+\begin{align*}
+	\forall 0\le \tau_v \le \theta_v \le 1:\quad  & \theta_v \cdot h(\tau_v, \theta_v) - \int_{\tau_v}^{\theta_v} h(\tau_v, y_v) dy_v + (1-\theta_v) \cdot h(1-\theta_v, 1-\theta_v) \ge \Gamma;\\
+	& \tau \cdot h(\tau, \tau) \text{ is increasing.}
+\end{align*} 
+\end{lemma}
+
+\begin{theorem}
+The algorithm with the functions $f,g$ chosen corresponding to the $h$ function of Lemma~\ref{lem:opth_general_arrival} is $\Gamma = 0.526$-competitive for fractional online matching with general vertex arrival.
+\end{theorem}
+\begin{proof}
+We conclude the competitive ratio of our algorithm by putting the lemmas together. Fix an arbitrary pair of neighbors $(u,v)$ with $u$ arrives later than $v$. By Lemma~\ref{lem:gain_general_arrival},
+\begin{multline*}
+\alpha_u + \alpha_v \ge \min_{\substack{\tau_v \le \theta_v \\ \tau_u \ge 1-\theta_v}} \left\{ \theta_v \cdot h(\tau_v, \theta_v) - \int_{\tau_v}^{\theta_v} h(\tau_v, y_v) dy_v + \tau_u \cdot h(\tau_u,\tau_u) \right\} \\
+= \min_{\tau_v \le \theta_v} \left\{ \theta_v \cdot h(\tau_v, \theta_v) - \int_{\tau_v}^{\theta_v} h(\tau_v, y_v) dy_v + (1-\theta_v) \cdot h(1-\theta_v,1-\theta_v) \right\} \ge 0.526,
+\end{multline*}
+where the first inequality follows from Lemma~\ref{lem:gain_general_arrival}, the equality follows from the monotonicity of $h$ from Lemma~\ref{lem:opth_general_arrival}, and the last inequality is also from Lemma~\ref{lem:opth_general_arrival}.
+
+Finally, reverse weak duality holds trivially according to the definition of dual variables.
+\end{proof}
+

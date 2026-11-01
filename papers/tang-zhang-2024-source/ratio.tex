@@ -1,0 +1,176 @@
+\section{Factor Revealing LP}
+\label{app:factor_lp}
+In this section, we explain how we use the factor revealing LP to construct the feasible $h$ function to conclude the proof of Lemma~\ref{lem:opth}. Recall that there are two constraints between the non-decreasing function $h$ and the targeting competitive ratio $\Gamma = 0.6$. Let
+\begin{align*}
+    &\Phi_1(\tau_v,\theta_v) = \theta_v \cdot h(\tau_v, \theta_v) - \int_{\tau_v}^{\theta_v} h(\tau_v, y_v) dy_v + 1-\theta_v; \\ 
+    &\Phi_2(\tau_u,\theta_u,\tau_v,\theta_v) = \left(
+    \begin{aligned}
+        &\theta_u \cdot h(\tau_u, \theta_u) - \int_{\tau_u}^{\theta_u} h(\tau_u, y_u) dy_u + \theta_v \cdot h(\tau_v, \theta_v)\\
+        & - \int_{\tau_v}^{\theta_v} h(\tau_v, y_v) dy_v + (1-h(\tau_u, \theta_u)) \cdot (1-\theta_v)
+    \end{aligned}
+    \right).
+\end{align*}
+The two constraints are defined as follows: 
+\begin{align}
+	& \forall 0\le \tau_v \le \theta_v \le 1: &\Phi_1 \ge \Gamma; \tag{\ref{eqn:h-feasible-1}} \\
+    & \forall 0\le \tau_u \le \theta_u \le 1, 1-\theta_u\le \tau_v \le \theta_v \le 1 :\quad  & \Phi_2 \ge \Gamma; \tag{\ref{eqn:h-feasible-2}}
+\end{align}
+
+\paragraph{The Factor-revealing Lp and The Construction of $h$} Fix an integer $n$, we let $1/n$ be the step size, and $[0,1]_n = \{\frac{i}{n}:i = 0 ... n\}$ denote the set of $n+1$ multiples of the step size $1/n$, between $0$ and $1$. The LP contains $(n+1)^2$ variables, which also represent the function value of $h(0,0), h(0,1/n), ..., h(0,1), h(1/n,0), ..., h(1,1)$. We remark that the remaining of $h$ will be later constructed by these variables via linear interpolation. In particular, consider a real number $x\in [0,1]$, we define $\bar{x}$ be the largest value inside $[0,1]_n$ that not exceed $x$ and $\hat{x} = \bar{x} + \frac{1}{n}$. We also define $z(x) = n \cdot (x - \bar{x})$, which also means $x = \bar{x} + \frac{z(x)}{n}$ and $x = \hat{x} - \frac{(1-z(x))}{n}$. Then for those point $(\tau,\theta)$ not inside $[0,1]_n \times [0,1]_n$, $h$ is defined to be:  
+$$
+h(\tau,\theta) = \left(
+    \begin{aligned}
+        &(1-z(\tau))\cdot (1-z(\theta)) \cdot h(\bar{\tau},\bar{\theta}) + (1-z(\tau))\cdot z(\theta) \cdot h(\bar{\tau},\hat{\theta}) \\
+        &z(\tau)\cdot (1-z(\theta)) \cdot h(\hat{\tau},\bar{\theta}) + z(\tau)\cdot z(\theta) \cdot h(\hat{\tau},\hat{\theta})
+    \end{aligned}
+\right).
+$$
+Following this construction of $h$, $\forall \tau,~\theta \in [0,1]_n$, we have 
+$$
+\int_{\tau}^{\theta} h(\tau,y) dy = \sum_{\tau\leq y < \theta,~ y \in [0,1]_n} \frac{h(y) + h(y+\frac{1}{n})}{2n}.
+$$
+It means both when the variables (i.e., $\tau_u$, $\tau_v$, $\theta_u$, and $\theta_v$) are chosen from $[0,1]_n$, both $\Phi_1$ and $\Phi_2$ are linear. It allows us to present the LP formulation below, for convenience, we let $h(\tau,1+1/n) = 1$ for any $\tau \in [0,1]_n$. 
+
+\begin{align}
+    \text{maximize}\qquad & \Gamma \nonumber \\
+    \text{subject to}
+    \qquad & \Gamma \leq \Phi_1(\tau_v,\theta_v) - \frac{5}{2n^2}, 
+    &\forall \tau_v \leq \theta_v \in [0,1]_n & \label{constraint:v-arrive-first}& \\
+    & \Gamma \leq \Phi_2(\tau_u,\theta_u,\tau_v,\theta_v) - \frac{5}{n^2}, 
+    &\begin{aligned}
+        \forall \tau_v \leq \theta_v \in [0,1]_n, \\
+        \forall 1-\theta_u\le \tau_v \le \theta_v \in [0,1]_n 
+    \end{aligned} &
+    \label{constraint:u-arrive-first} &\\
+& 
+\begin{aligned}
+    &h(\tau,0) = 0, \\
+    &h(\tau,1) = h(\tau, 1+\frac{1}{n}) = 1,
+\end{aligned}\quad 
+  &\forall \tau \in [0,1])_n &&\\ 
+& h(\tau,y) < h(\tau, y+\frac{1}{n}),
+  & \forall \tau \in [0,1], ~\forall y\in[0,1]_n < 1 &\tag{Monotonicity} &\\
+&\begin{aligned}
+ & \textstyle h(\tau, y) \geq h(\tau, y+\frac{1}{n}) + \frac{4}{n}, \\
+ & \textstyle h(y, \theta) \geq h(y+\frac{1}{n}, \theta) + \frac{4}{n},  
+\end{aligned} 
+& \begin{aligned}
+    &\forall \tau \in [0,1], ~\forall y\in[0,1]_n < 1 \\
+    &\forall \theta \in [0,1], ~\forall y\in[0,1]_n < 1 
+\end{aligned}
+&\tag{Lipschitzness} &
+\end{align}
+
+
+We use the Gurobi LP solver to solve the above LP and get $\Gamma >0.6$ when we fix $n=100$. In the following part, we prove that the optimal solution of the above LP can construct a feasible $h$ function when we fix $\Gamma = 0.6$, i.e., prove Eqn~\eqref{eqn:h-feasible-1} and Eqn~\eqref{eqn:h-feasible-2}, so to derive the $0.6$ competitive ratio. 
+
+These constraints directly appears in the LP when the parameters (i.e., $\tau_u$, $\tau_v$, $\theta_u$, and $\theta_v$) are all inside $[0,1]_n$, it remains to consider the case when some parameters are outside $[0,1]_n$. We first define following two functions: 
+
+\begin{align*}
+&\tilde{\Phi}_1(\tau_v,\theta_v)= \left(
+\begin{aligned}
+    & (1-z(\tau_u))\cdot(1-z(\theta_u)) \cdot \Phi_1(\bar{\tau_u},\bar{\theta_u}) 
+    + (1-z(\tau_u))\cdot z(\theta_u) \cdot \Phi_1(\bar{\tau_u},\hat{\theta_u}) \\
+    &+ z(\tau_u) \cdot (1-z(\theta_u)) \cdot \Phi_1(\hat{\tau_u},\bar{\theta_u}) 
+    + z(\tau_u) \cdot z(\theta_u) \cdot \Phi_1(\hat{\tau_u},\hat{\theta_u})
+\end{aligned}\right).
+\\
+&\tilde{\Phi}_2(\tau_u,\theta_u,\tau_v,\theta_v)= \left(
+\begin{aligned}
+    & (1-z(\tau_u))\cdot(1-z(\theta_u))\cdot(1-z(\tau_v))\cdot(1-z(\theta_v)) \cdot \Phi_2(\bar{\tau_u},\bar{\theta_u},\bar{\tau_v},\bar{\theta_v}) \\
+    &+ (1-z(\tau_u))\cdot(1-z(\theta_u))\cdot(1-z(\tau_v))\cdot z(\theta_v) \cdot \Phi_2(\bar{\tau_u},\bar{\theta_u},\bar{\tau_v},\hat{\theta_v}) \\
+    &+ (1-z(\tau_u))\cdot(1-z(\theta_u))\cdot z(\tau_v) \cdot (1-z(\theta_v)) \cdot \Phi_2(\bar{\tau_u},\bar{\theta_u},\hat{\tau_v},\bar{\theta_v}) \\
+    &+ \dots \\
+    &+ z(\tau_u) \cdot z(\theta_u) \cdot z(\tau_v) \cdot z(\theta_v) \cdot \Phi_2(\hat{\tau_u},\hat{\theta_u},\hat{\tau_v},\hat{\theta_v})
+\end{aligned}
+\right).
+\end{align*}
+It's easy to see that $\tilde{\Phi}_1$ and $\tilde{\Phi}_2$ is no less than $\Gamma + \frac{5}{2n^2}$ and $\Gamma + \frac{5}{n^2}$, because they are the affine combination of the terms appear in the LP constraints \eqref{constraint:v-arrive-first} and \eqref{constraint:u-arrive-first}. The key point we claim is the following two lemmas:
+\begin{lemma}
+\label{lem:phi1-bound}
+    $\Phi_1(\tau_u,\theta_u,\tau_v,\theta_v) \geq \tilde{\Phi}_1(\tau_u,\theta_u,\tau_v,\theta_v) - \frac{5}{2n^2} \geq \Gamma$.
+\end{lemma}
+\begin{lemma}
+\label{lem:phi2-bound}
+    $\Phi_2(\tau_u,\theta_u,\tau_v,\theta_v) \geq \tilde{\Phi}_2(\tau_u,\theta_u,\tau_v,\theta_v) - \frac{5}{n^2} \geq \Gamma$.
+\end{lemma}
+To prove these two lemmas, we define one crucial function below: 
+\begin{align*}
+&H(\tau,\theta) = \theta_v h(\tau,\theta) - \int_{\tau}^{\theta} h(\tau,y) dy; \\
+&\tilde{H}(\tau,\theta) = \left(
+\begin{aligned}
+    &(1-z(\tau))(1-z(\theta))H(\bar{\tau},\bar{\theta}) 
+    + (1-z(\tau))\cdot z(\theta) H(\bar{\tau},\hat{\theta}) \\
+    &+ z(\tau)\cdot(1-z(\theta))H(\hat{\tau},\bar{\theta}) 
+    + z(\tau)\cdot z(\theta) H(\hat{\tau},\hat{\theta})
+\end{aligned}
+\right).
+\end{align*}
+We claim the following lemma, 
+
+\begin{lemma}
+    $H(\tau,\theta) \geq \tilde{H}(\tau,\theta) - \frac{5}{2n^2}$.
+\end{lemma}
+\begin{proof}
+    We first restrict $\tau \in [0,1]_n$ but relax $\theta$ to be in $[0,1]$, and prove that 
+    $$
+    H(\tau,\theta) \geq (1-z(\theta))\cdot H(\tau,\bar{\theta}) + z(\theta)\cdot H(\tau,\hat{\theta}) - \frac{1}{n^2}.
+    $$
+    Recall that $H(\tau,\theta) = \theta h(\tau,\theta) - \int_{\tau}^{\theta} h(\tau,y) dy$, consider the first term, we have 
+    \begin{align*}
+        & \theta h(\tau,\theta) - (1-z(\theta))\cdot \bar{\theta} h(\tau,\bar{\theta}) - z(\theta)\cdot \hat{\theta} h(\tau,\hat{\theta}) \\ 
+        = & \theta\cdot(1-z(\theta))\cdot(\tau,\bar{\theta}) + \theta\cdot z(\theta)h(\tau,\hat{\theta}) - (1-z(\theta))\cdot \bar{\theta} h(\tau,\bar{\theta}) - z(\theta)\cdot \hat{\theta} h(\tau,\hat{\theta}) \\
+        = & \frac{z(\theta)}{n} \cdot (1-z(\theta)) \cdot h(\tau,\bar{\theta}) - \frac{1-z(\theta)}{n} \cdot z(\theta) \cdot h(\tau,\hat{\theta}) \\
+        = & \frac{z(\theta)(1-z(\theta))}{n} \cdot (h(\tau,\bar{\theta}) -h(\tau,\hat{\theta})) \\ 
+        \geq & - \frac{1}{n^2}. \qquad \text{(By the Lipschitzness of $h$)}
+    \end{align*}
+    For the other term, we have
+    \begin{align*}
+        & - \int_{\tau}^{\theta} h(\tau,y)dy + (1-z(\theta)) \cdot \int_{\tau}^{\bar{\theta}} h(\tau,y)dy + z(\theta) \cdot \int_{\tau}^{\hat{\theta}} h(\tau,y)dy \\
+        = & - \int_{\bar{\theta}}^{\theta} h(\tau,y)dy + z(\theta) \cdot \int_{\hat{\theta}}^{\bar{\theta}} h(\tau,y)dy \\
+        \geq & 0. \qquad \text{(By the Monotonicity of $h$)}
+    \end{align*}
+    Thus far, we conclude the first claim. Then, we restrict $\theta \in [0,1]_n$, and allow $\tau$ to be in $[0,1]$. We prove that 
+    $$
+    H(\tau,\theta) \geq (1-z(\tau))\cdot H(\bar{\tau},\theta) + z(\tau)\cdot H(\hat{\tau},\theta) - \frac{3}{2n^2}.
+    $$
+    Similarly, consider the first term, we have
+    \begin{align*}
+        & \theta h(\tau,\theta) - (1-z(\tau))\cdot \theta h(\bar{\tau},\theta) - z(\tau)\cdot \theta h(\hat{\tau},\theta) = 0.
+    \end{align*}
+    For the second them, we have 
+    \begin{align*}
+        & - \int_{\tau}^{\theta} h(\tau,y)dy + (1-z(\tau)) \cdot \int_{\bar{\tau}}^{\theta} h(\bar{\tau},y)dy + z(\tau) \cdot \int_{\hat{\tau}}^{\theta} h(\hat{\tau},y)dy \\
+        = & - (1-z(\tau)) \cdot \int_{\tau}^{\theta} h(\bar{\tau},y)dy - z(\tau) \cdot \int_{\tau}^{\theta} h(\hat{\tau},y)dy + (1-z(\tau)) \cdot \int_{\bar{\tau}}^{\theta} h(\bar{\tau},y)dy + z(\tau) \cdot \int_{\hat{\tau}}^{\theta} h(\hat{\tau},y)dy \\
+        = & (1-z(\tau)) \cdot \int_{\bar{\tau}}^{\tau} h(\bar{\tau},y)dy  - z(\tau) \cdot \int_{\tau}^{\hat{\tau}} h(\hat{\tau},y)dy \\
+        = & (1-z(\tau)) \cdot \frac{z(\tau)}{2n} \cdot(h(\bar{\tau},\bar{\tau}) + h(\bar{\tau},\tau))  - z(\tau) \cdot \frac{1-z(\tau)}{2n} \cdot(h(\hat{\tau},\tau) + h(\hat{\tau},\hat{\tau}))\\
+        \geq & -\frac{z(\tau)\cdot(1-z(\tau))}{2n}\cdot \frac{12}{n} \qquad \text{(By the Lipschitzness of $h$)} \\
+        \geq & \frac{3}{2n^2} 
+    \end{align*}
+\end{proof}
+
+Finally, we conclude the proof of Lemma~\ref{lem:phi1-bound} and Lemma~\ref{lem:phi2-bound}.
+\begin{proof}[Proof of Lemma~\ref{lem:phi1-bound}]
+\begin{align*}
+    \Phi_1(\tau_v,\theta_v)
+    = H(\tau_v,\theta_v) + 1 - \theta_v
+    \geq \tilde{H}(\tau_v,\theta_u) + 1 - \theta_v - \frac{5}{2n^2} \geq \tilde{\Phi}_1(\tau_u,\theta_u,\tau_v,\theta_v) - \frac{5}{2n^2} \geq \Gamma.
+\end{align*}
+\end{proof}
+\begin{proof}[Proof of Lemma~\ref{lem:phi2-bound}]
+\begin{align*}
+    &\theta_u \cdot h(\tau_u, \theta_u) - \int_{\tau_u}^{\theta_u} h(\tau_u, y_u) dy_u + \theta_v \cdot h(\tau_v, \theta_v) - \int_{\tau_v}^{\theta_v} h(\tau_v, y_v) dy_v + (1-h(\tau_u, \theta_u)) \cdot (1-\theta_v) \\
+    =& H(\tau_u,\theta_u) + H(\tau_v,\theta_v) + (1-h(\tau_u,\theta_u))\cdot(1-\theta_v)\\
+    \geq& \tilde{H}(\tau_u,\theta_u) + \tilde{H}(\tau_v,\theta_v) + (1-h(\tau_u,\theta_u))\cdot(1-\theta_v) - \frac{10}{n^2}\\
+    =& \tilde{H}(\tau_u,\theta_u) + \tilde{H}(\tau_v,\theta_v) + 1-h(\tau_u,\theta_u) -\theta_v + \theta_v h(\tau_u,\theta_u) - \frac{5}{n^2} \\
+    =& \tilde{\Phi}_2(\tau_u,\theta_u,\tau_v,\theta_v) - \frac{5}{n^2} \geq \Gamma.
+\end{align*}
+\end{proof}
+
+
+
+
+
+
+
+

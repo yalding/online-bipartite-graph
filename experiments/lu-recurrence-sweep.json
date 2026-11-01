@@ -1,0 +1,110 @@
+[
+  {
+    "beta": 0.707,
+    "depth": 0,
+    "integral": 0.7071719121041666,
+    "violation": true,
+    "grid_per_unit": 12000,
+    "cutoff": 2,
+    "method": "float, not certified"
+  },
+  {
+    "beta": 0.75,
+    "depth": 1,
+    "integral": 0.7635709514242028,
+    "violation": true,
+    "grid_per_unit": 12000,
+    "cutoff": 2,
+    "method": "float, not certified"
+  },
+  {
+    "beta": 0.78,
+    "depth": 3,
+    "integral": 0.8634784545463038,
+    "violation": true,
+    "grid_per_unit": 12000,
+    "cutoff": 2,
+    "method": "float, not certified"
+  },
+  {
+    "beta": 0.8,
+    "depth": 5,
+    "integral": 0.8438374683281011,
+    "violation": true,
+    "grid_per_unit": 12000,
+    "cutoff": 2,
+    "method": "float, not certified"
+  },
+  {
+    "beta": 0.81,
+    "depth": 8,
+    "integral": 0.8887273408293846,
+    "violation": true,
+    "grid_per_unit": 12000,
+    "cutoff": 2,
+    "method": "float, not certified"
+  },
+  {
+    "beta": 0.82,
+    "depth": 17,
+    "integral": 0.8674158091374553,
+    "violation": true,
+    "grid_per_unit": 12000,
+    "cutoff": 2,
+    "method": "float, not certified"
+  },
+  {
+    "beta": 0.824,
+    "depth": 69,
+    "integral": 0.8739029556393749,
+    "violation": true,
+    "grid_per_unit": 12000,
+    "cutoff": 2,
+    "method": "float, not certified"
+  },
+  {
+    "beta": 0.8243,
+    "depth": 196,
+    "integral": 0.9106329803686746,
+    "violation": true,
+    "grid_per_unit": 12000,
+    "cutoff": 2,
+    "method": "float, not certified"
+  },
+  {
+    "beta": 0.82435,
+    "depth": 3000,
+    "integral": 0.6717157162692373,
+    "violation": false,
+    "grid_per_unit": 12000,
+    "cutoff": 2,
+    "method": "float, not certified"
+  },
+  {
+    "beta": 0.8243606353500641,
+    "depth": 3000,
+    "integral": 0.6708746484178534,
+    "violation": false,
+    "grid_per_unit": 12000,
+    "cutoff": 2,
+    "method": "float, not certified"
+  },
+  {
+    "beta": 0.83,
+    "depth": 3000,
+    "integral": 0.6388217330934116,
+    "violation": false,
+    "grid_per_unit": 12000,
+    "cutoff": 2,
+    "method": "float, not certified"
+  },
+  {
+    "beta": 0.9007616968738466,
+    "depth": 3000,
+    "integral": 0.557502773116713,
+    "violation": false,
+    "grid_per_unit": 12000,
+    "cutoff": 2,
+    "method": "float, not certified"
+  }
+]

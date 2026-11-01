@@ -1,0 +1,9 @@
+{
+  "distribution": "experiments\\adaptive-biclique-m10-p5-yao.json.gz",
+  "instances": 480,
+  "prefixes": 1135,
+  "optimal_expected_ratio": 1.7815126870261242,
+  "certified_lower_ratio": 1.7814839977502832,
+  "max_primal_residual": 0.0,
+  "scope": "Independent float optimization of actual inputs; no continuation-budget constraints"
+}

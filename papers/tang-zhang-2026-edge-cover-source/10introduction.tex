@@ -1,0 +1,54 @@
+\section{Introduction}
+\label{sec:introduction}
+
+In the edge-arrival online vertex cover problem, the vertex set is known in
+advance and edges arrive one at a time.  The algorithm maintains a set of
+selected vertices that must cover every edge seen so far.  This set can only
+grow: selected vertices can never be removed.  
+Adding both endpoints of each
+uncovered edge is $2$-competitive because the triggering edges form a matching~\citep{DemangePaschos05}.
+Can fractional decisions or randomization improve this factor?
+
+Primal--dual algorithms yield the same competitive ratios for online matching and online vertex cover. Throughout this paper, we state competitive ratios using the convention that they are at least $1$.\footnote{The matching literature typically uses the reciprocal convention. Under that convention, the ratios discussed here are $1-1/e$, $\Gamma^*\approx 0.526$, and $1/2$.}
+Under one-sided vertex arrivals, both problems admit the tight competitive ratio $e/(e-1)$ \citep{KVV90}; for vertex cover, the corresponding lower bound follows from ski rental~\citep{WangWong15}. Under general vertex arrivals, the best algorithms for both problems achieve a ratio of $1/\Gamma^*\approx 1.901$ \citep{WangWong15,TangZhang24}, and \citet{Tang26} recently proved this ratio tight for matching, even on bipartite graphs. Under edge arrivals, the standard algorithms achieve a ratio of $2$ for both problems, and \citet{GamlathEtAl19} proved this ratio tight for matching, again even on bipartite graphs.
+
+These common upper bounds arise because the corresponding algorithms construct matching and vertex-cover solutions simultaneously. However, lower bounds for matching do not automatically transfer to vertex cover. Even in the one-sided vertex-arrival model, where the two problems have the same tight ratio, the vertex-cover lower bound comes from a completely different source, namely, a reduction from ski rental. Before our work, only in the one-sided vertex-arrival model was the algorithmic ratio matched by a vertex-cover lower bound. Under general vertex arrivals, the best known lower bound for vertex cover is only about $1.753$ \citep{WangWong15}. Under edge arrivals, it remained open whether a fractional or randomized algorithm could achieve a competitive ratio strictly smaller than $2$.
+
+\paragraph{Our result.}
+We close this gap.  For every deterministic fractional online vertex cover
+algorithm and every $\varepsilon>0$, we construct a finite bipartite instance
+with competitive ratio at least $2-\varepsilon$.  Taking expectations
+coordinatewise gives the same bound for randomized integral and fractional
+algorithms against an oblivious adversary.  Thus the optimal ratio is exactly
+$2$.
+
+\paragraph{Reduction and proof idea.}
+Our key technical contribution is a direct reduction from proper blueprints,
+introduced by Assadi, Jiang, and Xiang \citep{AssadiJiangXiang26a}.  From a
+blueprint of value $\nu$, cyclic shifts hide an independent set $I$ of size
+$2\nu n$.  Matching batches force at least $\nu n$ weight onto $I$ before it is
+identified.  We then attach a private leaf to every vertex outside $I$.  The
+offline optimum takes these $2(1-\nu)n$ vertices, while the algorithm also
+retains its weight on $I$, giving ratio $(2-\nu)/(2(1-\nu))$.  Existing
+blueprints have $\nu\to 2/3$ \citep{AssadiJiangXiang26b}, so this ratio tends to
+$2$.
+
+\paragraph{Relation to semi-streaming.}
+Whether the factor $2$ can be improved for streaming vertex cover was raised
+explicitly in prior work \citep{AssadiEtAl19EDCS,DerakhshanEtAl25}; the latter
+also shows that constant-party one-way communication cannot establish a
+factor-$2$ streaming lower bound.  The two blueprint papers derive
+semi-streaming vertex cover lower bounds:
+approximately $1.790$ in general graphs and the tight factor $2$ in bipartite
+graphs \citep{AssadiJiangXiang26a,AssadiJiangXiang26b}, but they do not imply our
+result.  Semi-streaming algorithms can postpone their output but have limited
+memory; online algorithms have unlimited memory but make irrevocable choices.
+Technically, the streaming reductions use ERS graph expansions, communication
+complexity, and information theory; ours applies a blueprint directly.
+Conceptually, streaming pays for forgetting absent edges, while online
+computation pays for being unable to retract weight placed before the hidden
+independent set is revealed.
+
+\paragraph{Positive results in restricted settings.}
+Positive results have been attained with extra assumptions on the input. For graphs of maximum degree $d$, \citet{BuchbinderSegevTkach17} gave a primal--dual algorithm with competitive ratio $2-2^{1-d}$ for both online fractional matching and online fractional vertex cover. On forests, they also obtained a randomized $9/5$-competitive matching algorithm. The dual cover used in that analysis, however, is constructed only after the full input is known and therefore does not yield an online vertex-cover algorithm. More recently, \citet{BaligacsEtAl26} gave an $11/6$-competitive algorithm for online fractional vertex cover on forests. Under a different restriction, \citet{LeeSingla20} obtained ratio $2-2^{1-s}$ for fractional bipartite vertex cover with $s$ arrival batches, where each batch is revealed in full before the corresponding irrevocable update.
+

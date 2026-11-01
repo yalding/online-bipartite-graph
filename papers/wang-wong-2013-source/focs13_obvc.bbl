@@ -1,0 +1,164 @@
+\begin{thebibliography}{10}
+
+\bibitem{Aggarwal2011}
+G.~Aggarwal, G.~Goel, C.~Karande, and A.~Mehta.
+\newblock Online vertex-weighted bipartite matching and single-bid budgeted
+  allocations.
+\newblock In {\em Proceedings of the Twenty-Second Annual ACM-SIAM Symposium on
+  Discrete Algorithms}, pages 1253--1264. SIAM, 2011.
+
+\bibitem{Aronson1995}
+J.~Aronson, M.~Dyer, A.~Frieze, and S.~Suen.
+\newblock Randomized greedy matching. ii.
+\newblock {\em Random Structures \& Algorithms}, 6(1):55--73, 1995.
+
+\bibitem{bansal2010lp}
+N.~Bansal, A.~Gupta, J.~Li, J.~Mestre, V.~Nagarajan, and A.~Rudra.
+\newblock When lp is the cure for your matching woes: improved bounds for
+  stochastic matchings.
+\newblock {\em Algorithms--ESA 2010}, pages 218--229, 2010.
+
+\bibitem{Blum2006}
+A.~Blum, T.~Sandholm, and M.~Zinkevich.
+\newblock Online algorithms for market clearing.
+\newblock {\em Journal of the ACM (JACM)}, 53(5):845--879, 2006.
+
+\bibitem{Buchbinder2007}
+N.~Buchbinder, K.~Jain, and J.~Naor.
+\newblock Online primal-dual algorithms for maximizing ad-auctions revenue.
+\newblock {\em Algorithms--ESA 2007}, pages 253--264, 2007.
+
+\bibitem{Buchbinder2009}
+N.~Buchbinder and J.S. Naor.
+\newblock Online primal-dual algorithms for covering and packing.
+\newblock {\em Mathematics of Operations Research}, 34(2):270--286, 2009.
+
+\bibitem{NivPersonal}
+Niv Buchbinder.
+\newblock Personal communication.
+\newblock Oct 2012.
+
+\bibitem{Demange2005}
+M.~Demange and V.T. Paschos.
+\newblock On-line vertex-covering.
+\newblock {\em Theoretical Computer Science}, 332(1):83--108, 2005.
+
+\bibitem{devanur2012online}
+N.R. Devanur and K.~Jain.
+\newblock Online matching with concave returns.
+\newblock In {\em Proceedings of the 44th symposium on Theory of Computing},
+  pages 137--144. ACM, 2012.
+
+\bibitem{devanurrandomized}
+N.R. Devanur, K.~Jain, and R.D. Kleinberg.
+\newblock Randomized primal-dual analysis of ranking for online bipartite
+  matching.
+\newblock In {\em SODA '13: Proceedings of the thirteenth Annual ACM-SIAM
+  Symposium on Discrete Algorithms}, 2013.
+\newblock to appear.
+
+\bibitem{DevenurH09}
+Nikhil~R. Devenur and Thomas~P. Hayes.
+\newblock The adwords problem: online keyword matching with budgeted bidders
+  under random permutations.
+\newblock In {\em EC '09: Proceedings of the tenth ACM conference on Electronic
+  commerce}, pages 71--78, New York, NY, USA, 2009. ACM.
+
+\bibitem{Feldman2009}
+J.~Feldman, A.~Mehta, V.~Mirrokni, and S.~Muthukrishnan.
+\newblock Online stochastic matching: Beating 1-1/e.
+\newblock In {\em Foundations of Computer Science, 2009. FOCS'09. 50th Annual
+  IEEE Symposium on}, pages 117--126. IEEE, 2009.
+
+\bibitem{goel12}
+Goel G. and Tripathi P.
+\newblock Matching with our eyes closed.
+\newblock In {\em Foundations of Computer Science, 2012. FOCS'12. 53rd Annual
+  IEEE Symposium on}. IEEE, 2012.
+
+\bibitem{goel2008online}
+G.~Goel and A.~Mehta.
+\newblock Online budgeted matching in random input models with applications to
+  adwords.
+\newblock In {\em SODA}, volume~8, pages 982--991, 2008.
+
+\bibitem{kalyanasundaram2000optimal}
+B.~Kalyanasundaram and K.R. Pruhs.
+\newblock An optimal deterministic algorithm for online b-matching.
+\newblock {\em Theoretical Computer Science}, 233(1):319--325, 2000.
+
+\bibitem{KP00}
+Bala Kalyanasundaram and Kirk Pruhs.
+\newblock Speed is as powerful as clairvoyance.
+\newblock {\em J. ACM}, 47(4):617--643, 2000.
+
+\bibitem{Karande2011}
+C.~Karande, A.~Mehta, and P.~Tripathi.
+\newblock Online bipartite matching with unknown distributions.
+\newblock In {\em Proceedings of the 43rd annual ACM symposium on Theory of
+  computing}, pages 587--596. ACM, 2011.
+
+\bibitem{Karlin2001}
+A.R. Karlin, C.~Kenyon, and D.~Randall.
+\newblock Dynamic tcp acknowledgement and other stories about e/(e-1).
+\newblock In {\em Proceedings of the thirty-third annual ACM symposium on
+  Theory of computing}, pages 502--509. ACM, 2001.
+
+\bibitem{Karlin1994}
+A.R. Karlin, M.S. Manasse, L.A. McGeoch, and S.~Owicki.
+\newblock Competitive randomized algorithms for nonuniform problems.
+\newblock {\em Algorithmica}, 11(6):542--571, 1994.
+
+\bibitem{karlin1988competitive}
+A.R. Karlin, M.S. Manasse, L.~Rudolph, and D.D. Sleator.
+\newblock Competitive snoopy caching.
+\newblock {\em Algorithmica}, 3(1):79--119, 1988.
+
+\bibitem{Karp1990}
+R.M. Karp, U.V. Vazirani, and V.V. Vazirani.
+\newblock An optimal algorithm for on-line bipartite matching.
+\newblock In {\em Proceedings of the twenty-second annual ACM symposium on
+  Theory of computing}, pages 352--358. ACM, 1990.
+
+\bibitem{Khot2008}
+S.~Khot and O.~Regev.
+\newblock Vertex cover might be hard to approximate to within 2-[epsilon].
+\newblock {\em Journal of Computer and System Sciences}, 74(3):335--349, 2008.
+
+\bibitem{Lotker2008}
+Z.~Lotker, B.~Patt-Shamir, D.~Rawitz, and S.~Albers.
+\newblock Rent, lease or buy: Randomized algorithms for multislope ski rental.
+\newblock In {\em 25th International Symposium on Theoretical Aspects of
+  Computer Science (STACS 2008)}, volume~1, pages 503--514, 2008.
+
+\bibitem{poloczek12}
+Poloczek M. and Szegedy M.
+\newblock Randomized greedy algorithms for the maximum matching problem with
+  new analysis.
+\newblock In {\em Foundations of Computer Science, 2012. FOCS'12. 53rd Annual
+  IEEE Symposium on}. IEEE, 2012.
+
+\bibitem{Mahdian2011}
+M.~Mahdian and Q.~Yan.
+\newblock Online bipartite matching with random arrivals: an approach based on
+  strongly factor-revealing lps.
+\newblock In {\em Proceedings of the 43rd annual ACM symposium on Theory of
+  computing}, pages 597--606. ACM, 2011.
+
+\bibitem{Manshadi2011}
+V.H. Manshadi, S.O. Gharan, and A.~Saberi.
+\newblock Online stochastic matching: Online actions based on offline
+  statistics.
+\newblock In {\em Proceedings of the Twenty-Second Annual ACM-SIAM Symposium on
+  Discrete Algorithms}, pages 1285--1294. SIAM, 2011.
+
+\bibitem{Mehta2007}
+A.~Mehta, A.~Saberi, U.~Vazirani, and V.~Vazirani.
+\newblock Adwords and generalized online matching.
+\newblock {\em Journal of the ACM (JACM)}, 54(5):22, 2007.
+
+\bibitem{weisstein}
+Eric~W. Weisstein.
+\newblock Hyperbolic cotangent. {From MathWorld---A Wolfram Web Resource}.
+
+\end{thebibliography}

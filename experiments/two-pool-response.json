@@ -1,0 +1,127 @@
+{
+  "scope": "Local two-pool response and phase calculations; universal target unresolved",
+  "responses": {
+    "exact_response_certificates": 600,
+    "unrestricted_lp_comparisons": 600,
+    "interior_two_line_example": {
+      "weights": [
+        3,
+        4
+      ],
+      "old_coordinates": [
+        "1/4",
+        "0"
+      ],
+      "new_weight": 4,
+      "neighbors": [
+        1
+      ],
+      "continuation_planes": [
+        {
+          "intercept": "2/3",
+          "old_slopes": [
+            "-2",
+            "0"
+          ],
+          "new_slope": "0"
+        },
+        {
+          "intercept": "7/3",
+          "old_slopes": [
+            "-2",
+            "-1"
+          ],
+          "new_slope": "-4"
+        },
+        {
+          "intercept": "4",
+          "old_slopes": [
+            "-3",
+            "-3"
+          ],
+          "new_slope": "0"
+        }
+      ],
+      "exact_value": "109/24",
+      "response": "7/72",
+      "supporting_lines": [
+        {
+          "intercept": "29/6",
+          "slope": "-3",
+          "multiplier": "1/2"
+        },
+        {
+          "intercept": "17/4",
+          "slope": "3",
+          "multiplier": "1/2"
+        }
+      ]
+    }
+  },
+  "phases": {
+    "exact_phase_identities": 9216,
+    "parallel_coupling_never_increases": true,
+    "other_phases_have_at_most_one_positive_private_parameter": true
+  },
+  "dyadic_degree_algorithm": [
+    {
+      "degree": 1,
+      "exact_local_load_pairs": 1,
+      "cover_ratio": "1"
+    },
+    {
+      "degree": 2,
+      "exact_local_load_pairs": 9,
+      "cover_ratio": "3/2"
+    },
+    {
+      "degree": 3,
+      "exact_local_load_pairs": 49,
+      "cover_ratio": "7/4"
+    },
+    {
+      "degree": 4,
+      "exact_local_load_pairs": 225,
+      "cover_ratio": "15/8"
+    },
+    {
+      "degree": 5,
+      "exact_local_load_pairs": 961,
+      "cover_ratio": "31/16"
+    },
+    {
+      "degree": 6,
+      "exact_local_load_pairs": 3969,
+      "cover_ratio": "63/32"
+    }
+  ],
+  "conditional_trap": {
+    "prefix": "K_20,20; every old coordinate is 9/10",
+    "next_arrival": "one left vertex adjacent to all 20 old right vertices",
+    "alternatives": "private-leaf completion of R or of L plus the new vertex",
+    "exact_local_minimax_ratio": "801/421",
+    "exact_new_coordinate": "22/421",
+    "mixture": [
+      {
+        "branch": 1,
+        "multiplier": "21/421"
+      },
+      {
+        "branch": 0,
+        "multiplier": "400/421"
+      }
+    ],
+    "suffix_probabilities": {
+      "R_completion": "20/21",
+      "L_plus_v_completion": "1/21"
+    },
+    "expected_cost_lower_bound": "801/21",
+    "expected_optimum": "421/21",
+    "limitation": "No proof that every algorithm can be forced into this prefix state"
+  },
+  "completion_interface": {
+    "exact_reweighted_phase_and_completion_cases": 2592,
+    "weights": "w_i * (beta + current_coordinate_i)",
+    "terminal_surplus": "sunk_online_cost - minimum_reweighted_cover"
+  }
+}

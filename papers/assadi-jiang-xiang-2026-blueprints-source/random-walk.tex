@@ -1,0 +1,129 @@
+% !TeX root = main.tex
+%!TEX root = main.tex
+
+
+\section{Random Walk on a Line with Symmetric Maxima}\label{sec:random-walk}
+
+Fix any integer $m \geq 1$. We will be using the gambler's ruin random walk on $\set{0,\ldots,2m}$ described in~\Cref{sec:prelim} for our proofs. 
+For our purpose, we also need to specify a distribution over initial states with the following two properties: (1) the distribution of $\maxwalk{W}$ is symmetric (on the interior states) assuming the start state is sampled from this distribution, 
+and, (2) the probability of terminating in state $0$ is maximized. The following lemma finds such a distribution for us (we do not explicitly prove that it maximizes the term in $(2)$ and only 
+calculate its value, which is sufficient for us; however, one can prove it is maximized). 
+
+\begin{lemma}\label{lem:start-state}
+	Consider the assignment $\mu: \set{1,\ldots,2m-1} \rightarrow [0,1]$ such that for $i \in [m]$,
+	\[
+		\mu(i) := \gamma_{m} \cdot \frac{2 \cdot (2m+1)}{(2m-i)\cdot(2m-i+1)\cdot(2m-i+2)} \quad \text{for} \quad \gamma_m := \frac{2m \cdot (m+1)}{3m+1},
+	\]
+	and for $i \in [m+1:2m-1]$, $\mu(i)=0$. 
+	
+	Firstly, $\mu$ is a distribution. Secondly, if we sample a random walk $W$ starting from a state distributed according to $\mu$---denoting the combined distribution by $\dist_m$---, then, for all $j \in [2m-1]$, 
+	\[
+		\Pr_{W \sim \dist_m}\paren{\text{$W$\!~ends in $0$} ~\wedge~ \maxwalk{W} = j} = \Pr_{W \sim \dist_m}\paren{\text{$W$\!~ends in $0$} ~\wedge~ \maxwalk{W} = 2m-j}. 
+	\]
+	Finally, 
+	\[
+		\Pr_{W \sim \dist_m}\paren{\text{$W$\!~ends in $0$}} = \frac{2m}{3m+1}. 
+	\]
+\end{lemma}
+
+We postpone the proof of this lemma to the end of this section to complete our definitions first. The proof can be skipped by the reader as it is not needed for understanding the rest of the paper. 
+
+\paragraph{Delayed and length-restricted random walks.} \Cref{lem:start-state} ``symmetrizes'' the distribution of maxima for a random walk $W$. We also need to ensure the distribution of the time of reaching 
+the maxima is (essentially) the same across different choices for $\maxwalk{W}$. Adding a ``delay'' to the walk fixes this issue as well.  
+
+A \textbf{delayed random walk} with delay $d \geq 1$ (also called $d$-delayed random walk) is defined similar to our original random walk, except that for its first $d-1$ time stamps, the walk 
+stays in the same state and starts moving as before from time step $d$. Specifically, a $d$-delayed random walk $W=w_1,w_2,\cdots,$ is such that 
+\[
+	w_1 = \cdots = w_d \quad \text{and} \quad \text{for $t \geq d$,}~ w_{t+1}~\text{is chosen uniformly from}~\set{w_t + 1 , w_t-1}, 
+\]
+and the walk as before terminates when hitting the state $0$ or $2m$. We refer to the ``non-delayed'' part of the walk $W$ as the \emph{inner} random walk $W_{in}$, namely, $W_{in} = w_d, w_{d+1},\cdots$. 
+
+For a $d$-delayed random walk $W$, we define 
+\begin{align}
+\timemax{W} = (d-1)+\timemax{W_{in}}, \label{eq:timemaxW}
+\end{align}
+ namely, the time the \emph{inner} walk reached the eventual maximum (this distinction between inner and the entire walk is only relevant when the starting state is the eventual maximum; in this case, 
+we consider $\timemax{W}=d$, namely, the delay of the walk instead of time $1$); $\maxwalk{W}$ is defined as before which is equal to $\maxwalk{W_{in}}$ regardless. 
+
+Finally, we also need the length of the walks to be finite, which can be guaranteed (essentially) by~\Cref{clm:walk-length}.
+We say that a delayed random walk is \textbf{$\ell$-length restricted} iff 
+it terminates within $\ell$ steps \emph{after} spending its delayed time, i.e., reaches states $0$ or $2m$ within $d+\ell$ steps assuming its delay was $d$ (or alternatively, the length of its inner walk $W_{in}$ is at most $\ell$). 
+By~\Cref{clm:walk-length}, for large enough $\ell$, a (delayed) random walk will be $\ell$-length restricted with high probability (in $m$). 
+
+
+
+
+
+\subsection{Proof of~\Cref{lem:start-state}}
+We remark that the ``right'' way to prove a statement of the type~\Cref{lem:start-state} is to
+solve the program that maximizes $\Pr(\text{$W$ ends in $0$})$ subject to the symmetric constraints, under variables $\set{\mu(i)}_{i=1}^{2m-1}$ which are non-negative and sum to one. 
+This becomes a linear programming problem which can then be solved explicitly (by considering its dual), to determine the values of $\mu(i)$'s. Nevertheless, since we have
+already solved this program and obtained $\mu(i)$'s, in the following proof we only verify the correctness of these variables. 
+
+We prove each part of~\Cref{lem:start-state} in the following. 
+
+\paragraph{$\mu$ forms a distribution.} Clearly, all $\mu(i) \geq 0$ so we only need to prove $\sum_i \mu(i)=1$. For this, 
+\begin{align*}
+	\sum_i \mu(i) &= \gamma_m \cdot \sum_{i=1}^{m}  \frac{2 \cdot (2m+1)}{(2m-i)\cdot(2m-i+1)\cdot(2m-i+2)} \\
+	&= \gamma_m \cdot \sum_{r=m}^{2m-1} \frac{2 \cdot (2m+1)}{r \cdot (r+1)\cdot(r+2)} \tag{by reindexing the sum with $r=2m-i$} \\
+	&= \gamma_m \cdot \sum_{r=m}^{2m-1} (2m+1) \cdot \paren{\frac{1}{r \cdot (r+1)} - \frac{1}{(r+1)\cdot(r+2)}} \tag{by a direct calculation} \\
+	&= \gamma_m \cdot (2m+1) \cdot \paren{\frac{1}{m \cdot (m+1)} - \frac{1}{(2m)\cdot(2m+1)}} \tag{by the telescoping sum} \\
+	&= \gamma_m \cdot \frac{3m+1}{2m \cdot (m+1)} = 1, 
+\end{align*}
+by the definition of $\gamma_m$. Thus, $\mu$ is a distribution. 
+
+\paragraph{Symmetric property.} To simplify the notation, in the following, we use `$w_T=0$' to denote the event that the walk ends in $0$ (instead of $2m$) and use `$w_1=i$' for any integer $i$ to mean
+the walk starts from the state $i$. For any $j \in [2m-1]$, 
+\begin{align}
+	\Pr_{W \sim \dist_m}\paren{w_T=0 ~\wedge~ \maxwalk{W} = j} &= \sum_{i=1}^{m} \mu(i) \cdot \Pr\paren{w_T=0 ~\wedge~ \maxwalk{W} = j \mid w_1=i} \tag{as the 
+	walk needs to start somewhere in $[m]$} \\
+	&=  \sum_{i=1}^{\min(m,j)} \mu(i) \cdot \Pr\paren{w_T=0 ~\wedge~ \maxwalk{W} = j \mid w_1=i} \tag{as otherwise starting from $i > j$ ensures $\maxwalk{W}=j$ never happens} \\
+	&=  \sum_{i=1}^{\min(m,j)} \mu(i) \cdot \frac{i}{j \cdot (j+1)}, \label{eq:get-back-to}
+\end{align}
+by~\Cref{clm:ruin} since $1 \leq i \leq j \leq 2m$. 
+We have the following claim on partial sums  above. 
+\begin{claim}\label{clm:partial-sum}
+	For any $ j \in [m]$, 
+	\[
+		P_j := \sum_{i=1}^{j} \mu(i) \cdot i = \gamma_m \cdot \frac{j \cdot (j+1)}{(2m-j) \cdot (2m-j+1)}. 
+	\]
+\end{claim}
+\begin{proof}
+	The proof is by induction. For $j=1$, 
+	\[
+		P_1 = \mu(1) = \gamma_{m} \cdot \frac{2 \cdot (2m+1)}{(2m-1)\cdot(2m)\cdot(2m+1)} = \gamma_{m} \cdot \frac{1 \cdot (1+1)}{(2m-1)\cdot(2m)}, 
+	\]
+	matching the RHS of the claim. For $1  < j \leq m$, for the induction step, by the value of $\mu(j)$, 
+	\begin{align*}
+		 P_j = P_{j-1} + j \cdot \mu(j) &= \gamma_m \cdot \frac{(j-1) \cdot j}{(2m-j+1) \cdot (2m-j+2)} + j \cdot  \gamma_{m} \cdot \frac{2 \cdot (2m+1)}{(2m-j)\cdot(2m-j+1)\cdot(2m-j+2)} \\
+		&= \gamma_m \cdot \frac{{j \cdot (j-1) \cdot (2m-j)+2j \cdot (2m+1)}}{(2m-j)\cdot(2m-j+1)\cdot(2m-j+2)} \tag{by multiplying the first fraction with $(2m-j)/(2m-j)$}\\
+		&= \gamma_m \cdot \frac{j \cdot (j+1)}{(2m-j) \cdot (2m-j+1)}, 
+	\end{align*}
+	where the last equation can be verified using a direct calculation by verifying that 
+	\[
+		(2m-j+2) \cdot (j+1) = (j-1) \cdot (2m-j)+2\cdot (2m+1). 
+	\] 
+	This concludes the proof. \Qed{clm:partial-sum}
+	
+\end{proof}
+Plugging in~\Cref{clm:partial-sum} in~\Cref{eq:get-back-to}, we have that for any $j \in [m]$, 
+\[
+	\Pr_{W \sim \dist_m}\paren{w_T=0 ~\wedge~ \maxwalk{W} = j} = \frac{P_j}{j \cdot (j+1)} = \gamma_m \cdot \frac{1}{(2m-j) \cdot (2m-j+1)}.
+\]
+On the other hand, for $j \in [m]$, we have $2m-j \geq m$ and by the max-term in~\Cref{eq:get-back-to}, 
+\[
+	\Pr_{W \sim \dist_m}\paren{w_T=0 ~\wedge~ \maxwalk{W} = 2m-j} = \frac{P_m}{(2m-j) \cdot (2m-j+1)} = \gamma_m \cdot \frac{1}{(2m-j) \cdot (2m-j+1)}, 
+\]
+since by~\Cref{clm:partial-sum}, $P_m =\gamma_m$. This proves the equality in the symmetric property. 
+
+\paragraph{Probability of $W$ ending in $0$.} We calculate this directly as 
+\begin{align*}
+	\Pr_{W \sim \dist_m}\paren{w_T=0} &= \sum_{i=1}^{m} \mu(i) \cdot \Pr_{W}\paren{w_T=0 \mid w_1=i}	\tag{by the distribution of the start state} \\
+	&= \sum_{i=1}^{m} \mu(i) \cdot \Pr_{W}\paren{\text{$W$ reaches $0$ before $2m$} \mid w_1=i} \tag{as otherwise the walk terminates in $2m$ instead} \\
+	&= \sum_{i=1}^{m} \mu(i) \cdot \frac{2m-i}{2m} \tag{by~\Cref{fact:ruin}} \\
+	&= 1- \sum_{i=1}^{m} \frac{i \cdot \mu(i)}{2m} \tag{since $\mu$ is a distribution so $\sum_i \mu(i)=1$} \\
+	&= 1- \frac{\gamma_m}{2m} \tag{as the numerator in the sum-term is $P_m$ which is $\gamma_m$ by~\Cref{clm:partial-sum}} \\
+	&= \frac{2m}{3m+1},
+\end{align*}
+by the value of $\gamma_m$. This concludes the proof of~\Cref{lem:start-state}. \qed
+

@@ -1,0 +1,12 @@
+\section{General Vertex Arrivals}\label{sec:vertex}
+
+In this section we present a $(\nicefrac{1}{2}+\Omega(1))$-competitive randomized algorithm for online matching under general arrivals.
+As discussed in the introduction, our approach will be to round (online) a \emph{fractional} online matching algorithm's output. Specifically, this will be an algorithm from the family of fractional algorithms introduced in \cite{wang2015two}. In \Cref{sec:fractional-algo} we describe this family of algorithms. To motivate our rounding approach, in \Cref{sec:warmup} we first present a simple lossless rounding method for a $\nicefrac{1}{2}$-competitive algorithm in this family. In \Cref{sec:imrpoved-algorithm} we then describe our rounding algorithm for a better-than-$\nicefrac{1}{2}$-competitive algorithm in this family. Finally, in \Cref{sec:analysis} we analyze this rounding scheme, and show that it yields a $(\nicefrac{1}{2}+\Omega(1))$-competitive algorithm.
+
+\input{fractional}
+
+\input{warmup}
+
+\input{algorithm}
+
+\input{analysis}

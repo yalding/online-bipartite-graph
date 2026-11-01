@@ -1,0 +1,1380 @@
+===== PDF PAGE 1 =====
+       Improved Bounds for Fractional Online Matching Problems
+
+                                   Zhihao Gavin Tang∗            Yuhao Zhang†
+
+
+
+
+                                                          Abstract
+           Online bipartite matching with one-sided arrival and its variants have been extensively stud-
+       ied since the seminal work of Karp, Vazirani, and Vazirani (STOC 1990).  Motivated by real-life
+       applications with dynamic market structures, e.g.  ride-sharing, two generalizations of the clas-
+       sical one-sided arrival model are proposed to allow non-bipartite graphs and to allow all vertices
+       to arrive online.  Namely, online matching with general vertex arrival is introduced by Wang and
+       Wong (ICALP 2015), and fully online matching is introduced by Huang et al.  (JACM 2020).
+           In this paper, we study the fractional versions of the two models.  We improve three out of
+       the four state-of-the-art upper and lower bounds of the two models.  For fully online matching,
+       we design a 0.6-competitive algorithm and prove no algorithm can be 0.613-competitive.  For
+       online matching with general vertex arrival, we prove no algorithm can be 0.584-competitive.
+       Moreover,  we give an arguably more intuitive algorithm for the general vertex arrival model,
+       compared to the algorithm of Wang and Wong, while attaining the same competitive ratio of
+       0.526.
+
+1    Introduction
+
+Matching theory is a focal topic in the area of combinatorial optimization, with a wide range of
+applications.  Online matching problems, arguably one of the most intriguing branches of matching
+theory,  stays  as  a  central  point  in  the  online  algorithm  literatures  since  the  celebrated  work  of
+Karp, Vazirani, and Vazirani [26].  Karp et al.  introduced the online bipartite matching problem
+with one-sided vertex arrival, i.e.  one side of the vertices of an underlying bipartite graph arrive
+online and each vertex reveals its neighbors on its arrival.  The algorithm makes immediate and
+irrevocable matching decisions for every online vertex and the goal is to maximize the size of the
+matching.  It is shown that the na¨ıve greedy algorithm achieves the optimal competitive ratio of 0.5
+among deterministic algorithms, and the Ranking algorithm achieves the optimal competitive ratio
+of 1− 1/e among random algorithms.  Since then, a fruitful line of research has been established
+based on the one-sided arrival model, including simpliﬁcations of the analysis of Ranking [3,9,18],
+the  vertex-weighted  version  [1, 21],  the  edge-weighted  version  [4, 7, 14, 15, 17, 27],  the  random
+arrival version [25,28],    b-matching [24], and Adwords [5,8,23,29].
+    On the other hand, the one-sided arrival model is restricted and is not able to capture more
+dynamic  scenarios  in  reality.   To  this  end,  two  generalizations  of  the  classical  one-sided  arrival
+model have been proposed that allow all vertices of a graph arriving online and allow non-bipartite
+graphs.
+
+   ∗ITCS, Shanghai University of Finance and Economics.  Email:  tang.zhihao@mail.shufe.edu.cn
+   †Shanghai Jiao Tong University.  Email:  zhang      yuhao@sjtu.edu.cn
+
+
+
+
+
+                                                               1
+
+===== PDF PAGE 2 =====
+General  Vertex  Arrival.    Wang  and  Wong  [30]  proposed  the  online  matching  with  general
+vertex arrival.  In this model, all vertices of an underlying graph arrive online.  Upon the arrival of
+a vertex, the edges between it and all previously arrived vertices are revealed.  The algorithm can
+either match the new vertex to its unmatched neighbors, or leave it unmatched for future.
+    The one-sided arrival model is a special case when oﬄine vertices all arrive before online vertices.
+
+Fully Online Matching.    Huang et al. [19] proposed the fully online matching problem.  In this
+model,  each time step can either be the arrival or the deadline of a vertex.  On the arrival of a
+vertex, all edges between it and all previously arrived vertices are revealed.  However, the algorithm
+does not need to make matching decisions at this point.  On the deadline of a vertex, the algorithm
+must decide whether to match it to an unmatched neighbor, or leave it unmatched.  It is assumed
+that all neighbors of a vertex arrives before its deadline.
+    The one-sided arrival model is a special case when oﬄine vertices arrive at the beginning and
+have deadlines at the end, and each online vertex has its deadline right after its arrival.  Moreover,
+observe that any algorithm for the general vertex arrival model can be directly applied to the fully
+online matching model and would attain the same competitive ratio.
+
+Previous Results.    For the general vertex arrival model, Wang and Wong proposed a dual-based
+0.526-competitive fractional algorithm and proved an upper bound of 0.625 for hardness.  Gamlath
+et al. [16] gave the ﬁrst non-trivial randomized integral algorithm that achieves a competitive ratio
+of 0.5 +ϵ.  Buchbinder et al. [6] improved the upper bound to 0 .591.
+    For  the  fully  online  matching  model,  Huang  et  al.   [19]  showed  that  the  Ranking  algorithm
+is  0.5671-competitive  on  bipartite  graphs  and  0.5211-competitive  on  general  graphs.   Huang  et
+al.  [20]  proved  that  the  Water-ﬁlling  algorithm  is  2  −√2≈  0.585-competitive  for  the  fractional
+version of the problem.  Recently, Huang et al. [22] beat the two classical algorithm Ranking and
+Water-ﬁlling by designing a 0.569-competitive integral algorithm on bipartite graphs, and a 0.592-
+competitive fractional algorithm on general graphs.  On the negative side, Eckl et al. [10] proved
+that no fractional algorithm can be better than 0.629-competitive.
+
+1.1    Our Contributions
+Despite the growing interests on the general vertex arrival model and the fully online model, there
+are large gaps between the state-of-the-art upper and lower bounds.  In this work, we advance the
+study of this line of research by focusing on the fractional  versions of the two settings.
+    On the positive side, we provide a 0.6-competitive fractional algorithm for the fully online model,
+improving the previous 0.592 competitive ratio of Huang et al. [22], and a new 0  .526-competitive
+fractional algorithm for the general vertex arrival model, matching the competitive ratio of Wang
+and Wong [30].  On the negative side, We improve the hardness of the fully online model to 0  .6132
+and the hardness of the general vertex arrival model to 0.584, respectively.  Both of them hold even
+for bipartite graphs.  Refer to Figure1for a summary of previous and our results.
+
+
+
+
+
+
+
+
+
+
+
+                                                             2
+
+===== PDF PAGE 3 =====
+Figure 1: A summary of previous results and our results for the fractional online matching problems.
+
+
+Economic View:  History-based Pricing.    Our algorithms are designed based on the economic
+view  of  the  primal  dual  analysis.   We  start  with  the  classical  water-ﬁlling  algorithm  in  the  one-
+sided arrival model as an example.  On the arrival of each online vertex, the algorithm continuously
+matches it to the least matched neighbor.  Associated with the primal dual analysis, we interpret
+this algorithm as the following two steps:  1) each oﬄine vertex v maintains a dynamic price f(xv)
+that only depends on its current matched portion; 2) each online vertex u continuously matches to
+the neighborv with the cheapest price and attains utility 1−f(xv).  Based on it, Huang et al. [22]
+designed Eager Water-ﬁlling algorithm for the fully online model.  We also present it in an economic
+view:  1) every vertex matches a dynamic price depending on its matched portion; 2) on the arrival
+of each vertex u, it continuously matches to the cheapest neighbor v  until f(xu) +f(xv) > 1; 3)
+Finally, on the deadline of each vertex, it continuously matches to the cheapest neighbor.
+    Unfortunately,  prior  to  our  work,  there  is  no  such  an  intuitive  interpretation  for  the  general
+vertex  arrival  model,  although  the  0.526-competitive  algorithm  by  Wang  and  Wong  [30]  is  also
+based on a primal dual analysis.  A straightforward adaption of the eager water-ﬁlling algorithm to
+the general vertex arrival model is to apply the same ﬁrst two steps, since there is no deadline in
+the general vertex arrival model.  However, this natural algorithm fails to achieve any non-trivial
+competitive ratio for arbitrary choice of f.  (See AppendixCfor a detailed discussion.)
+    We  resolve  this  issue  and  restore  an  intuitive  economic  interpretation  for  the  general  vertex
+arrival model by modifying the pricing step of the above algorithm.  We introduce a novel pricing
+scheme called history-based pricing that captures more information of the current matching status,
+than  the  current  matched  portion  alone.   Speciﬁcally,  we  use  an  extra  number au  to  record  the
+active matched portion of each vertex u,  i.e.  the matched portion on its arrival,  and then set a
+dynamic pricing ofg(au,xu).  The original pricing scheme is a special case of ours when the function
+g is irrelevant from the ﬁrst dimension.  We recover the 0.526-competitive fractional algorithm using
+the history-based pricing.
+    Furthermore,  the  same  algorithmic  idea  leads  to  an  immediate  improvement  of  eager  water-
+ﬁlling in the fully online model.  By optimizing the functiong using factor-revealing LP techniques,
+we improve the competitive ratio from 0.592 to 0.6.
+
+Hardness Results.    For the fully online model, the previous hardness results of Huang et al. [19]
+and Eckl et al. [10] is only slightly smaller than 1  − 1/e, and their constructions share the same
+structure of a tree plus an upper triangle at the end.  Moreover, as observed by Eckl et al. [10], a
+similar structure cannot lead to a much smaller upper bound.  We construct a diﬀerent family of
+instances, that has a tree structure and an upper triangle structure alternatively.  Our construction
+substantially improves the upper bound to 0.613.  We remark that Huang et al. [19] used a similar
+alternating structure to show a tight upper bound of the Ranking algorithm.
+
+
+                                                              3
+
+===== PDF PAGE 4 =====
+    For the general vertex arrival mode, we build on the bad instance of [30].  Their construction
+is  a  two-stage  instance  that  the  adversary  can  choose  when  to  stop.   The  ﬁrst  stage  is  a  simple
+complete bipartite graph for which any Γ-competitive algorithm must match on average Γ fraction
+for all vertices.  Then they introduce extra vertices together with an upper-triangle structure as the
+second stage.  The intuition is that all matchings made at the ﬁrst stage are wrong and are punished
+by the second stage.  However,  since the algorithm knows the instance would end afterwards,  it
+would greedily match vertices at the second stage.
+    Our idea is to further punish/forbidden the greedy behavior at the second stage by having a third
+stage.  Though the intuition is straightforward, it is hard to implement since the matching status
+after the second stage need quite a few parameters to fully capture.  We believe a tight hardness
+of the general arrival model would necessarily need multiple stages, and our construction would be
+useful for future studies of the problem.  Finally, we remark the two upper bounds are proved for
+any fractional algorithms, that directly imply upper bounds for any randomized algorithms.
+
+1.2    Other Related Works
+Simultaneous  to  the  work  of  Huang  et  al.  [19],  Ashlagi  et  al.  [2]  proposed  the  online  windowed
+matching problem that is an edge-weighted version of fully online matching with the ﬁrst-in-ﬁrst-
+out assumption.  The general vertex arrival model has also been applied to the prophet matching
+setting and the secretary matching setting by Ezra et al. [12,13].  In the prophet setting, each edge
+has a weight that is drawn independently from a priori known distribution.  In the secretary setting,
+edges are also weighted and all vertices arrive in a random order.  The goal is to maximize the total
+weight of the matching in both models.  Ezra et al.  give an optimal  12-competitive algorithm for
+the prophet setting and an optimal   512-competitive algorithm for the secretary setting.
+    Besides two arrival models studied in this paper, researches have also studied the edge arrival
+model.  Gamlath et al. [16] gave a strong negative result showing that the 0  .5-competitive greedy
+algorithm is the best possible.  Buchbinder, Segev, and Tkach [6] provided a positive result in the
+edge arrival setting when the underlying graph is a forest. Epstein et al. [11] studied a relaxed setting
+of edge arrival by allowing free disposals of edges and designed constant competitive algorithms for
+weighted graphs.
+
+2    Preliminaries
+
+In this section, we present the two models formally and then introduce the standard primal dual
+analysis for matching.
+
+General  Vertex  Arrival.    Consider  an  underlying  input  graph G  =  (V,E),  where V  arrives
+online and we will reveal E along with V .  At each v’s arrival time:
+
+    •  All the edges between v and previously arrived vertices are revealed.
+
+    •  The  algorithm  fractionally  matches  the  newly  revealed  edges.   And  these  edges  cannot  be
+       matched afterwards.
+
+Every  vertex  cannot  be  matched  more  than  one  unit.   The  goal  is  to  maximize  the  size  of  the
+fractional matching.
+
+
+
+
+
+                                                             4
+
+===== PDF PAGE 5 =====
+Fully  Online  Matching.    Consider  an  underlying  input  graph G  =  (V,E),  where V  arrives
+online and we will reveal E along with V .  Each time step is one of the following:
+    •  The arrival of vertex v:  all edges between v and previously arrived vertices are revealed.
+    •  The deadline of vertexv: this is the last chance we can (fractionally) matchv to the remaining
+       vertices in the graph.
+We assume that all neighbors ofv arrive beforev’s deadline.  Every vertex cannot be matched more
+than one unit.  The goal is to maximize the size of the fractional matching.  As observe by Huang
+et  al.  [19],  it  is  without  loss  of  generality  to  consider  lazy  algorithms  that  only  make  matching
+decisions on the deadlines of vertices.  On the other hand, we study algorithms that make matching
+decisions on the arrival of vertices for a cleaner analysis.
+
+Primal Dual Analysis    Following the standard competitive analysis, we say an online algorithm
+is Γ-competitive if for any input instance, its solution is always at least Γ times the optimal solution.
+We apply the standard primal dual framework.  First, we present the standard matching LP and
+its dual, that is common for the two models we study in this paper.
+       max : ∑(u,v)∈Exuv                                              min : ∑u∈V αu
+          s.t. ∑v:(u,v)∈Exuv≤ 1   ∀u∈V                    s.t.  αu +αv≥ 1   ∀(u,v)∈E
+                 xuv≥ 0       ∀(u,v)∈E         αu≥ 0     ∀u∈V
+    We shall set the primal variablesxuv’s to be the matched portion of edge (u,v) of our algorithm,
+and maintain the dual variables at the same time.
+Lemma 1.  An online primal dual algorithm is Γ-competitive if we have:
+    •  Approximate dual feasibility: ∀(u,v)∈E, αu +αv≥ Γ;
+    •  Reverse weak duality:   the primal objective P  and the dual objective D satisﬁes that P≥D.
+
+3    Improved Algorithm for Fully Online Matching
+
+We ﬁrst recall the Eager Water-ﬁlling algorithm proposed by Huang et al. [22] and present it from
+an economic view.
+    •  Each vertex v maintains a price that depends on its current water level.
+    •  On the arrival of each vertexu, fractionally match it to the neighbor with the cheapest price,
+       until the cheapest price among all neighbors and u’s own price sum to 1.
+    •  On the departure of each vertex u, fractionally match it to the neighbor with the cheapest
+       price to maximize its own utility.
+    The standard water-ﬁlling algorithm only consists of the ﬁrst and third steps.  In the design
+of Water-ﬁlling [20] and Eager Water-ﬁlling [22], the price of a vertex solely depends on its water
+level, i.e.  the price of a vertex v = f(xv) for some increasing function f.  As a result, the selection
+of a vertex with the cheapest price is equivalent to the selection of a vertex with the lowest water
+level.
+    We improve upon the Eager Water-ﬁlling algorithm by modifying its pricing policy.  In principle,
+one can set a price based on all historical information of the instance, instead of the speciﬁc local
+information  of  its  water  level.   We  implement  this  idea  by  introducing  a  two-dimensional  price
+function.  Our design of the algorithm is directly motivated by the primal-dual analysis.
+
+                                                            5
+
+===== PDF PAGE 6 =====
+Our Algorithm.    Fix an increasing function f  : [0, 1]→ [0, 1] and a two-dimensional function
+g : [0, 1]2→ [0, 1] that is non-decreasing in both dimensions.  All matched portion xuv’s, xu’s, and
+the dual variable αu’s are initialized to 0 upon u’s arrival.
+   •  On the arrival of each vertex u, fractionally matches u to the neighbor v with the cheapest
+      priceρv =g(av,xv), as long asf(xu) +g(av,xv)≤ 1.  When the process ends, let au =xu be
+      the active water level of u.
+
+   •  On the departure of each vertex u, fractionally match it to the neighbor v with the cheapest
+      price g(av,xv).
+    In both steps, when xuv increases by dx at the arrival or departure of u, update αu,αv by
+
+                            dαu = 1−g(av,xv)dx    and  dαv =g(av,xv)dx
+
+Refer to Algorithm1for the pseudocode of our algorithm.
+
+Remark.    Eager Water-ﬁlling algorithm is a special case of the above algorithm when g is set to
+be the same function f, i.e. g(a,x) =f(x) for all a.
+
+Algorithm 1 History-based Pricing Algorithm for Fully Online Matching
+  if  a vertex u arrives then
+      for∀v∈N(u) do                       ⊿ N(u) denotes u’s current neighbor set
+          xu,v← 0                         ⊿ xu,v denotes the matched portion of (u,v)
+      end for
+      xu← 0                                   ⊿ xu denotes the water level of u
+      v← arg minv∈N(u)g(av,xv)
+      while f(xu) +g(av,xv)≤ 1 do
+          xu,v  += dx                         ⊿ Match u, v (small enough portion dx).
+          xu  += dx, xv  += dx                                ⊿ Water level update
+          αu  += (1−g(av,xv))dx, αv  += g(av,xv)dx                     ⊿  Dual update
+          v← arg minv∈N(u)g(av,xv).
+      end while
+      au←xu                                      ⊿ Fix u’s active water level.
+  end if
+  if  a vertex u departs then
+      while xu< 1 do
+          v← arg minv∈N(u)g(av,xv)                ⊿ N(u) becomes u’s ﬁnal neighbor set
+          xu,v  += dx                         ⊿ Match u, v (small enough portion dx).
+          xu  += dx, xv  += dx                                ⊿ Water level update
+          αu  += (1−g(av,xv))dx, αv  += g(av,xv)dx                     ⊿  Dual update
+      end while
+  end if
+
+
+Analysis.    Our proofs are inherently similar to the analysis of Eager Water-ﬁlling by [22].  Each
+lemma below has a corresponding counterpart in the analysis of Eager Water-ﬁlling.  After all, the
+family of algorithms we proposed include Eager Water-ﬁlling as a special case.  Nevertheless, we
+need to do quite non-trivial transformation of the derived lower bounds, so that we can apply factor
+revealing LP techniques to optimize the functions f,g of our algorithm.
+
+                                                       6
+
+===== PDF PAGE 7 =====
+    Fix a pair of neighbors (u,v).  Suppose u’s deadline is before v’s deadline.  Let pu be the water
+level of u right before u’s deadline.  Let pv be the water level of v right after v’s deadline.
+Lemma 2.  Right after u’s deadline, we have
+                           ∫ pu                                 ∫ pv
+ αu+αv≥au·f(au)+
+                             au g(au,xu)dxu+av·f(av)+            av g(av,xv)dxv +(1−pu)·(1−g(av,pv)).  (1)
+Proof.  On  the  arrival  of  the  vertex v,  it  fractionally  matches  the  neighbor z  with  the  cheapest
+price  as  long  as f(xv) + g(az,xz) ≤  1.   Hence,  during  the  process,  the  marginal  gain  of v  is
+dαv  =  (1−g(az,xz))dx ≥ f(av)dx.   Here,  the  inequality  holds  since  the  utility  1−g(az,xz)
+decreases during the process as the cheapest price increases.  We use the fact that f is a continuous
+function.
+    Thus, αv≥av·f(av) after v’s arrival.  Later, v is passively matched and xv  increases from av
+topv,αu increases at the rate ofg(av,xv).  Hence,αv≥av·f(av) +∫pvav g(av,xv)dxv right afteru’s
+deadline.
+    Similarly, αu≥au·f(au) +∫puau g(au,xu)dxu right before u’s deadline.  On the deadline of u, u
+actively matches the neighbor with the cheapest price, which is at most g(av,pv).  Therefore, after
+the deadline of u, αu≥au·f(au) +∫puau g(au,xu)dxu + (1−pu)· (1−g(av,pv)).
+    Summing up the total gains of αu,αv gives the claimed bound.
+
+Reformulating the lower bound.    To facilitate the analysis, we deﬁne the following function
+h : [0, 1]2→ [0, 1] that has a one-one correspondence with g:
+
+                                      h(τ,θ) = inf{x :g(f−1(τ),x)≥θ}.
+
+Our  function g  shall  be  only  deﬁned  on  (a,x)∈  [0, 1]2  with x≥ a.   Hence, h(τ,τ)  = f−1(τ).
+Moreover, our functions f,g satisfy that f(x) =g(x,x) for all x∈ [0, 1].
+    Then for any 0≤τ≤θ≤ 1, we have
+                     ∫ h(τ,θ)                                                     ∫ θ
+
+
+                       h(τ,τ) g(f−1(τ),x)dx =θ·h(τ,θ)−τ·h(τ,τ)−                    τ h(τ,y)dy.
+    The following lemma studies the two cases depending on whether u arrives earlier than v or v
+arrives earlier than u and reformulate the lower bound (1).
+Lemma 3.  If u arrives earlier than v, then
+                             {                   ∫ θu
+  αu +αv≥      minτu≤θu        θu·h(τu,θu)−
+               1−θu≤τv≤θv                          τu h(τu,yu)dyu
+                                                           ∫ θv                                                }
+                                      +θv·h(τv,θv)−                                                                 (2)
+                                                             τv h(τv,yv)dyv + (1−h(τu,θu))· (1−θv)
+Proof.  Let τu  = f(au),τv  = f(av),θu  = g(au,pu) and θv  = g(av,pu).  With the notion of h,  we
+rewrite Equation (1).
+                 ∫ pv                                      ∫ pv
+  av·f(av) +
+                  av g(av,xv)dxv =τv·h(τv,τv) +             h(τv,τv)g(f−1(τv),xv)dxv
+                                     ∫ h(τv,θv)                                             ∫ ρv
+                ≥τv·h(τv,τv) +
+                                       h(τv,τv) g(f−1(τv),xv)dxv =ρv·h(αv,ρv)−                αv h(αv,yv)dyv,   (3)
+
+                                                           7
+
+===== PDF PAGE 8 =====
+where  the  inequality  holds  from  the  fact  that pv ≥ h(τv,θv).   Let G  be  the  right  hand  side  of
+Equation (1).  We calculate the derivative of  G over pu:
+                       ∂G
+                       ∂pu  =g(au,pu)− 1 +g(av,pv)≥g(au,pu)− 1 +f(av)≥ 0.
+The last inequality holds due to the stopping condition of our algorithm onv’s arrival. Consequently,
+the minimum of G is achieved when pu =h(τu,θu).  Thus, we have
+                                 ∫ pu
+                  au·f(au) +
+                                  au g(au,xu)dxu + (1−pu)· (1−g(av,pv))
+                                     ∫ h(τu,θu)
+                ≥τu·h(τu,τu) +
+                                       h(τu,τu) g(f−1(τu),xu)dxu + (1−h(τu,θu))· (1−θv)
+                                     ∫ θu
+                =θu·h(τu,θu)−
+                                       τu h(τu,yu)dyu + (1−h(τu,θu))· (1−θv).                                (4)
+We  conclude  the  proof  by  summing  up  (3)  and  (4)  and  taking  the  minimum  over  all  possible
+values of τu,θu,τv  and θv.  Notice that since u arrives earlier than v, we must have τv = f(av) >
+1−g(au,pu) = 1−θu, by the design of our algorithm.
+
+Lemma 4.  If v  arrives earlier than u, then
+                                          {                   ∫ θv                          }
+                       αu +αv≥  minτv≤θv    θv·h(τv,θv)−                                                          (5)
+                                                                τv h(τv,yv)dyv + 1−θv
+Proof.  Let τu =f(au),τv =f(av),θu =g(au,pu) and θv =g(av,pu).  Let G be the right hand side
+of Equation (1).  We calculate the derivative of  G over pu:
+                       ∂G
+                       ∂pu  =g(au,pu)− 1 +g(av,pv)≥f(au)− 1 +g(av,pu)≥ 0.
+The last inequality holds due to the stopping condition of our algorithm on u’s arrival.  Thus, the
+minimum is achieved when pu =au.  Thus, we have∫ pv
+
+           αu +αv≥av·f(av) +
+                                         av g(av,xv)dxv +au·f(au) + (1−au)· (1−g(av,pv))
+                                          ∫ h(τv,θv)
+                      ≥τv·h(τv,τv) +
+                                            h(τv,τv) g(f−1(τv),xv)dxv + (1−θv)
+                                          ∫ θv
+                      =θv·h(τv,θv)−
+                                            τv h(τv,yv)dyv + 1−θv,
+where the second inequality holds by the fact that f(au)≥ 1−g(av,pv) = 1−θv.  Finally, taking
+the minimum over all possible values of τv,θv concludes the proof.
+
+    Let Φ1, Φ2 denote the two lower bounds derived from the above lemmas.  Formally,
+                                                  ∫ θv
+               Φ1(τv,θv)  def==θv·h(τv,θv)−
+                                                   τv h(τv,yv)dyv + 1−θv;∫ θu                    
+
+                                        θu·h(τu,θu)−                                          .
+               Φ2(τu,θu,τv,θv)  def==         ∫ θv            τu h(τu,yu)dyu +θv·h(τv,θv)
+
+                                           −
+                                               τv h(τv,yv)dyv + (1−h(τu,θu))· (1−θv)
+
+                                                          8
+
+===== PDF PAGE 9 =====
+Finally, we use the folklore factor revealing lp techniques to optimize the function h.  A detailed
+implementation of the factor revealing lp is provided in AppendixA.
+
+Lemma 5.  There exists a function h : [0, 1]2→ [0, 1] such that for Γ = 0.6:
+
+                    ∀0≤τv≤θv≤ 1 :                                                               Φ1≥ Γ;                     (6)
+                    ∀0≤τu≤θu≤ 1, 1−θu≤τv≤θv≤ 1 :                             Φ2≥ Γ;                     (7)
+
+Theorem  6.  The  algorithm  with  the  functions f,g  chosen  corresponding  to  the h  function  of
+Lemma5is             Γ = 0.6-competitive for fractional fully online matching on general graphs.
+
+Proof.  We conclude the competitive ratio of our algorithm by putting the lemmas together.  Fix
+an arbitrary pair of neighbors (u,v) with u’s deadline later than v’s deadline.  Approximate dual
+feasibility follows by the two cases.  If u arrives earlier than v,
+
+                                 αu +αv≥      min0≤τu≤θu≤1  Φ2(τu,θu,τv,θv)≥ 0.6,
+                                               1−θu≤τv≤θv
+
+where the ﬁrst inequality follows from Lemma3and the second inequality follows from Lemma5.
+If v arrives earlier than u,
+                                      αu +αv≥     min0≤τv≤θv≤1 Φ1(τv,θv)≥ 0.6,
+
+where the ﬁrst inequality follows from Lemma4and the second inequality follows from Lemma5.
+Finally, reverse weak duality holds trivially according to the deﬁnition of dual variables.
+
+4    Fractional Algorithm for General Vertex Arrival
+
+In this section, we provide a primal-based algorithm for the fractional online matching problem with
+general vertex arrival by Wang and Wong [30].  Our algorithm has the same worst case competitive
+ratio 0.526 as Wang and Wong [30].
+    We argue that our algorithm is more intuitive and we believe it would be helpful for designing
+integral algorithms for the problem.  Our algorithm is inspired by the algorithm we proposed for
+the fully online matching problem.  Indeed, it is the same algorithm but limited to the matching
+decisions made on the arrivals of vertices.
+
+Our Algorithm.    Fix an increasing function f  : [0, 1]→ [0, 1] and a two-dimensional function
+g : [0, 1]→ [0, 1].
+
+    •  On  the  arrival  of  each  vertex u,  fractionally  matches u  to  the  neighbor  with  the  cheapest
+       price g(av,xv), as long as f(xu) +g(av,xv)≤ 1.  When the process ends, let au =xu be the
+       active water level of the vertex u.
+
+When xuv is increased by dx on the arrival of vertex u, update αu,αv by
+
+                              dαu = (1−g(av,xv))dx    and  dαv =g(av,xv)dx.
+
+    Refer to Algorithm2for the pseudocode of our algorithm.
+
+
+
+
+
+                                                            9
+
+===== PDF PAGE 10 =====
+Algorithm 2 History-based Pricing Algorithm for General Vertex Arrival
+  if  a vertex u arrives then
+      for∀v∈N(u) do                       ⊿ N(u) denotes u’s current neighbor set
+          xu,v← 0                         ⊿ xu,v denotes the matched portion of (u,v)
+      end for
+      xu← 0                                   ⊿ xu denotes the water level of u
+      v← arg minv∈N(u)g(av,xv)
+      while f(xu) +g(av,xv)≤ 1 do
+          xu,v  += dx                         ⊿ Match u, v (small enough portion dx).
+          xu  += dx, xv  += dx                                ⊿ Water level update
+          αu  += (1−g(av,xv))dx, αv  += g(av,xv)dx                     ⊿  Dual update
+          v← arg minv∈N(u)g(av,xv).
+      end while
+      au←xu                                      ⊿ Fix u’s active water level.
+  end if
+
+
+Analysis.    Fix a pair of neighbors (u,v).  Suppose v arrives earlier than u.  Let pv  be the water
+level of v right after u’s arrival.
+
+Lemma 7.  Right after u’s arrival,
+                                                    ∫ pv
+                          αu +αv≥av·f(av) +
+                                                      av g(av,xv)dxv +au·f(au)
+Proof.  On the arrival of vertex v, it fractionally matches to the neighbor with the cheapest price
+and dαv  = (1−g(az,xz))dx≥ f(av)dx.  Later, v  is passively matched and the water level of v
+increases fromav topv,αv increases at the rate ofg(av,xv). Henceαv≥av·f(av)+∫pvav g(av,xv)dxv.
+Similarly, the gain of u is at least au·f(au).  Putting the two lower bounds together concludes the
+lemma.
+
+Reformulating the bound.    Again, we introduce a functionh : [0, 1]2→ [0, 1] that has a one-one
+correspondence with g:
+                                    h(τ,θ) = inf{x :g(f−1(τ),x)≥θ}.
+Our  function g  shall  be  only  deﬁned  on  (a,x)∈  [0, 1]2  with x≥ a.   Hence, h(τ,τ)  = f−1(τ).
+Moreover, our functions f,g satisfy that f(x) =g(x,x) for all x∈ [0, 1].
+    Then for any 0≤τ≤θ≤ 1, we have
+                    ∫ h(τ,θ)                                                ∫ θ
+
+
+                     h(τ,τ) g(f−1(τ),x)dx =θ·h(τ,θ)−τ·h(τ,τ)−                 τ h(τ,y)dy.
+
+Lemma 8.  Right after u’s arrival,
+                                      {                  ∫ θv                               }
+                 αu +αv≥    minτv≤θv    θv·h(τv,θv)−
+                             τu≥1−θv                      τv h(τv,yv)dyv +τu·h(τu,τu)
+
+
+
+
+
+
+                                                      10
+
+===== PDF PAGE 11 =====
+Proof.  Let τv =f(av),τu =f(au) and θv =g(av,pv).  By Lemma7, we have
+                                 ∫ pv
+  αu +αv =τv·h(τv,τv) +
+                                   h(τv,τv)g(f−1(τv),xv)dxv +τu·h(τu,τu)
+                                             ∫ h(τv,θv)
+                        ≥τv·h(τv,τv) +
+                                              h(τv,τv) g(f−1(τv),xv)dxv +τu·h(τu,τu)∫ τv
+                                                         =θv·h(τv,θv)−
+                                                                               τv h(τv,yv)dyv +τu·h(τu,τu),
+where  the  inequality  holds  by  the  fact  that pv ≥ h(τv,θv),  by  the  deﬁnition  of h.   Notice  that
+τu =f(au)> 1−g(av,pv) = 1−θv after the arrival of u, according to the design of our algorithm.
+We conclude the lemma by taking the minimum over all possible values of τv,θv and τu.
+
+    We are left to optimize the function h and this is again solved by factor revealing lp.  We omit
+the detailed implementation.  Our experiment suggests the best ratio to be Γ≈ 0.526 using our
+algorithm and analysis.  Though we do not optimize the function h in a closed form, we believe it
+is the same competitive ratio of Wang and Wong [30].
+
+Lemma 9.  There exists a function h : [0, 1]2→ [0, 1] such that for Γ = 0.526:
+                                                  ∫ θv
+       ∀0≤τv≤θv≤ 1 :  θv·h(τv,θv)−
+                                                    τv h(τv,yv)dyv + (1−θv)·h(1−θv, 1−θv)≥ Γ;
+                                τ·h(τ,τ) is increasing.
+
+Theorem  10.  The  algorithm  with  the  functions f,g  chosen  corresponding  to  the h  function  of
+Lemma9is             Γ = 0.526-competitive for fractional online matching with general vertex arrival.
+
+Proof.  We conclude the competitive ratio of our algorithm by putting the lemmas together.  Fix
+an arbitrary pair of neighbors (u,v) with u arrives later than v.  By Lemma7,
+                         {                   ∫ θv                                 }
+  αu +αv≥    minτv≤θv      θv·h(τv,θv)−
+               τu≥1−θv                        τv h(τv,yv)dyv +τu·h(τu,τu)
+                             {                   ∫ θv                                                  }
+                    =  minτv≤θvθv·h(τv,θv)−                                                               ≥ 0.526,
+                                                   τv h(τv,yv)dyv + (1−θv)·h(1−θv, 1−θv)
+where the ﬁrst inequality follows from Lemma7, the equality follows from the monotonicity of   h
+from Lemma9, and the last inequality is also from Lemma9.
+    Finally, reverse weak duality holds trivially according to the deﬁnition of dual variables.
+
+5    Improved Hardness for Fully Online Matching
+
+In this section, we show an improved upper bound for the fractional fully online matching problem.
+Previously, the best known upper bound is 0.6297 by Eckl et al. [10].
+
+Theorem 11.  No algorithm is strictly better than 0.6132-competitive for the fractional fully online
+matching problem, even for bipartite graphs.
+
+
+
+
+                                                          11
+
+===== PDF PAGE 12 =====
+Hard Instance.    Our construction includes 2n·𝓁 vertices, that are divided into𝓁 identical groups.
+Each group consists of 4 parts, that are denoted by Ak,Bk,Ck, andDk.  Each group of Ak,Bk has
+α·n vertices and Ck,Dk has (1−α)·n vertices, where α is a constant to be ﬁxed later.
+    We ﬁrst describe the structure of the underlying graph and then deﬁne the arrivals and depar-
+tures of the vertices.  Refer to Figure2.
+
+    •  Upper triangle between Ak and Bk.  Let Ak ={aki}i and Bk ={bki}i.  The i-th vertex aki in
+       Ak is connected to every bkj  for j≥i.
+
+    •  Complete bipartite graph between Ak and Ck.
+
+    •  Complete bipartite graph between Ck and Dk∪Bk+1∪Ck+1.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                       Figure 2:  An illustration when α·n = 4 and (1−α)·n = 3.
+
+    Next, we deﬁne the arrivals and deadlines of the vertices.  Let there be 𝓁 stages.  At the end
+of the (k− 1)-th stage, all vertices in{Ai}i∈[k−1],{Bi}i∈[k],{Ci}i∈[k],{Di}i∈[k−1] have arrived.  Fur-
+thermore, all vertices in{Ai}i∈[k−1],{Bi}i∈[k−1],{Ci}i∈[k−1],{Di}i∈[k−1] have left.  In other words,
+the only remaining vertices in the graph belongs to Bk∪Ck.  Refer to Figure3a.
+    We shall deﬁne the arrivals and deadlines in the k-th stage.
+
+   1.(Fig3b) The vertices of      Ak  arrive and leave immediately one by one.  Upon the arrival and
+       departure of aki, aki’s neighbors{bkj}j≥i∪Ck  are still alive (i.e., the vertex arrives but not
+       depart) in the graph.
+
+                                                           12
+
+===== PDF PAGE 13 =====
+   2.(Fig3b) The vertices of      Bk leave.  There is no alive neighbor for vertices in Bk.
+
+   3.(Fig3c) The vertices of      Dk∪Bk+1∪Ck+1 arrive and the vertices ofCk leave ony by one. cki’s
+       neighbors Dk∪Bk+1∪Ck+1 are still alive.
+
+   4.(Fig3c) The vertices of      Dk leave.  There is no alive neighbor for vertices in Dk.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            (a)                (b)
+
+
+
+                                                            (c)
+                                                                                                  (d)
+
+Figure 3:  An illustration when α·n = 4 and (1−α)·n = 3.  The vertices become grey means that
+they have already left.
+
+
+Competitive Ratio.    First,  we observe that the maximum matching of the graph has size n𝓁.
+Indeed, the graph has a perfect matching by matching Ak  with Bk  and matching Ck  with Dk  for
+all k∈ [𝓁].
+    Next, we shall assume that the algorithm only makes matching decisions on the departures of
+vertices, and the algorithm would like to fully match a vertex unless there is no feasible neighbor.
+This assumption is without loss of generality by a simple exchange argument (see e.g.  [19]).
+    A crucial property of our construction is that on the departure of each vertex, all its remaining
+neighbors in the graph are indistinguishable.  Indeed, on the departure of each aki, all its neighbors
+{bkj}j≥i∪Ck are indistinguishable; on the departure of eachcki, all its neighborsDk∪Bk+1∪Ck+1
+are indistinguishable.  Applying a similar argument as [10], we can then, without loss of generality,
+restrict ourselves to the Water-Filling algorithm that treats all neighbors symmetrically.  That is,
+on the departure of each vertex,  we match its remaining portion equally to all its neighbors.  A
+more formal construction need to decide the identity of each bki  after aki’s departure and decide
+the identities of Dk after Ck’s departure.  We omit the detailed derivation here.
+    Based on the discussion above, we are left to calculate the performance of Water-ﬁlling on the
+constructed  instance.   Since  we  treat  all  vertices  in Bk∪Ck  equally  at  the  (k− 1)-th  stage,  all
+
+
+                                                            13
+
+===== PDF PAGE 14 =====
+vertices ofBk∪Ck would have the same water level right before the k-th stage.  Letxk be value of
+the water level.  Initially, we havex1 = 0.  We derive the recurrent formula ofxk+1 in the following.
+    On the deadline of the vertex aki ofAk, it has|{bkj}j≥i∪Ck| =n−i + 1 number of neighbors.
+Hence, the increment of the water level ofCk equals      1n−i+1 on the departure ofaki.  Then, after the
+departure of the last vertex of Ak, the water level of Ck becomes
+
+                                yk =xk + 1n +    1n− 1 +··· +          1(1−α)n + 1 .
+
+Next,  on the departure of Ck,  each vertex matches its remaining portion to all vertices in Dk∪
+Bk+1∪Ck+1 equally.  Thus, we have
+                                       (      (                                            ))
+         xk+1 = (1−yk)· 1−α2−α =         1−     xk + 1n +    1n− 1 +··· +          1(1−α)n + 1  · 1−α2−α .
+
+Fix n and let the number of stage k goes to inﬁnity.  We have that the sequence{xk} converges to
+the solution x∗ of the following equation:
+                           (      (                                           ))
+                      x =    1−     x + 1n +    1n− 1 +··· +          1(1−α)n + 1 · 1−α2−α .
+
+Moreover, the total matching made in stage k equals
+
+                          1·αn + (1−yk)· (1−α)n = (α + (2−α)·xk+1)·n,
+
+where the term 1·αn corresponds to the matchings made on the departures of Ak  and the term
+(1−yk)·(1−α)n corresponds to the matchings made on the departures ofCk.  Hence, when𝓁→∞,
+the ratio between the matching produced by Water-ﬁlling and the optimal matching is
+                              limk→∞(α + (2−α)·xk+1)·n
+                                                n                  =α + (2−α)·x∗ .
+Finally, let n goes to inﬁnity, we have x∗ satisﬁes that
+
+                x∗ = (1−x∗ + ln(1−α))· 1−α2−α ⇐⇒ x∗ =  1−α3− 2α· (1 + ln(1−α)) ,
+
+where we use the fact that( 1                                        )
+
+                         limn→∞  n +    1n− 1 +··· +          1(1−α)n + 1=− ln(1−α) .
+
+By optimizing α, we conclude an upper bound of
+                                             {                                           }
+           minα {α + (2−α)·x∗} = minα          α + (2−α)(1−α)3− 2α  · (1 + ln(1−α))         ≈ 0.6132,
+
+when α≈ 0.43.
+
+6    Improved Hardness for General Vertex Arrival
+
+In this section, we show an improved upper bound for the fractional online matching problem with
+general vertex arrival.  Previously, the best known upper bound is 0.592 by Buchbinder et al. [6].
+Theorem 12.  No algorithm is strictly better than 0.584-competitive for fractional online matching
+with general vertex arrivals, even for bipartite graphs.
+
+                                                        14
+
+===== PDF PAGE 15 =====
+              (a)                                                                        (d)
+
+
+                                 (b)                  (c)
+
+Figure 4:  An illustration when n = 6 and k  = 4.  Each square denotes a set of k  = 4 vertices.
+An edge between two squares means a complete bipartite graph in between the two squares.  a)
+24  vertices  arrive  in  a  sequence  and  they  form  a  complete  bipartite  graph.   b) B3  arrives  and
+the  algorithm  makes  matching  decisions.   Afterwards,  the  identity  of A3  is  determined.   c) I  =
+{2, 3, 5} ={i : 1−eai−1 + 1−ebi−1< Γ}.  d) Two upper triangles for each i∈I.
+
+
+Hard Instance.    Our construction includes 3 stages.  Suppose there exists a Γ-competitive algo-
+rithm.  We shall ﬁx an arbitrary algorithm with competitive ratio Γ and construct an instance that
+depends on the decision made by the algorithm.  In the following, we describe the behavior of the
+algorithm and our construction at the same time.  Refer to Figure4.
+
+    •  (Fig4a) The ﬁrst stage involves     nk number of vertices that arrive in a sequence, that form
+       a complete bipartite graph with an even size on the two sides of the graph.  Denote these
+       vertices by A.  We denote the average matched portion of these vertices after the ﬁrst stage
+       by γ.  If γ < Γ, the instance ends.
+
+    •  (Fig4b) The second stage is consisted of     n steps.  At stepi, the identities of{Aj}j<i has been
+       determined.  A set of k vertices Bi  arrive and it forms a complete bipartite graph with the
+       vertices A−∪j<iAj.  The algorithm makes matching decision between Bi  and A−∪j<iAj.
+       Afterwards, letAi be the leastk matched vertices amongA−∪j<iAj.  We useαi,βi to denote
+       the average matched portion of Ai,Bi after the second stage.
+
+    •  (Fig4c) Let     I ={i∈ [n] : 1−eαi−1 + 1−eβi−1< Γ}.
+
+    •  (Fig4d)  For  each     i∈ I,  let  there  be k  vertices Ci  and  an  upper  triangle  between Ci  and
+       Ai.   The  vertices  in Ci  comes  in  a  sequence.   Upon  the  arrival  of  the j-th  vertex cij,  the
+       identities of{ai𝓁}𝓁<j  has been determined. cij  is connected to all vertices of Ai−{ai𝓁}𝓁<j
+       and the algorithm makes matching decisions for these edges.  Afterwards, let aij  be the least
+       matched  vertex  among Ai−{ai𝓁}𝓁<j.   Similarly,  let  there  be k  vertices Di  and  an  upper
+       triangle between Di and Bi.
+
+
+Competitive Ratio.    We ﬁrst derive the stated competitive ratio of any algorithm for our in-
+stance, by making the following intuitive assumptions on the behavior of the algorithm.  A formal
+proof of the theorem is provided in AppendixB.
+
+                                                           15
+
+===== PDF PAGE 16 =====
+    •  The algorithm matches evenly for all vertices inA byγ fraction at the ﬁrst stage.  Intuitively,
+       since all vertices are symmetric at the ﬁrst stage, the algorithm should match them evenly.
+
+    •  On  the  arrival  of  each Bi,  the  algorithm  matches  all  remaining  vertices,  i.e. A−∪j<iAj
+       evenly.  This is again because all the neighbors of Bi are symmetric on the arrival of Bi.
+
+    •  Last,  the  most  crucial  assumption  we  made  is  that  whenever Ai  is  not  fully  matched,  i.e.
+       αi < 1, on the arrival of Bi, we would keep matching until 1−eαi−1 + 1−eβi−1 = Γ, where
+       αi,βi denote the average matched portion ofAi,Bi respectively. The value 1−eαi−1+1−eβi−1
+       is monotonically increasing as we continue matching Bi  to its neighbors.  This assumption
+       states that the algorithm should stop matching when this value is smaller than Γ.
+
+    The third assumption is the most crucial to achieve the improved upper bound of online match-
+ing with general vertex arrival.  And this is due to the design of the third stage, which we explain
+in detail in the following.
+    Recall the graph structure of the third stage.  The upper triangle construction is essentially the
+same construction by Karp et al. [26], for proving the 1  −  1e  upper bound for the classical online
+bipartite matching problem.  The only diﬀerence is that we have an average matched portion αi,βi
+ofAi,Bi before the third stage.  We analyze the best possible performance of any algorithm at the
+third stage, that can be viewed as a straightforward generalization of the 1− 1/e hardness result
+of Karp et al. [26].  We remark that when   αi = 0, our bound in the following lemma equals 1−  1e.
+The formal proof of the lemma is deferred to AppendixB.
+
+Lemma 13. For eachi∈I, the total matching made on the arrival ofCi is at most(1−eαi−1 +o(1))·
+k  and the total matching made on the arrival of Di  is at most(1−eβi−1 +o(1))·k.
+
+    In other words, if an algorithm matches too much between Ai and Bi on the arrival of Bi, the
+arrivals ofCi,Di from the third stage would penalize the algorithm.  Observe that after the arrival
+of each Ci,Di, the size of the maximum matching increases by k, while the algorithm matches at
+most (1−eαi−1 + 1−eβi−1)·k by the above lemma.  Since we are aiming for a competitive ratio
+of Γ, it suggests the algorithm to stop matching Bi  further if 1−eαi−1 + 1−eβi−1 = Γ.  This is
+exactly the third assumption we made above.
+    Now we are ready to calculate the best possible competitive ratio Γ.  We derive the claimed
+Γ = 0.584 with computer assistance.  Concludes all the assumptions above, we can solve all αi and
+βi to depict the best algorithm’s performance in the following Algorithm3.
+
+Algorithm 3 Solve α an β
+  α0 =γ.
+  for Each i∈ [n] do
+       Solve x for eαi−1+     xn−i+1−1 +ex−1 = 2− Γ.
+       βi = min{x, (n−i + 1)(1−αi)}.
+       αi =αi−1− 1 +  βin−i+1.
+  end for
+
+    Fixing n  =  500,  the  algorithm  must  start  with  a γ ≥  Γ  after  the  ﬁrst  stage.   Then,  the
+competitive ratio of the algorithm after the second stage equals:
+
+                                r(γ) = (nγ + 2∑ni=1βi)·k                         i=1βi
+                                                  2n·k             = nγ + 2∑n2n    .
+
+
+                                                           16
+
+===== PDF PAGE 17 =====
+    We search for every possible value of γ≥ Γ (discretized) and plot the following ﬁgure for the
+function r(x).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                       Figure 5:  Function r(x) and y =x
+
+    Observe that r(x)< Γ for allx≥ Γ.  We conclude that there is no algorithm has a competitive
+ratio better than Γ = 0.584.
+
+References
+
+ [1]Gagan Aggarwal, Gagan Goel, Chinmay Karande, and Aranyak Mehta. Online vertex-weighted
+     bipartite matching and single-bid budgeted allocations.  In SODA, pages 1253–1264, 2011.
+
+ [2]Itai Ashlagi, Maximilien Burq, Chinmoy Dutta, Patrick Jaillet, Amin Saberi, and Chris Shol-
+     ley.  Edge weighted online windowed matching.  In EC, pages 729–742, 2019.
+
+ [3]Benjamin  Birnbaum  and  Claire  Mathieu.   On-line  bipartite  matching  made  simple.        ACM
+     SIGACT News, 39(1):80–87, 2008.
+ [4]Guy  Blanc  and  Moses  Charikar.    Multiway  online  correlated  selection.         arXiv  preprint
+     arXiv:2106.05579, 2021.
+
+ [5]Niv Buchbinder, Kamal Jain, and Joseph Naor. Online primal-dual algorithms for maximizing
+     ad-auctions revenue.  In ESA, volume 4698 of Lecture Notes in Computer Science, pages 253–
+     264. Springer, 2007.
+
+ [6]Niv Buchbinder, Danny Segev, and Yevgeny Tkach. Online algorithms for maximum cardinal-
+     ity matching with edge arrivals.  Algorithmica, 81(5):1781–1799, 2019.
+
+ [7]Nikhil R. Devanur,  Zhiyi Huang,  Nitish Korula,  Vahab S. Mirrokni,  and Qiqi Yan.  Whole-
+     page  optimization  and  submodular  welfare  maximization  with  online  bidders.   ACM  Trans.
+     Economics and Comput., 4(3):14:1–14:20, 2016.
+
+ [8]Nikhil R. Devanur and Kamal Jain.  Online matching with concave returns.  In      STOC, pages
+     137–144. ACM, 2012.
+
+                                                          17
+
+===== PDF PAGE 18 =====
+ [9]Nikhil R. Devanur, Kamal Jain, and Robert D. Kleinberg.  Randomized primal-dual analysis
+     of RANKING for online bipartite matching.  In SODA, pages 101–107. SIAM, 2013.
+
+[10]Alexander Eckl, Anja Kirschbaum, Marilena Leichter, and Kevin Schewior. A stronger impos-
+     sibility for fully online matching.  Operations Research Letters, to appear.
+
+[11]Leah  Epstein,  Asaf  Levin,  Danny  Segev,  and  Oren  Weimann.   Improved  bounds  for  online
+     preemptive  matching.   In  STACS,  volume  20  of  LIPIcs,  pages  389–399.  Schloss  Dagstuhl  -
+     Leibniz-Zentrum fuer Informatik, 2013.
+
+[12]Tomer Ezra, Michal Feldman, Nick Gravin, and Zhihao Gavin Tang.  Online stochastic max-
+     weight matching: Prophet inequality for vertex and edge arrival models. In EC, pages 769–787.
+     ACM, 2020.
+
+[13]Tomer Ezra, Michal Feldman, Nick Gravin, and Zhihao Gavin Tang. Secretary matching with
+     general arrivals.  CoRR, abs/2011.01559, 2020.
+
+[14]Matthew Fahrbach, Zhiyi Huang, Runzhou Tao, and Morteza Zadimoghaddam. Edge-weighted
+     online bipartite matching. In 2020 IEEE 61st Annual Symposium on Foundations of Computer
+     Science (FOCS), pages 412–423. IEEE, 2020.
+
+[15]Jon Feldman, Nitish Korula, Vahab S. Mirrokni, S. Muthukrishnan, and Martin P´al.  Online
+     ad assignment with free disposal.  In WINE, pages 374–385, 2009.
+
+[16]Buddhima  Gamlath,  Michael  Kapralov,  Andreas  Maggiori,  Ola  Svensson,  and  David  Wajc.
+     Online matching with general arrivals.  In FOCS, pages 26–37. IEEE, 2019.
+
+[17]Ruiquan Gao, Zhongtian He, Zhiyi Huang, Zipei Nie, Bijun Yuan, and Yan Zhong.  Improved
+     online correlated selection.  arXiv preprint arXiv:2106.04224, 2021.
+
+[18]Gagan Goel and Aranyak Mehta.  Online budgeted matching in random input models with
+     applications to adwords.  In SODA, pages 982–991, 2008.
+
+[19]Zhiyi Huang, Ning Kang, Zhihao Gavin Tang, Xiaowei Wu, Yuhao Zhang, and Xue Zhu. Fully
+     online matching.  J. ACM, 67(3):17:1–17:25, 2020.
+
+[20]Zhiyi Huang, Binghui Peng, Zhihao Gavin Tang, Runzhou Tao, Xiaowei Wu, and Yuhao Zhang.
+     Tight competitive ratios of classic matching algorithms in the fully online model.  In  SODA,
+     pages 2875–2886. SIAM, 2019.
+
+[21]Zhiyi  Huang,  Zhihao  Gavin  Tang,  Xiaowei  Wu,  and  Yuhao  Zhang.   Online  vertex-weighted
+     bipartite matching:  Beating 1-1/e with random arrivals.  ACM  Transactions  on  Algorithms,
+     15(3):1–15, 2019.
+
+[22]Zhiyi Huang, Zhihao Gavin Tang, Xiaowei Wu, and Yuhao Zhang.  Fully online matching II:
+     beating ranking and water-ﬁlling.  In FOCS, pages 1380–1391. IEEE, 2020.
+
+[23]Zhiyi Huang, Qiankun Zhang, and Yuhao Zhang.  Adwords in a panorama.  In        FOCS, pages
+     1416–1426. IEEE, 2020.
+
+[24]Bala  Kalyanasundaram  and  Kirk  Pruhs.   An  optimal  deterministic  algorithm  for  online  b-
+     matching.  Theoretical Computer Science, 233(1-2):319–325, 2000.
+
+
+
+                                                          18
+
+===== PDF PAGE 19 =====
+[25]Chinmay  Karande,  Aranyak  Mehta,  and  Pushkar  Tripathi.  Online  bipartite  matching  with
+     unknown distributions.  In STOC, pages 587–596, 2011.
+
+[26]Richard M. Karp, Umesh V. Vazirani, and Vijay V. Vazirani. An optimal algorithm for on-line
+     bipartite matching.  In STOC, pages 352–358, 1990.
+
+[27]Nitish Korula, Vahab S. Mirrokni, and Morteza Zadimoghaddam.  Bicriteria online matching:
+     Maximizing  weight  and  cardinality.   In  WINE,  volume  8289  of  Lecture  Notes  in  Computer
+     Science, pages 305–318. Springer, 2013.
+
+[28]Mohammad  Mahdian  and  Qiqi  Yan.   Online  bipartite  matching  with  random  arrivals:   an
+     approach based on strongly factor-revealing LPs.  In STOC, pages 597–606, 2011.
+
+[29]Aranyak  Mehta,  Amin  Saberi,  Umesh  V.  Vazirani,  and  Vijay  V.  Vazirani.   Adwords  and
+     generalized online matching.  J. ACM, 54(5):22, 2007.
+
+[30]Yajun Wang and Sam Chiu-wai Wong. Two-sided online bipartite matching and vertex cover:
+     Beating the greedy algorithm.  In ICALP, pages 1070–1081, 2015.
+
+
+A    Factor Revealing LP
+
+In this section, we explain how we use the factor revealing LP to construct the feasibleh function to
+conclude the proof of Lemma5.  Recall that there are two constraints between the non-decreasing
+function h and the targeting competitive ratio Γ = 0.6.  Let
+                                                    ∫ θv
+                 Φ1(τv,θv) =θv·h(τv,θv)−
+                                                    τv h(τv,yv)dyv + 1−θv;∫ θu                       
+
+                                         θu·h(τu,θu)−                                             .
+                 Φ2(τu,θu,τv,θv) =             ∫ θv             τu h(τu,yu)dyu +θv·h(τv,θv)
+
+                                            −
+                                                 τv h(τv,yv)dyv + (1−h(τu,θu))· (1−θv)
+The two constraints are deﬁned as follows:
+
+                    ∀0≤τv≤θv≤ 1 :                                                               Φ1≥ Γ;                     (6)
+                    ∀0≤τu≤θu≤ 1, 1−θu≤τv≤θv≤ 1 :                             Φ2≥ Γ;                     (7)
+
+The Factor-revealing Lp and The Construction of h    Fix an integer n, we let 1/n be the
+step  size,  and  [0, 1]n  ={in  : i  =  0...n}  denote  the  set  of n + 1  multiples  of  the  step  size  1/n,
+between  0  and  1.   The  LP  contains  (n + 1)2  variables,  which  also  represent  the  function  value
+of h(0, 0),h(0, 1/n),...,h(0, 1),h(1/n, 0),...,h(1, 1).   We  remark  that  the  remaining  of h  will  be
+later constructed by these variables via linear interpolation.  In particular, consider a real number
+x∈ [0, 1], we deﬁne ¯x be the largest value inside [0, 1]n that not exceed x and ˆx = ¯x +  1n.  We also
+deﬁnez(x) =n· (x− ¯x), which also meansx = ¯x + z(x)n   andx = ˆx− (1−z(x))n     .  Then for those point
+(τ,θ) not inside [0, 1]n× [0, 1]n, h is deﬁned to be:
+                             ((1−z(τ))· (1−z(θ))·h(¯τ, ¯θ) + (1−z(τ))·z(θ)·h(¯τ, ˆθ))
+                 h(τ,θ) =      z(τ)· (1−z(θ))·h(ˆτ, ¯θ) +z(τ)·z(θ)·h(ˆτ, ˆθ)                             .
+
+
+                                                            19
+
+===== PDF PAGE 20 =====
+Following this construction of h,∀τ, θ∈ [0, 1]n, we have
+                                ∫ θ                                  h(y) +h(y +  1
+                                                                                      n)
+                                  τ h(τ,y)dy =   ∑τ≤y<θ, y∈[0,1]n            2n     .
+
+It means both when the variables (i.e.,τu,τv,θu, andθv) are chosen from [0, 1]n, both Φ1 and Φ2 are
+linear.  It allows us to present the LP formulation below, for convenience, we let h(τ, 1 + 1/n) = 1
+for any τ∈ [0, 1]n.
+
+
+     maximize       Γ
+
+    subject to       Γ≤ Φ1(τv,θv)−   52n2,         ∀τv≤θv∈ [0, 1]n                              (8)
+
+                      Γ≤ Φ2(τu,θu,τv,θv)−  5n2,      ∀τv≤θv∈ [0, 1]n,∀1−θu≤τv≤θv∈ [0, 1]n                              (9)
+
+                      h(τ, 0) = 0,
+
+                      h(τ, 1) =h(τ, 1 + 1n) = 1,         ∀τ∈ [0, 1])n                             (10)
+
+                      h(τ,y)<h(τ,y + 1n),    ∀τ∈ [0, 1], ∀y∈ [0, 1]n< 1           (Monotonicity)
+                      h(τ,y)≥h(τ,y +  1n) +  4n,             ∀τ∈ [0, 1], ∀y∈ [0, 1]n< 1
+                      h(y,θ)≥h(y +  1n,θ) +  4n,             ∀θ∈ [0, 1], ∀y∈ [0, 1]n< 1            (Lipschitzness)
+
+    We use the Gurobi LP solver to solve the above LP and get Γ > 0.6 when we ﬁx n = 100.  In
+the following part, we prove that the optimal solution of the above LP can construct a feasible h
+function when we ﬁx Γ = 0.6,  i.e.,  prove Eqn (6) and Eqn (7),  so to derive the 0   .6 competitive
+ratio.
+    These constraints directly appears in the LP when the parameters (i.e., τu, τv, θu, and θv) are
+all inside [0, 1]n, it remains to consider the case when some parameters are outside [0, 1]n.  We ﬁrst
+deﬁne following two functions:
+
+                     ((1−z(τu))· (1−z(θu))· Φ1( ¯τu, ¯θu) + (1−z(τu))·z(θu)· Φ1( ¯τu, ˆθu))
+     ˜Φ1(τv,θv) =                                                                                            .
+                       +z(τu)· (1−z(θu))· Φ1( ˆτu, ¯θu) +z(τu)·z(θu)· Φ1( ˆτu, ˆθu)                             
+                             (1−z(τu))· (1−z(θu))· (1−z(τv))· (1−z(θv))· Φ2( ¯τu, ¯θu, ¯τv, ¯θv)
+                                + (1−z(τu))· (1−z(θu))· (1−z(τv))·z(θv)· Φ2( ¯τu, ¯θu, ¯τv, ˆθv)
+     ˜Φ2(τu,θu,τv,θv) =         + (1−z(τu))· (1−z(θu))·z(τv)· (1−z(θv))· Φ2( ¯τu, ¯θu, ˆτv, ¯θv)                    .
+                                +...
+                                +z(τu)·z(θu)·z(τv)·z(θv)· Φ2( ˆτu, ˆθu, ˆτv, ˆθv)
+
+It’s easy to see that  ˜Φ1  and  ˜Φ2  is no less than Γ +    52n2  and Γ +   5n2 ,  because they are the aﬃne
+combination of the terms appear in the LP constraints (8) and (9).  The key point we claim is the
+following two lemmas:
+Lemma 14.  Φ1(τu,θu,τv,θv)≥ ˜Φ1(τu,θu,τv,θv)−    52n2≥ Γ.
+
+Lemma 15.  Φ2(τu,θu,τv,θv)≥ ˜Φ2(τu,θu,τv,θv)−   5n2≥ Γ.
+
+                                                           20
+
+===== PDF PAGE 21 =====
+    To prove these two lemmas, we deﬁne one crucial function below:
+                                            ∫ θ
+                  H(τ,θ) =θvh(τ,θ)−
+                              ((1−z(τ))(1−z(θ))H(¯τ, ¯θ) + (1−z(τ))·z(θ)H(¯τ, ˆθ)τ h(τ,y)dy;   )
+                   ˜H(τ,θ) =                                                                      .
+                                 +z(τ)· (1−z(θ))H(ˆτ, ¯θ) +z(τ)·z(θ)H(ˆτ, ˆθ)
+
+We claim the following lemma,
+
+Lemma 16. H(τ,θ)≥  ˜H(τ,θ)−    52n2 .
+
+Proof.  We ﬁrst restrict τ∈ [0, 1]n but relax θ to be in [0, 1], and prove that
+
+                            H(τ,θ)≥ (1−z(θ))·H(τ, ¯θ) +z(θ)·H(τ, ˆθ)−  1n2.
+
+Recall that H(τ,θ) =θh(τ,θ)−∫θτ h(τ,y)dy, consider the ﬁrst term, we have
+
+                θh(τ,θ)− (1−z(θ))· ¯θh(τ, ¯θ)−z(θ)· ˆθh(τ, ˆθ)
+             =θ· (1−z(θ))· (τ, ¯θ) +θ·z(θ)h(τ, ˆθ)− (1−z(θ))· ¯θh(τ, ¯θ)−z(θ)· ˆθh(τ, ˆθ)
+
+             =z(θ)n · (1−z(θ))·h(τ, ¯θ)− 1−z(θ)n  ·z(θ)·h(τ, ˆθ)
+
+             =z(θ)(1−z(θ))n   · (h(τ, ¯θ)−h(τ, ˆθ))
+
+             ≥−  1n2.       (By the Lipschitzness of h)
+
+For the other term, we have
+                         ∫ θ                             ∫  ¯θ                    ∫  ˆθ
+                      −
+                         ∫ θτ h(τ,y)dy + (1−z(θ))·∫  ¯θ   τ h(τ,y)dy +z(θ)·         τ h(τ,y)dy
+
+                   =−
+                           ¯θ h(τ,y)dy +z(θ)·       ˆθ h(τ,y)dy
+                   ≥0.       (By the Monotonicity of h)
+
+Thus far, we conclude the ﬁrst claim.  Then, we restrict θ∈ [0, 1]n, and allow τ  to be in [0, 1].  We
+prove that
+                           H(τ,θ)≥ (1−z(τ))·H(¯τ,θ) +z(τ)·H(ˆτ,θ)−   32n2.
+
+Similarly, consider the ﬁrst term, we have
+
+                            θh(τ,θ)− (1−z(τ))·θh(¯τ,θ)−z(τ)·θh(ˆτ,θ) = 0.
+
+
+
+
+
+
+
+
+
+
+                                                         21
+
+===== PDF PAGE 22 =====
+For the second them, we have
+     ∫ θ                            ∫ θ                     ∫ θ
+  −
+      τ h(τ,y)dy + (1−z(τ))·∫ θ      ¯τ h(¯τ,y)dy +z(τ)·∫ θ   ˆτ h(ˆτ,y)dy∫ θ                     ∫ θ
+=− (1−z(τ))·
+               ∫ τ  τ h(¯τ,y)dy−z(τ)·∫  ˆτ  τ h(ˆτ,y)dy + (1−z(τ))·        ¯τ h(¯τ,y)dy +z(τ)·      ˆτ h(ˆτ,y)dy
+=(1−z(τ))·
+                ¯τ h(¯τ,y)dy−z(τ)·       τ h(ˆτ,y)dy
+=(1−z(τ))· z(τ)2n · (h(¯τ, ¯τ) +h(¯τ,τ))−z(τ)· 1−z(τ)2n  · (h(ˆτ,τ) +h(ˆτ, ˆτ))
+
+≥− z(τ)· (1−z(τ))2n   · 12n        (By the Lipschitzness of h)
+
+≥  32n2
+
+
+
+    Finally, we conclude the proof of Lemma14and Lemma15.
+
+Proof of Lemma14.
+
+     Φ1(τv,θv) =H(τv,θv) + 1−θv≥  ˜H(τv,θu) + 1−θv−   52n2≥ ˜Φ1(τu,θu,τv,θv)−   52n2≥ Γ.
+
+
+
+Proof of Lemma15.
+                      ∫ θu                                   ∫ θv
+    θu·h(τu,θu)−
+                       τu h(τu,yu)dyu +θv·h(τv,θv)−           τv h(τv,yv)dyv + (1−h(τu,θu))· (1−θv)
+  =H(τu,θu) +H(τv,θv) + (1−h(τu,θu))· (1−θv)
+
+  ≥ ˜H(τu,θu) +  ˜H(τv,θv) + (1−h(τu,θu))· (1−θv)− 10n2
+
+  = ˜H(τu,θu) +  ˜H(τv,θv) + 1−h(τu,θu)−θv +θvh(τu,θu)−  5n2
+
+  =˜Φ2(τu,θu,τv,θv)−  5n2≥ Γ.
+
+
+
+B    Formal Proof of Theorem12
+
+Recall that γ is the average matched portion of vertices in A after the ﬁrst stage; αi,βi equal the
+average matched portion of vertices inAi,Bi respectively, after the second stage.  We ﬁrst have the
+following observation from our construction.
+
+Lemma 17.{αi},{βi},γ  satisfy the following conditions:
+
+   • ∀i∈ [n− 1],  ∑i−1j=1αj + (n−i + 1)·αi≤∑ij=1βj +n·γ;
+
+   • ∑ni=1αi =γ·n +∑ni=1βi.
+
+                                                       22
+
+===== PDF PAGE 23 =====
+Proof.  For each i∈ [n], consider the moment after Bi’s arrival.  According to the deﬁnition of Ai,
+they have the least average matched portion among all vertices in∪nj=iAj.  Thus, the total matched(∑i−1)
+portion of all vertices inA is at least         j=1αj + (n−i + 1)·αi         ·k.  On the other hand, the total
+matched portion of all vertices inA should equal the total matched portion of∪ij=1Bj plus the total(∑i)
+matched portion from the ﬁrst stage, which is              j=1βj +n·γ        ·k.  This gives the ﬁrst family of
+inequalities.  Moreover, after the second stage (i.e., the arrival of Bn), the inequality becomes an
+equality since the total matched portion ofA equals∑ni=1αi, which gives the second equation.
+
+    Next, we study the optimal behavior of any algorithm at the third stage.
+Lemma 18. For eachi∈I, the total matching made on the arrival ofCi is at most(1−eαi−1 +o(1))·
+k  and the total matching made on the arrival of Di  is at most(1−eβi−1 +o(1))·k.
+Proof.  Let xj  be the matched portion of vertex aij  for each j∈ [k].  Similar to the analysis above,
+consider the moment afteraij’s arrival.  By our construction,aij is the least matched vertex among
+{ai𝓁}k𝓁=j.  Therefore,∑j−1𝓁=1x𝓁 + (k−j + 1)·xj≤αi·k +j, here the right hand side comes from the
+fact that the average matched portion of Ai equals αi before the third stage and each ci𝓁∈Ci can
+match at most one edge on its arrival.  Let j∗ be an index to be optimized later.  Summing up the
+above inequality for j≤j∗ with an appropriate factor, we have
+       j∗∑                       (j−1∑                         )      j∗∑
+                    1                   x𝓁 + (k−j + 1)·xj         ≤                1
+      j=1 (k−j)(k−j + 1)·           𝓁=1                              j=1 (k−j)(k−j + 1)· (αi·k +j)
+                                                                        (    1         )
+       j∗∑              j∗∑            1                                                       j∗∑      1
+   ⇒          1k−j +        (k−𝓁)(k−𝓁 + 1)       xj≤k· (αi + 1)·          k−j∗− 1k       −       (k−j + 1)
+      j=1             𝓁=j+1                                                                   j=1
+                j∗∑                                (  k     )
+   ⇒    1k−j∗·     xj≤ (αi + 1)·  j∗k−j∗− ln         k−j∗      +o(1)
+               j=1
+       j∗∑                                  (    (  k      )         )
+   ⇒      xj≤ (αi + 1)·j∗− (k−j∗)·            ln   k−j∗      −o(1)
+      j=1
+For j >j∗, we apply the trivial bound of xj≤ 1.  To sum up, we have
+
+                       k∑                                   (         (  k     )         )
+                          xj≤ (αi + 1)·j∗ + (k−j∗)·           1− ln     k−j∗      +o(1)     .
+                      j=1
+Let j∗ =⌊(1−eαi−1)·k⌋, and when k→∞,
+                              (        (  k      )         )
+  (αi + 1)·j∗ + (k−j∗)·         1− ln     k−j∗      +o(1)
+
+          =k·((αi + 1)(1−eαi−1) +eαi−1· (1− ln(e1−αi)) +o(1)) =k·(αi + 1−eαi−1 +o(1)).
+Finally, observe that the total matching made on the arrival of Ci is
+
+                                    k∑
+                                       xj−αi·k≤(1−eαi−1 +o(1))·k.
+                                   j=1
+Similarly, the total matching made on the arrival of Di is at most(1−eβi−1 +o(1))·k.
+
+                                                        23
+
+===== PDF PAGE 24 =====
+    According  to  the  above  discussion,  we  conclude  that  the  optimal  competitive  ratio  for  our
+construction is upper bounded by the following optimization problem.
+
+                max
+            Γ,γ,{αi},{βi} :    Γ                                                                                                            (P1)
+             subject to :  γ≥ Γ;                                                                                                     (11)
+                                 n∑                             n∑
+                                    (αi +βi)≥ 2Γn + 2               max(0, Γ− (1−eαi−1)− (1−eβi−1));        (12)
+                                i=1                            i=1
+                                i−1∑                                 i∑
+                 ∀i∈ [n],           αj + (n−i + 1)·αi≤                  βj +n·γ;                                               (13)
+                                j=1                                j=1
+                                 n∑                   n∑
+                                    αi≥γ·n +              βi;                                                                           (14)
+                                i=1                  i=1
+                 ∀i∈ [n],    0≤αi,βi≤ 1                                                                                          (15)
+                               {αi} is increasing                                                                                    (16)
+
+    The ﬁrst constraint (11) corresponds to the ﬁrst stage.  Note that if   γ < Γ, our instance ends
+right after the ﬁrst stage and the algorithm cannot be Γ competitive.  The second constraint (12)
+corresponds  to  the  case  when  our  instance  ends  after  the  third  stage.   By  Lemma18,  the  total
+matched portion over all vertices of our algorithm is at most
+                          ( n∑                                                                  )
+                                 (αi +βi) + 2·∑(1−eαi−1 + 1−eβi−1) +o(1)                           ·k.
+                             i=1                     i∈I
+On the other hand, there is a perfect matching of the graph, by matching every Ai withCi andBi
+withDi fori∈I, and matching everyAi withBi fori /∈I.  That is, the optimal matching has size
+k· (2n + 2|I|), in terms of the number of matched vertices.  Let k tends to inﬁnity.  If an algorithm
+is Γ-competitive, it must satisﬁes that
+
+                           n∑
+                              (αi +βi) + 2·∑(1−eαi−1 + 1−eβi−1)≥ Γ· (2n + 2|I|)
+                          i=1                     i∈I
+                           n∑                             n∑
+                   ⇐⇒         (αi +βi)≥ 2Γn + 2               max(0, Γ− (1−eαi−1)− (1−eβi−1)),
+                          i=1                            i=1
+
+due  to  our  construction  of I  ={i∈  [n]  :  1−eαi−1 + 1−eβi−1 <  Γ}.   The  third  and  fourth
+constraints (13) and (14) are from Lemma17.  We are now left to solve the optimization.
+
+Solving the Optimization.    We shall prove that certain constraints of the above optimization
+are tight, that indeed justify the assumptions we made in Section6.
+
+Lemma 19.  There exists an optimal solution to (P1)       that 1−eαi−1 + 1−eβi−1≥ Γ for all i∈ [n].
+
+Proof.  If there exists an i with 1−eαi−1 + 1−eβi−1 < Γ, we decrease the values of αi,βi  by ϵ.
+It is straightforward to check that all constraints of  (13), (14) become looser.  For constraint (12),
+observe that the LHS decreases by 2ϵ, while the RHS decreases by
+
+             2(eαi+ϵ−1−eαi−1 +eβi+ϵ−1−eβi−1)≈ 2ϵ· (eαi−1 +eβi−1)> 2ϵ· (2− Γ)> 2ϵ,
+
+                                                               24
+
+===== PDF PAGE 25 =====
+where the last inequality follows from the fact that the solution must satisfy that Γ< 1.  Therefore,
+after the modiﬁcation to αi,βi, all constraints become looser.  We can thus keeps increasing αi,βi
+until the stated condition holds.
+
+    The above lemma corresponds to a weaker version of the third assumption we made in Section6:
+(1−eαi−1)+(1−eβi−1)≥ Γ for alli.  Recall that in Section6, we further assume that this inequality
+is tight if the constraint αi< 1 is not tight.  We shall elaborate on it later.
+    Next, we observe that the variables βi’s are decreasing in the optimal solution.
+
+Lemma 20.  There exists an optimal solution to  (P1)        that{βi} is decreasing.
+
+Proof.  By reordering allβi’s in a descending order, it is straightforward to check that all constraints
+become looser.
+
+    Therefore, it suﬃces to solve the following optimization problem.
+
+                                max
+                            Γ,γ,{αi},{βi} :    Γ                                                                                         (P2)
+                             subject to :  γ≥ Γ;                                                                                  (17)
+                                                 n∑
+                                                    (αi +βi)≥ 2Γn;                                                            (18)
+                                                i=1
+                                 ∀i∈ [n],    (1−eαi−1) + (1−eβi−1))≥ Γ;                                           (19)
+                                                i−1∑                                i∑
+                                 ∀i∈ [n],           αj + (n−i + 1)·αi≤                 βj +n·γ;                            (20)
+                                                j=1                               j=1
+                                                 n∑                   n∑
+                                                    αi≥γ·n +              βi;                                                        (21)
+                                                i=1                  i=1
+                                 ∀i∈ [n],    0≤αi,βi≤ 1                                                                      (22)
+                                               {αi} is increasing,{βi} is decreasing                                   (23)
+
+    Finally, we introduce two operations for modifying a feasible solution of  (P2).  With these two
+operations, we can apply them alternatively so that the solution we obtain satisﬁes all the three
+assumptions of Section6.
+
+Lemma 21.  Let i be the minimum index with 1−eαi−1 + 1−eβi−1> Γ.  If there exists j >i with
+βj > 0, we can construct another feasible solution so that 1−eα𝓁−1 + 1−eβ𝓁−1 = Γ for all 𝓁≤i.
+
+Proof.  Suppose there exists an i with (1−eαi−1) + (1−eβi−1))> Γ and there exists a βj > 0 for
+somej >i.  We modify the solution by increasing βi byϵ and decreasingβj byϵ at the same time.
+It is straightforward to check all constraints become looser except the constraint (1−eαi−1) + (1−
+eβi−1))> Γ.
+
+Lemma 22.  Let i be the minimum index with∑i−1j=1αj + (n−i + 1)·αi<∑ij=1βj +n·γ.  We can
+construct another feasible solution so that∑i−1j=1αj + (n−i + 1)·αi =∑ij=1βj +n·γ; for all 𝓁≤i.
+
+Proof.  Suppose  constraint  (20)  is  not  tight  for  some   i,  consider  increasing αi  by  an  suﬃciently
+small ϵ and decreasing βi by δ so that 1−eαi−1 + 1−eβi−1 remains the same.  Next, we decrease
+αi+1 and increase βi+1.  We claim that all constraints remain feasible.
+
+
+                                                               25
+
+===== PDF PAGE 26 =====
+    Let α′i =α′i +ϵ,α′i+1 =αi+1−ϵ,β′i =βi−δ, and β′i+1 =βi+1 +δ.  Then
+   (                                   (
+    1−eα′i+1−1 + 1−eβ′i+1−1)−            1−eαi+1−1 + 1−eβi+1−1)           =eαi+1−1−eα′i+1−1 +eβi+1−1−eβ′i+1−1
+
+                              =eα′i+1−1(eϵ− 1)−eβi+1−1(eδ− 1)≥eαi−1(eϵ− 1)−eβ′i−1(eδ− 1) = 0,
+
+where the inequality holds by the monotonicity of{αj} and{βj}.  Moreover, all constraints   (20)
+remain feasible.
+
+    Finally, the competitive ratio is calculated with computer assistance, as provided in Section6.
+
+C    Failed Attempt for General Vertex Arrival
+
+In  this  section,  we  explain  in  detail  the  straightforward  adaption  of  Eager  Water-ﬁlling  to  the
+general vertex arrival setting fails to achieve a competitive ratio better than 0.5.
+    Consider  the  following  algorithm  with  a  simple  pricing  scheme:   Fix  an  increasing  function
+f : [0, 1]→ [0, 1].
+
+    •  On  the  arrival  of  each  vertex u,  fractionally  matches u  to  the  neighbor  with  the  cheapest
+       price f(xv), as long as f(xu) +f(xv)≤ 1.
+
+When xuv is increased by dx on the arrival of vertex u, update αu,αv by
+
+                                 dαu = (1−f(xv))dx    and  dαv =f(xv)dx.
+
+Note that this is a special case of the main algorithm we presented in Section4by setting      g(av,xv) =
+f(xv) for allav,xv.  Therefore, all the analysis applies to the above algorithm.  Leth(τ)  def==f−1(τ).
+Adapting Lemma9, a Γ-competitive algorithm needs a function   h satisfying the following condition:
+                                                                       ∫ θv
+           ∀0≤τv≤θv≤ 1 and τu≥ 1−θv :  θv·h(θv)−
+                                                                         τv h(yv)dyv +τu·h(τu)≥ Γ ,
+where τv  corresponds to the price of v after the arrival of v, θv  corresponds to the price of v after
+the arrival of u, and τu corresponds to the price of u after the arrival of u.
+    Consider the special case whenτv = 0 andτu = 1−θv.  The above family of conditions become:
+                                                    ∫ θv
+                  ∀0≤θv≤ 1 :  θv·h(θv)−
+                                                      0  h(yv)dyv + (1−θv)·h(1−θv)≥ Γ .
+Unfortunately, factor revealing lp shows that the largest feasible Γ is 0.5 for all functions of h.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                          26

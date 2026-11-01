@@ -1,0 +1,2113 @@
+===== PDF PAGE 1 =====
+                           Online Matching with General Arrivals
+
+                         Buddhima Gamlath                                   Michael Kapralov∗
+                                  EPFL                                              EPFL
+                  buddhima.gamlath@epfl.ch                          michael.kapralov@epfl.ch
+             Andreas Maggiori                                Ola Svensson                          David Wajc†
+                      EPFL                                        EPFL                                  CMU
+      andreas.maggiori@epfl.ch                       ola.svensson@epfl.ch                     dwajc@cs.cmu.edu
+
+
+
+
+                                                         Abstract
+           The  online  matching problem was introduced by  Karp, Vazirani and Vazirani nearly three
+       decades ago.  In that seminal work, they studied this problem in bipartite graphs with vertices
+       arriving only on one side,  and presented optimal deterministic and randomized algorithms for
+       this  setting.   In  comparison,  more  general  arrival  models,  such  as  edge  arrivals  and  general
+       vertex  arrivals,  have  proven  more  challenging  and  positive  results  are  known  only  for  various
+       relaxations  of  the  problem.   In  particular,  even  the  basic  question  of  whether  randomization
+       allows one to beat the trivially-optimal deterministic competitive ratio of  1/2 for either of these
+       models was open.  In this paper, we resolve this question for both these natural arrival models,
+       and show the following.
+          1.  For edge arrivals, randomization does not help — no randomized algorithm is better than
+             1/2 competitive.
+          2.  For general vertex arrivals, randomization helps — there exists a randomized (1/2 + Ω(1))-
+             competitive online matching algorithm.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ∗Supported in part by ERC Starting Grant 759471.
+
+   †Work done in  part while  the author was  visiting EPFL. Supported in part by NSF grants CCF-1618280,  CCF-
+1814603,  CCF-1527110,  NSF CAREER award CCF-1750808,  and a Sloan Research Fellowship.
+
+===== PDF PAGE 2 =====
+1     Introduction
+
+Matching theory has played a prominent role in the area of combinatorial optimization, with many
+applications  [21,    23].  Moreover,  many  fundamental techniques  and concepts  in  combinatorial  op-
+timization  can  trace  their  origins  to  its  study,  including  the  primal-dual  framework  [19],  proofs
+of  polytopes’  integrality  beyond  total  unimodularity  [8],  and  even  the  equation  of  eﬃciency  with
+polytime computability [9].
+    Given the prominence of matching theory in combinatorial optimization, it comes as little sur-
+prise  that  the  maximum  matching  problem  was  one  of  the  ﬁrst  problems  studied  from  the  point
+of view  of online algorithms  and competitive  analysis.  In 1990,  Karp, Vazirani,  and Vazirani  [18]
+introduced the online matching problem, and studied it under one-sided bipartite arrivals.  For such
+arrivals,  Karp  et  al.  noted  that  the  trivial  1/2-competitive  greedy  algorithm  (which  matches  any
+arriving vertex to an arbitrary unmatched neighbor, if one exists) is optimal among deterministic
+algorithms  for  this  problem.   More  interestingly,  they  provided  an  elegant  randomized  online  al-
+gorithm  for  this  problem,  called  ranking, which  achieves  an  optimal  (1− 1/e)  competitive  ratio.
+(This bound has been re-proven many times over the years [2,                      6, 7,  11, 13].)  Online matching and
+many extensions of this problem under one-sided bipartite vertex arrivals were widely studied over
+the years, both under adversarial and stochastic arrival models.  See recent work [5,                        15,  16,  17] and
+the excellent survey of Mehta [22] for further references on this rich literature.
+    Despite  our  increasingly  better  understanding  of  one-sided  online  bipartite  matching  and  its
+extensions,  the  problem  of  online  matching  under  more  general  arrival  models,  including  edge
+arrivals and general vertex arrivals, has remained staunchly deﬁant, resisting attacks.  In particular,
+the basic questions of whether the trivial  1/2 competitive ratio is optimal for the adversarial edge-
+arrival  and  general  vertex-arrival  models  have  remained  tantalizing  open  questions  in  the  online
+algorithms literature.  In this paper, we answer both of these questions.
+
+1.1    Prior Work and  Our  Results
+Here we outline the most relevant prior work, as well as our contributions.  Throughout, we say an
+algorithm (either randomized or fractional) has competitive ratio α, or equivalently is α-competitive,
+if the ratio of the algorithm’s value (e.g., expected matching size, or overall value,∑e xe) to OPT
+is at least α ⩽ 1 for all inputs and arrival orders.  As is standard in the online algorithms literature
+on  maximization  problems,  we  use  upper  bounds  (on  α)  to  refer  to  hardness  results,  and  lower
+bounds to positive results.
+
+Edge  Arrivals.    Arguably  the  most  natural,  and  the  least  restricted,  arrival  model  for  online
+matching  is  the  edge  arrival  model.  In  this  model,  edges  are  revealed  one  by  one,  and  an  online
+matching algorithm must decide immediately and irrevocably whether to match the edge on arrival,
+or whether to leave both endpoints free to be possibly matched later.
+    On  the  hardness  front,  the  problem  is  known  to  be  strictly  harder  than  the  one-sided  vertex
+arrival model of Karp et al. [18], which admits a competitive ratio of 1− 1/e≈ 0.632.  In particular,
+Epstein  et  al.  [10]  gave  an  upper bound of        11+ln 2≈ 0.591  for  this  problem,  recently  improved  by
+Huang et al. [16] to 2−√2≈ 0.585.  (Both bounds apply even to online algorithms with preemption;
+i.e.,  allowing  edges  to  be  removed  from  the  matching  in  favor  of  a  newly-arrived  edge.)   On  the
+positive side, as pointed out by Buchbinder et al. [3], the edge arrival model has proven challenging,
+and results beating the 1/2 competitive ratio were only achieved under various relaxations, including:
+random  order  edge  arrival  [14],  bounded  number  of  arrival  batches  [20],  on  trees,  either  with  or
+without preemption [3,        24], and for bounded-degree graphs [3].  The above papers all asked whether
+
+
+                                                               1
+
+===== PDF PAGE 3 =====
+there exists a randomized (1/2 + Ω(1))-competitive algorithm for adversarial edge arrivals (see also
+Open Question 17 in Mehta’s survey [22]).
+    In  this  work,  we  answer  this  open  question,  providing  it  with  a  strong  negative  answer.   In
+particular,  we  show  that  no  online  algorithm  for  fractional  matching  (i.e.,  an  algorithm  which
+immediately and irrevocably assigns values xe to edge e upon arrival such that ⃗x is in the fractional
+matching  polytopeP  ={⃗x  /greaterorequalslant ⃗0|∑e∋v xe  ⩽  1∀v∈  V})  is  better  than  1/2  competitive.   As  any
+randomized  algorithm  induces  a  fractional  algorithm  with  the  same  competitive  ratio,  this  rules
+out any randomized online matching algorithm which is better than deterministic algorithms.
+Theorem 1.1.  No fractional online algorithm is  1/2 + Ω(1) competitive for online matching under
+adversarial  edge arrivals,  even in bipartite  graphs.
+    This result shows  that the  study of  relaxed  variants  of  online matching  under edge  arrivals  is
+not only justiﬁed by the diﬃculty of beating the trivial bound for this problem, but rather by its
+impossibility.
+
+General  Vertex  Arrivals.    In  the  online  matching  problem  under  vertex  arrivals,  vertices  are
+revealed one at a time, together with their edges to their previously-revealed neighbors.  An online
+matching  algorithm  must  decide  immediately  and  irrevocably  upon  arrival  of  a  vertex  whether
+to  match  it  (or  keep  it  free  for  later),  and  if  so,  who  to  match  it  to.   The  one-sided  bipartite
+problem  studied  by  Karp  et  al.  [18]  is  precisely  this  problem  when  all  vertices  of  one  side  of  a
+bipartite  graph  arrive  ﬁrst.   As  discussed  above,  for  this  one-sided  arrival  model,  the  problem  is
+thoroughly understood (even  down to lower-order  error terms [11]).  Wang and Wong  [25] proved
+that general vertex arrivals are strictly harder than one-sided bipartite arrivals, providing an upper
+bound of 0.625 < 1− 1/e for the more general problem, later improved by Buchbinder et al. [3] to
+  2
+3+φ2 ≈ 0.593.  Clearly,  the general  vertex  arrival  model  is  no harder  than  the  online edge  arrival
+model but is it easier?  The answer is “yes” for fractional  algorithms, as shown by combining our
+Theorem     1.1  with the 0.526-competitive fractional online matching algorithm under general vertex
+arrivals  of  Wang  and  Wong  [25].  For  integral  online  matching,  however,  the  problem  has  proven
+challenging, and the only positive results for this problem, too, are for various relaxations, such as
+restriction to trees, either with or without preemption [3,                 4, 24], for bounded-degree graphs [3], or
+(recently) allowing vertices to be matched during some known time interval [15,                           16].
+    We  elaborate  on  the  last  relaxation  above.   In  the  model  recently  studied  by  Huang  et  al.
+[15, 16] vertices  have both arrival and departure times, and edges can be matched whenever both
+their endpoints are present.  (One-sided vertex arrivals is a special case of this model with all online
+vertices departing immediately after arrival and oﬄine vertices departing at∞.)  We note that any
+α-competitive online matching under general vertex arrivals is α-competitive in the less restrictive
+model  of  Huang  et  al.   As  observed  by  Huang  et  al.,  for  their  model  an  optimal  approach  might
+as  well  be greedy;  i.e.,  an  unmatched  vertex  v  should always  be matched  at  its  departure time  if
+possible.  In particular, Huang et al. [15,          16], showed that the ranking algorithm of Karp et al. is
+optimal in this model, giving a competitive ratio of≈ 0.567.  For general vertex arrivals, however,
+ranking  (and  indeed  any  maximal  matching  algorithm)  is  no  better  than  1/2  competitive,  as  is
+readily shown by a path on three edges with the internal vertices arriving ﬁrst.  Consequently, new
+ideas and algorithms are needed.
+    The natural open question for general vertex arrivals is whether a competitive ratio of (1/2+Ω(1))
+is achievable by an integral  randomized algorithm, without any assumptions (see e.g., [25]).  In this
+work, we answer this question in the aﬃrmative:
+Theorem  1.2.  There  exists  a  (1/2 + Ω(1))-competitive  randomized  online  matching  algorithm  for
+general adversarial  vertex arrivals.
+
+                                                               2
+
+===== PDF PAGE 4 =====
+1.2    Our  Techniques
+Edge Arrivals.    All prior upper bounds in the online literature [3,                  10,  11, 16,  18] can be rephrased
+as  upper  bounds  for  fractional  algorithms;  i.e.,  algorithms  which  immediately  and  irrevocably
+assign each edge e a value xe on arrival, so that ⃗x is contained in the fractional matching polytope,
+P  ={⃗x  /greaterorequalslant ⃗0|∑e∋v xe  ⩽  1∀v∈  V}.   With  the  exception  of  [3],  the  core  diﬃculty  of  these  hard
+instances  is  uncertainty  about  “identity”  of  vertices  (in  particular,  which  vertices  will  neighbor
+which  vertices  in  the  following  arrivals).   Our  hardness  instances  rely  on  uncertainty  about  the
+“time horizon”.  In particular, the underlying graph, vertex  identiﬁers, and even  arrival order are
+known to the algorithm, but the number of edges of the graph to be revealed (to arrive) is uncertain.
+Consequently, an α-competitive  algorithm must accrue high enough value up to each  arrival time
+to guarantee a high competitive ratio at all points in time.  As we shall show, for competitive ratio
+1/2 + Ω(1), this goal is at odds with the fractional matching constraints, and so such a competitive
+ratio is impossible.  In particular, we provide a family of hard instances and formulate their preﬁx-
+competitiveness  and  matching  constraints  as  linear  constraints  to  obtain  a  linear  program  whose
+objective  value bounds the optimal  competitive  ratio.  Solving the obtained  LP’s  dual, we obtain
+by weak duality the claimed upper bound on the optimal competitive ratio.
+
+General  Vertex  Arrivals.    Our  high-level  approach  here  will  be  to  round  online  a  fractional
+online matching algorithm’s output, speciﬁcally that of Wang and Wong [25].  While this approach
+sounds simple, there are several obstacles  to overcome.  First, the fractional matching polytope is
+not integral in general graphs, where a fractional matching may have value,∑e xe, some  3/2 times
+larger  than  the  optimal  matching  size.  (For  example,  in  a  triangle  graph  with  value  xe  =  1/2  for
+each edge e.)  Therefore, any general rounding scheme must lose a factor of  3/2 on the competitive
+ratio compared to the fractional algorithm’s value, and so to beat a competitive ratio of  1/2 would
+require an online fractional matching with competitive ratio >  3/4 > 1− 1/e, which is impossible.  To
+make matters worse, even in bipartite graphs, for which the fractional matching polytope is integral
+and  oﬄine lossless  rounding is  possible [1,          12],  online  lossless  rounding of  fractional  matchings  is
+impossible, even under one-sided vertex arrivals [5].
+    Despite these challenges, we show that a slightly better than 1/2-competitive fractional matching
+computed by the algorithm of [25] can be rounded online without incurring too high a loss, yielding
+(1/2 + Ω(1))-competitive randomized algorithm for online matching under general vertex arrivals.
+    To outline our approach, we ﬁrst consider a simple method to round matchings online.  When
+vertex  v  arrives,  we pick  an edge{u, v}  with probability  zu  = xuv/ Pr[u free when v arrives],  and
+add it to our matching if u is free.
+    If∑u zu ⩽ 1, this allows us to pick at most one edge per vertex and have each edge e ={u, v}
+be in our matching with the right marginal probability, xe, resulting in a lossless rounding.  Unfor-
+tunately,  we  know  of  no  better-than-1/2-competitive  fractional  algorithm  for  which  this  rounding
+guarantees∑u zu ⩽ 1.
+    However, we observe that, for the correct set of parameters, the fractional matching algorithm
+of Wang and Wong [25] makes∑u zu close to one, while still ensuring a better-than-1/2-competitive
+fractional  solution.   Namely,  as  we  elaborate  later  in  Section           3.3,  we  set  the  parameters  of  their
+algorithm so that∑u zu ⩽ 1+O(ε), while retaining a competitive ratio of 1/2+O(ε).  Now consider
+the same rounding algorithm with normalized probabilities:  I.e., on v’s arrival, sample a neighbor
+u  with  probability  z′u  = zu/ max{1,∑u zu}  and  match  if  u  is  free.  As  the  sum  of  zu’s  is  slightly
+above one in the worst case, this approach does not drastically  reduce the competitive  ratio.  But
+the normalization factor is still too signiﬁcant compared to the competitive ratio of the fractional
+solution, driving the competitive ratio of the rounding algorithm slightly below 1/2.
+
+
+                                                              3
+
+===== PDF PAGE 5 =====
+    To  account  for  this  minor  yet  signiﬁcant  loss,  we  therefore  augment  the  simple  algorithm  by
+allowing it, with small probability (e.g., say√ε), to sample a second neighbor u2 for each arriving
+vertex  v,  again  with  probabilities  proportional  to  z′u2:  If  the  ﬁrst  sampled  choice,  u1,  is  free,  we
+match v to u1.  Otherwise, if the second choice, u2, is free, we match v to u2.  What is the marginal
+probability  that  such  an  approach  matches  an  incoming  vertex  v  to  a  given  neighbor  u?  Letting
+Fu  denote the event that u is free when v arrives, this probability is precisely
+                                         (                                                    )
+                               Pr[Fu]·      z′u + z′u·√ε·∑        z′w· (1− Pr[Fw| Fu])           .                                    (1)
+                                                               w
+Here the ﬁrst term in the parentheses  corresponds to the probability  that v  matches  to u via the
+ﬁrst choice, and the second term corresponds to the same happening via the second choice (which
+is only taken when the ﬁrst choice fails).
+    Ideally, we would like (1) to be at least xuv for all edges, which would imply a lossless rounding.
+However, as mentioned earlier, this is diﬃcult and in general impossible to do, even in much more
+restricted  settings  including  one-sided  bipartite  vertex  arrivals.   We  therefore  settle  for  showing
+that  (1)  is  at  least  xuv  = Pr[Fu]· zu  for  most  edges  (weighted  by  xuv).  Even  this  goal,  however,
+is  challenging  and  requires  a  nontrivial  understanding of  the  correlation  structure  of  the  random
+events  Fu.  To see this,  note that for example  if the Fw  events  are perfectly positively  correlated,
+i.e., Pr[Fw| Fu] = 1, then the possibility of picking e as a second edge does not increase this edge’s
+probability  of  being matched  at  all  compared  to  if  we only  picked  a  single edge  per vertex.  This
+results in e being matched with probability Pr[Fu]· z′u = Pr[Fu]· zu/∑w zw  = xuv/∑w zw, which
+does not lead to any gain over the  1/2 competitive ratio of greedy.  Such problems are easily shown
+not  to  arise  if  all  Fu  variables  are  independent  or  negatively  correlated.   Unfortunately,  positive
+correlation does arise from this process, and so we the need to control these positive correlations.
+    The core of our analysis is therefore dedicated to showing that even though positive correlations
+do arise, they are by and large rather weak.  Our main technical contribution consists of developing
+techniques for bounding such positive correlations.  The idea behind the analysis is to consider the
+primary  choices  and  secondary  choices  of  vertices  as  deﬁning  a  graph,  and  showing  that  after  a
+natural pruning operation that reﬂects the structure of dependencies, most vertices are most often
+part of a very small connected  component in the graph.  The fact that connected components are
+typically  very  small  is  exactly  what  makes  positive  correlations  weak  and  results  in  the  required
+lower  bound  on  (1)  for  most  edges  (in  terms  of  x-value),  which  in  turn  yields  our   1/2 + Ω(1)
+competitive ratio.
+
+2     Edge Arrivals
+
+In  this  section  we  prove  the  asymptotic  optimality  of  the  greedy  algorithm  for  online  matching
+under adversarial edge arrivals.  As discussed brieﬂy in Section                   1, our main idea will be to provide
+a  “preﬁx  hardness”  instance,  where  an  underlying  input  and  the  arrival  order  is  known  to  the
+online  matching  algorithm,  but  the  preﬁx  of  the  input  to  arrive  (or  “termination  time”)  is  not.
+Consequently, the algorithm must accrue high enough value up to each arrival time, to guarantee
+a high competitive ratio at all points in time.  As we show, the fractional matching constraints rule
+out a competitive ratio of  1/2 + Ω(1) even in this model where the underlying graph is known.
+
+Theorem 2.1.  There exists an inﬁnite family of bipartite graphs with maximum degree n and edge( 1)
+arrival order for which any online matching  algorithm  is at best                     2 +      12n+2-competitive.
+
+
+                                                               4
+
+===== PDF PAGE 6 =====
+Proof.  We  will  provide  a  family  of  graphs  for  which  no  fractional  online  matching  algorithm  has
+better competitive ratio.  Since any randomized algorithm induces a fractional matching algorithm,
+this  immediately  implies  our  claim.   The  nth  graph  of  the  family,  Gn  =  (U, V, E),  consists  of  a
+bipartite graph with|U| =|V| = n vertices  on  either  side.  We denote  by ui∈ U  and vi∈ V  the
+ith  node  on  the  left  and  right  side  of  Gn,  respectively.   Edges  are  revealed  in  n  discrete  rounds.
+In round i = 1, 2, . . . , n, the edges of a perfect matching between the ﬁrst i left and right vertices
+arrive  in  some  order.   I.e.,  a  matching  of  u1, u2, . . . , ui  and  v1, v2, . . . , vi  is  revealed.   Speciﬁcally,
+edges  (uj, vi−j+1)  for  all  i  /greaterorequalslant  j  arrive.   (See  Figure1for  example.)   Intuitively,  the  diﬃculty  for
+an  algorithm  attempting  to  assign  much  value  to  edges  of  OP T  is  that  the  (unique)  maximum
+matching OP T  changes every round, and no edge ever re-enters OP T .
+
+          U          V             U          V             U          V             U         V             U          V
+          u1         v1            u1         v1           u1         v1            u1         v1            u1         v1
+          u2         v2            u2         v2           u2         v2            u2         v2            u2         v2
+          u3         v3            u3         v3           u3         v3            u3         v3            u3         v3
+          u4         v4            u4         v4           u4         v4            u4         v4            u4         v4
+          u5         v5            u5         v5           u5         v5            u5         v5            u5         v5
+
+          (a) round 1              (b) round 2              (c) round 3             (d) round 4              (e) round 5
+
+    Figure 1:  G5, together with arrival order.  Edges of current (prior) round are solid (dashed).
+
+
+    Consider  some  α-competitive  fractional  algorithmA.   We  call  the  edge  of  a  vertex  w  in  the
+(unique) maximum matching of the subgraph of Gn  following round i the ith edge of w.  For i /greaterorequalslant j,
+denote by xi,j  the valueA assigns to the ith  edge of vertex uj  (and of vi−j+1); i.e., to (uj, vi−j+1).
+By feasibility of the fractional matching output byA, we immediately have that xi,j /greaterorequalslant 0 for all i, j,
+as well as the following matching constraints for uj  and vj.  (For the latter, note that the ith  edge
+of vi−j+1 is assigned value xi,j = xi,i−(i−j+1)+1 and so the ith edge of vj  is assigned value xi,i−j+1).
+
+                                           n∑
+                                               xi,j ⩽ 1.        (uj  matching constraint)                                         (2)
+                                          i=j
+                                      n∑
+                                         xi,i−j+1 ⩽ 1.        (vj  matching constraint)                                         (3)
+                                    i=j
+
+    On  the  other  hand,  asA  is  α-competitive,  we  have  that  after  some  kth  round  –  when  the
+maximum  matching  has  cardinality  k  –  algorithmA’s  fractional  matching  must  have  value  at
+least  α· k.   (Else  an  adversary  can  stop  the  input after  this  round,  leavingA  with  a  worse  than
+α-competitive matching.)  Consequently, we have the following competitiveness constraints.
+
+                                               k∑    i∑
+                                                        xi,j /greaterorequalslant α· k  ∀k∈ [n].                                                     (4)
+                                              i=1  j=1
+
+    Combining constraints  (2),  (3) and  (4) together  with  the  non-negativity  of  the  xi,k  yields  the
+following linear program, LP(n), whose optimal value upper bounds any fractional online matching
+algorithm’s competitiveness on Gn, by the above.
+
+
+                                                                   5
+
+===== PDF PAGE 7 =====
+                                    maximize    α
+                                  subject to: ∑n∑ni=j xi,j ⩽ 1     ∀j∈ [n]
+                                                    ∑ki=j xi,i−j+1 ⩽ 1   ∀j∈ [n]∑i
+                                                       i=1     j=1 xi,j /greaterorequalslant α· k ∀k∈ [n]
+                                                    xi,j /greaterorequalslant 0        ∀i, j∈ [n].
+
+    To bound the optimal value of LP(n), we provide a feasible solution its LP dual, which we denote
+by Dual(n).  By weak duality, any dual feasible solution’s value upper bounds the optimal value of
+LP(n), which in turn upper bounds the optimal competitive  ratio.  Using the dual variables  ℓj, rj
+for the degree constraints of the jth left and right vertices respectively (uj and vj) and dual variable
+ck  for  the  competitiveness  constraint  of  the  kth  round,  we  get  the  following  dual linear  program.
+Recall here again that xi,i−j+1 appears in the matching constraint of vj, with dual variable rj, and
+so xi,j = xi,i−(i−j+1)+1 appears in the same constraint for vi−j+1.)
+
+                               minimize ∑nj=1 (ℓj + rj)
+                             subject to: ∑nk=1 k· ck /greaterorequalslant 1
+                                               ℓj + ri−j+1−∑nk=i ck /greaterorequalslant 0 ∀i∈ [n], j∈ [i]
+                                               ℓj, rj, ck /greaterorequalslant 0       ∀j, k∈ [n].
+
+    We provide the following dual solution.
+
+                                             ck =        2n(n + 1)  ∀k∈ [n]
+                                                    { n−2(j−1)
+                                       ℓj = rj =         n(n+1)      if j ⩽ n/2 + 1
+                                                       0                 if n/2 + 1 < j ⩽ n.
+    We  start  by  proving  feasibility  of  this  solution.  The ﬁrst  constraint  is  satisﬁed  with  equality.
+For  the  second  constraint,  as ∑nk=i ck  =   2(n−i+1)n(n+1)    it  suﬃces  to  show  that  ℓj + ri−j+1  /greaterorequalslant   2(n−i+1)n(n+1)
+for  all  i∈  [n], j∈  [i].   Note  that  if  j  >  n/2 + 1,  then  ℓj  =  rj  =  0  >   n−2(j−1)n(n+1)  .   So,  for  all  j  we
+have  ℓj  = rj  /greaterorequalslant   n−2(j−1)n(n+1)  .  Consequently,  ℓj + ri−j+1  /greaterorequalslant   n−2(j−1)n(n+1)   +  n−2(i−j+1−1)n(n+1)       =   2(n−i+1)n(n+1)    for  all
+i∈ [n], j∈ [i].  Non-negativity of the ℓj, rj, ck variables is trivial, and so we conclude that the above
+is a feasible dual solution.
+    It remains to calculate this dual feasible solution’s value.  We do so for n even,1                             for which
+
+                          n∑                      n∑            n/2+1∑
+                             (ℓj + rj) = 2·           ℓj = 2·           n− 2(j− 1)
+                         j=1                     j=1              j=1      n(n + 1)     =  12 +      12n + 2,
+
+completing the proof.
+
+    Remark  1.  Recall  that  Buchbinder  et  al.  [3]  and  Lee  and  Singla  [20]  presented  better-than-
+1/2-competitive algorithms for bounded-degree graphs and bounded number of arrival batches.  Our
+upper  bound  above  shows  that  a  deterioration  of  the  competitive  guarantees  as  the  maximum
+degree and number of arrival batches increase (as in the algorithms of [3,                            20]) is inevitable.
+    Remark  2.  Recall  that  the  asymptotic  competitive  ratio  of  an  algorithm  is  the  maximum  c
+such that the algorithm always guarantees value at least ALG /greaterorequalslant c· OP T− b for some ﬁxed b > 0.
+Our proof extends to this weaker  notion of  competitiveness  easily,  by revealing multiple copies  of
+the hard family of Theorem            2.1  and letting xik denote the average of its counterparts over all copies.
+
+   1The case of n odd is similar.  As it is unnecessary to establish the result of this theorem, we omit it.
+
+
+                                                                   6
+
+===== PDF PAGE 8 =====
+3     General Vertex  Arrivals
+
+In  this  section  we  present  a  (1/2 + Ω(1))-competitive  randomized  algorithm  for  online  matching
+under general arrivals.  As discussed in the introduction, our approach will be to round (online) a
+fractional online matching algorithm’s output.  Speciﬁcally, this will be an algorithm from the family
+of fractional algorithms introduced in [25].  In Section               3.1  we describe this family of algorithms.  To
+motivate our rounding approach, in Section               3.2 we ﬁrst present a simple lossless rounding method for
+a  1/2-competitive algorithm in this family.  In Section               3.3  we then describe our rounding algorithm
+for  a  better-than-1/2-competitive  algorithm  in  this  family.  Finally,  in  Section                3.4  we  analyze  this
+rounding scheme, and show that it yields a (1/2 + Ω(1))-competitive algorithm.
+
+3.1    Finding  a  fractional  solution
+In this section we revisit the algorithm of Wang and Wong [25], which beats the 1/2 competitiveness
+barrier for  online  fractional  matching  under general  vertex  arrivals.  Their  algorithm  (technically,
+family of algorithms) applies the primal-dual method to compute both a fractional  matching and
+a fractional vertex cover  – the dual of the fractional matching relaxation.  The LPs deﬁning these
+dual problems are as follows.
+                         Primal-Matching                                                Dual-Vertex Cover
+           maximize ∑e∈E xe                                               minimize ∑u∈V  yu
+          subject to: ∑u∈N(v) xuv ⩽ 1 ∀u∈ V                             subject to:    yu + yv /greaterorequalslant 1 ∀e ={u, v}∈ E
+                           xe /greaterorequalslant 0      ∀e∈ E                           yu /greaterorequalslant 0   ∀u∈ V
+
+    Before introducing the algorithm of [25], we begin by deﬁning the fractional online vertex cover
+problem  for  vertex  arrivals.    When  a  vertex  v  arrives,  if  Nv(v)  denotes  the  previously-arrived
+neighbors  of  v,  then  for  each  u ∈  Nv(v),  a  new  constraint  yu + yv  /greaterorequalslant  1  is  revealed,  which  an
+online  algorithm  should  satisfy  by  possibly  increasing  yu  or  yv.  Suppose v  has  its  dual  value  set
+to yv = 1− θ.  Then all of its neighbors should have their dual increased to at least θ.  Indeed, an
+algorithm  may  as  well  increase  yu  to  max{yu, θ}.  The  choice  of  θ  therefore  determines  an  online
+fractional  vertex  cover  algorithm.   The  increase  of  potential  due  to  the  newly-arrived  vertex  v  is
+thus  1− θ +∑u∈Nv(v)(θ− yu)+.2                 In  [25]  θ  is  chosen  to  upper  bound  this  term  by  1− θ + f(θ)
+for  some  function  f(·).    The  primal  solution  (fractional  matching)  assigns  values  xuv  so  as  to
+guarantee feasibility of ⃗x and a ratio of β between the primal and dual values of ⃗x and ⃗y, implying
+1
+β -competitiveness of this online fractional matching algorithm, by feasibility of ⃗y and weak duality.
+The algorithm, parameterized  by a function f(·) and parameter β  to be discussed below, is given
+formally in Algorithm        1.  In the subsequent discussion, Nv(u) denotes the set of neighbors of u that
+arrive before v.
+    Algorithm      1  is  parameterized  by  a  function  f  and  a  constant  β.    The  family  of  functions
+considered by [25] are as follows.
+
+
+                                                      2κ (θ +  κ−1   ) κ−12κ  .  We deﬁne W  :={fκ| κ /greaterorequalslant 1}.
+Deﬁnition  3.1.  Let fκ(θ) :=( 1+κ2 − θ) 1+κ                      2
+
+    As we will see, choices of β  guaranteeing feasibility of ⃗x are related to the following quantity.
+Deﬁnition  3.2.  For a given f  : [0, 1]−→ R+  let β∗(f) := maxθ∈[0,1] 1 + f(1− θ) +∫ 1                          1−t
+                                                                                                              θ  f(θ) dθ.
+
+   2Here and throughout the paper, we let x+ := max{0, x} for all x ∈ R.
+
+
+
+
+                                                                7
+
+===== PDF PAGE 9 =====
+    Input   : A stream of vertices v1, v2, . . . vn.  At step i, vertex vi  and Nvi(vi) are revealed.
+    Output: A fractional vertex cover solution ⃗y  and a fractional matching ⃗x.
+ 1  Let yu← 0 for all u, let xuv← 0 for all u, v.
+ 2  foreach v  in the stream  do
+              maximize θ
+ 3            subject to:      θ ⩽ 1∑
+
+                                   u∈Nv(v) (θ− yu)+ ⩽ f(θ)
+ 4        foreach u∈ Nv(v) do(              )
+
+ 5              xuv←−  (θ−yu)+β   1 +  1−θf(θ).
+
+ 6              yu←− max{yu, θ}.
+
+ 7        yv←− 1− θ.
+       Algorithm  1: Online general vertex arrival fractional matching and vertex cover
+
+
+    For functions f∈ W  this deﬁnition of β∗(f) can be simpliﬁed to β∗(f) = 1 + f(0), due to the
+observation (see [25, Lemmas 4,5]) that all functions f∈ W  satisfy
+                                                             ∫  1 1− θ
+                               β∗(f) = 1 + f(1− θ) +               f(θ)  dθ  ∀θ∈ [0, 1].                                     (5)
+                                                               θ
+    As mentioned above, the competitiveness  of Algorithm                    1 for appropriate choices of f  and β  is
+obtained by relating the overall primal and dual values,∑e xe and∑v yv.  As we show (and rely on
+later), one can even bound individual vertices’ contributions to these sums.  In particular, for any
+vertex  v’s  arrival  time,  each  vertex  u’s  contribution  to ∑e xe,  which  we  refer  to  as  its  fractional
+degree, xu :=∑w∈Nv(u) xuw, can be bounded in terms of its dual value by this point, yu, as follows.
+Lemma  3.3.  For  any  vertex u, v∈ V ,  let  yu  be  the  potential  of  u prior  to  arrival  of  v.  Then  the
+fractional  degree just before v  arrives, xu :=∑w∈Nv(u) xuw, is bounded as follows:
+
+                                              yu
+                                               β  ⩽ xu ⩽  yu + f(1− yu)β            .
+    Broadly, the lower bound on xu  is obtained by lower bounding the increase xu  by the increase
+to yu/β  after  each  vertex  arrival,  while the upper bound follows  from a simpliﬁcation  of a bound
+given in [25, Invariant 1] (implying feasibility of the primal solution), which we simplify using (5).
+See Appendix      B   for a full proof.
+    Another observation we will need regarding the functions f∈ W  is that they are decreasing.
+Observation  3.4.  Every function f∈ W  is non-increasing  in its argument in the range [0, 1].
+Proof.  As observed in [25], diﬀerentiating  (5) with respect to z  yields−f ′(1− z)−  1−zf(z)  = 0, from
+which  we  obtain  f(z)· f ′(1− z) = z− 1.  Replacing  z  by  1− z,  we  get  f(1− z)· f ′(z) =−z,  or
+f ′(z) =−      zf(1−z).  As f(z) is positive for all z∈ [0, 1], we have that f ′(z) < 0 for all z∈ [0, 1].
+
+    The next lemma of [25] characterizes the achievable competitiveness of Algorithm                            1.
+Lemma  3.5  ([25]).  Algorithm          1  with function f∈ W  and β /greaterorequalslant β∗(f) = 1 + f(0) is   1β  competitive.
+    Wang  and Wong  [25] showed  that taking  κ≈ 1.1997  and β  = β∗(fκ),  Algorithm                           1  is≈ 0.526
+competitive.   In  later  sections  we  show  how  to  round  the  output  of  Algorithm                   1  with  fκ  with
+κ = 1 + 2ε for some small constant ε and β = 2− ε to obtain a (1/2 + Ω(1))-competitive algorithm.
+But ﬁrst, as a warm up, we show how to round this algorithm with κ = 1 and β = β∗(f1) = 2.
+
+                                                               8
+
+===== PDF PAGE 10 =====
+3.2    Warmup:  a  1/2-competitive  randomized  algorithm
+In  this  section  we  will  round  the  1/2-competitive  fractional  algorithm  obtained  by  running  Algo-
+rithm   1 with function f(θ) = f1(θ) = 1− θ and β = β∗(f) = 2.  We will devise a lossless rounding
+of this fractional matching algorithm, by including each edge e in the ﬁnal matching with a proba-
+bility equal to the fractional value xe  assigned to it by Algorithm                 1.  Note that if v arrives after u,
+then if Fu denotes the event that u is free when v arrives, then edge{u, v} is matched by an online
+algorithm with probability Pr[{u, v}∈ M] = Pr[{u, v}∈ M| Fu]· Pr[Fu].  Therefore, to match each
+edge{u, v}  with  probability  xuv,  we  need  Pr[{u, v}∈  M |  Fu]  =  xuv/ Pr[Fu].   That  is,  we  must
+match{u, v}  with probability  zu  = xuv/ Pr[Fu] conditioned  on u being free.  The simplest way  of
+doing so (if possible) is to pick an edge{u, v} with the above probability zu  always, and to match
+it only if u is free.  Algorithm      2 below does just this, achieving a lossless rounding of this fractional
+algorithm.  As before, Nv(u) denotes the set of neighbors of u that arrive before v.
+
+    Input   : A stream of vertices v1, v2, . . . , vn.  At step i, vertex vi and Nvi(vi) are revealed.
+    Output: A matching M.
+ 1  Let yu← 0 for all u, let xuv← 0 for all u, v.
+ 2  Let M←∅.
+ 3  foreach v  in the stream  do
+ 4        Update yu’s and xuv’s using Algorithm             1  with β = 2 and f  = f1.
+ 5        foreach u∈ Nv(v) do
+ 6              zu←                        xuvPr[u is free when v  arrives].              //  zu is  xuv/(1− yu) as shown later
+
+ 7        Sample (at most) one neighbor u∈ Nv(v) according to zu.
+ 8        if  a free neighbor u is sampled  then
+ 9              Add{u, v} to M.
+
+         Algorithm  2: Online vertex arrival warmup randomized fractional matching
+
+∑   Algorithm      2 is  well  deﬁned  if  for  each  vertex  v’s  arrival,  z  is  a  probability  distribution;  i.e.,
+   u∈Nv(v) zu ⩽ 1.  The following lemma asserts precisely that.  Moreover, it asserts that Algorithm                         2
+matches each edge with the desired probability.
+Lemma 3.6.  Algorithm           2 is well deﬁned, since for every vertex v on arrival, z is a valid probability
+distribution.  Moreover,  for each v  and u∈ Nv(v), it matches edge{u, v}  with probability  xe.
+Proof.  We prove both claims in tandem for each v, by induction on the number of arrivals.  For the
+base case (v is the ﬁrst arrival), the set Nv(v) is empty and thus both claims are trivial.  Consider
+the arrival of a later vertex v.  By the inductive hypothesis we have that each vertex u∈ Nv(v) is
+previously matched with probability∑w∈Nv(u) xwu.  But by our choice of f(θ) = f1(θ) = 1− θ and(              )
+β = 2, if w arrives after u, then yu and θ at arrival of w satisfy xuw =  (θ−yu)+β ·               1 +  1−θf(θ) = (θ−yu)+.
+That is, xuw is precisely the increase in yu following arrival of w.  On the other hand, when u arrived
+we have that its dual value yu  increased by 1− θ =∑v′∈Nu(u)(θ− yv′)+ =∑v′∈Nu(u) xuv′.  To see
+this last step, we recall ﬁrst that by deﬁnition of Algorithm                 1  and our choice of f(θ) = 1− θ, the
+value θ on arrival of v is chosen to be the largest θ ⩽ 1 satisfying
+                                                 ∑      (θ− yu)+ ⩽ 1− θ.                                                          (6)
+
+
+                                              ∀u∈Nv(v)
+But  the  inequality  (6)  is  an  equality  whether  or  not  θ  =  1  (if  θ  =  1,  both  sides  are  zero).   We
+conclude that yu =∑v′∈Nv(u) xuv′  just prior to arrival of v.  But then, by the inductive hypothesis,
+
+                                                              9
+
+===== PDF PAGE 11 =====
+this implies that Pr[u free when v arrives] = 1− yu (yielding an easily-computable formula for zu).
+Consequently, by (6) we have that when v arrives z is a probability distribution, as
+              ∑                      (θ− yu)+                         (θ− yu)+                  (θ− yu)+
+                     zu = ∑            1− yu     ⩽   ∑                  1− θ     = ∑               1− θ     ⩽ 1.
+           u∈Nv(v)         u∈Nv(v)                    u∈Nv(v): yu⩽θ                   u∈Nv(v)
+    Finally, for u to be matched to a latter-arriving neighbor v, it must be picked and free when v
+arrives, and so{u, v} is indeed matched with probability
+
+          Pr[{u, v}∈ M] =                      xuvPr[u is free when v arrives]· Pr[u is free when v arrives] = xuv.
+
+    In the next section we present an algorithm which allows to round better-than-1/2-competitive
+algorithms derived from Algorithm             1.
+
+3.3    An  improved  algorithm
+In this section, we build on Algorithm          2 and show how to improve it to get a (1/2+Ω(1)) competitive
+ratio.
+    There are  two  concerns  when  modifying Algorithm                 2  to  work  for  a  general  function  from  the
+family W .  The ﬁrst is how to compute the probability that a vertex u is free when vertex v arrives,
+in Line  6.  In the simpler version, we inductively showed that this probability is simply 1−yu, where
+yu is the dual value of u as of v’s arrival (see the proof of Lemma                  3.6).  With a general function f,
+this  probability  is  no longer  given  by  a simple  formula.  Nevertheless,  it  is  easily  ﬁxable:  We  can
+either use Monte Carlo sampling to estimate the probability of u being free at v’s arrival to a given
+inverse polynomial accuracy, or we can in fact exactly compute these probabilities by maintaining
+their  marginal  values  as  the algorithm  progresses.  In what follows,  we therefore  assume that our
+algorithm can compute these probabilities exactly.
+    The second and more important issue is with the sampling step in Line                        7.  In the simpler algo-
+rithm, this step is well-deﬁned as the sampling probabilities indeed form a valid distribution:  I.e.,
+∑
+   u∈Nv(v) zu  ⩽ 1 for  all  vertices  v.  However,  with  a general  function  f,  this  sum can  exceed  one,
+rendering the sampling step in Line           7 impossible.  Intuitively, we can normalize the probabilities to
+make it a proper distribution, but by doing so,  we end up losing some amount from the approxi-
+mation guarantee.  We hope to recover this loss using a second sampling step, as we mentioned in
+Section   1.2  and elaborate below.
+    Suppose that, instead of β = 2 and f  = f1  (i.e.,  the function f(θ) = 1− θ), we use f  = f1+2ε
+and  β  = 2− ε  to  deﬁne xuv  and  yu  values.  As  we  show  later  in  this  section,  for  an  ε suﬃciently
+small,  we  then  have ∑u∈Nv(v) zu  ⩽  1 + O(ε),  implying  that  the  normalization  factor  is  at  most
+1 + O(ε).   However,  since  the  approximation  factor  of  the  fractional  solution  is  only  1/2 + O(ε)
+for  such  a  solution,  (i.e., ∑{u,v}∈E xuv  /greaterorequalslant  (1/β)·∑u∈V  yu),  the  loss  due  to  normalization  is  too
+signiﬁcant to ignore.
+    Now  suppose  that  we  allow  arriving  vertices  to  sample  a  second  edge  with  a  small  (i.e.,√ε)
+probability and match that second edge if the endpoint of the ﬁrst sampled edge is already matched.
+Consider the arrival of a ﬁxed vertex v such that∑u∈Nv(v) zu > 1, and let z′u denote the normalized
+zu values.  Further let Fw denote the event that vertex w is free (i.e, unmatched) at the arrival of v.
+Then the probability that v matches u for some u∈ Nv(v) using either of the two sampled edges is
+                                                                                             
+                            Pr[Fu]·    z′u + z′u√ε· ∑            z′w· (1− Pr[Fw| Fu]) ,                                  (7)
+
+                                                         w∈Nv(v)
+
+
+                                                             10
+
+===== PDF PAGE 12 =====
+which  is  the  same  expression  from  (1)  from  Section           1.2,  restated  here  for  quick  reference.  Recall
+that the ﬁrst term inside the parentheses accounts for the probability that v matches u via the ﬁrst
+sampled  edges,  and  the  second  term  accounts  for  the  probability  that  the  same  happens  via  the
+second sampled edge.  Note that the second sampled edge is used only when the ﬁrst one is incident
+to  an  already  matched  vertex  and  the  other  endpoint  of  the  second  edge  is  free.   Hence  we  have
+the  summation  of  conditional  probabilities  in  the  second  term,  where  the  events  are  conditioned
+on  the  other  endpoint,  u,  being  free.  If  the  probability  given  in  (7)  is  xuv  for  all{u, v}∈ E,  we
+would have the same guarantee as the fractional solution xuv, and the rounding would be lossless.
+This seems unlikely, yet we can show that the quantity in (7) is at least (1− ε2)· xuv  for most (not
+by number, but by the total fractional value of xuv’s) of the edges in the graph, showing that our
+rounding is almost  lossless.  We postpone further discussion of the analysis to Section                       3.4  where we
+highlight the main ideas before proceeding with the formal proof.
+
+    Input   : A stream of vertices v1, v2, . . . , vn.  At step i, vertex vi and Nvi(v) are revealed.
+    Output: A matching M.
+ 1  Let yu← 0 for all u, let xuv← 0 for all u, v.
+ 2  Let M←∅.
+ 3  foreach v  in the stream  do
+ 4        Update yu’s and xuv’s using Algorithm              1 with β = 2− ε and f  = f1+2ε.
+ 5        foreach u∈ Nv(v) do
+             /* Compute  Pr[u is free when  v arrives] as explained in Section                                  3.3       */
+ 6              zu←                        xuvPr[u is free when v  arrives].
+
+ 7        foreach u∈ Nv(v) do{                      }
+
+ 8              z′u← zu/ max      1,∑u∈Nv(v) zu       .
+
+ 9        Pick (at most) one u1∈ Nv(v) with probability z′u1.
+10        if ∑u∈Nv(v) zu > 1 then
+11              With probability√ε, pick (at most) one u2∈ Nv(v) with probability z′u2.
+             /* Probability of dropping edge {u, v} can be computed using  (7).      */
+12              Drop u2  with minimal probability ensuring{u2, v} is matched with probability at
+               most xu2v.
+
+13        if  a free neighbor u1  is sampled  then
+14              Add{u1, v} to M.
+
+15        else  if  a free neighbor u2  is sampled  then
+16              Add{u2, v} to M.
+
+ Algorithm  3: A randomized online matching algorithm under general vertex arrivals.
+
+    Our improved algorithm is outlined in Algorithm                 3.  Up until Line     6, it is similar to Algorithm       2
+except  that  it  uses  β  =  2− ε  and  f  =  f1+2ε  where  we  choose  ε  >  0  to  be  any  constant  small
+enough  such  that  the  results  in  the  analysis  hold.   In  Line          8,  if  the  sum  of  zu’s  exceeds  one  we
+normalize the zu  to obtain a valid probability distribution z′u.  In Line                   9, we sample the ﬁrst edge
+incident to an arriving vertex v.  In Line           11, we sample a second edge incident to the same vertex
+with probability√ε if we had to scale down zu’s in Line                   8.  Then in Line      12, we drop the sampled
+second edge with the minimal probability to ensure that no edge{u, v} is matched with probability
+more  than  xuv.  Since  (7)  gives  the  exact  probability  of{u, v}  being  matched,  this  probability  of
+dropping an edge{u, v} can be computed by the algorithm.  However, to compute this, we need the
+
+                                                              11
+
+===== PDF PAGE 13 =====
+conditional probabilities Pr[Fw| Fu], which again can be estimated using Monte Carlo sampling3.
+In the subsequent lines, we match v to a chosen free neighbor (if any) among its chosen neighbors,
+prioritizing its ﬁrst choice.
+    For the purpose of analysis we view Algorithm               3 as constructing a greedy matching on a directed
+acyclic graph (DAG) Hτ  deﬁned in the following two deﬁnitions.
+
+Deﬁnition  3.7  (Non-adaptive selection graph Gτ ).  Let τ  denote  the random  choices made by the
+vertices of G.  Let Gτ  be the DAG deﬁned by all the arcs (v, u1), (v, u2) for all vertices v∈ V .  We
+call the arcs (v, u1) primary arcs,  and the arcs (v, u2) the  secondary arcs.
+
+Deﬁnition  3.8  (Pruned  selection  graph  Hτ ).  Now  construct  Hτ  from  Gτ  by  removing  all  arcs
+(v, u) (primary or secondary) such that there exists a  primary arc (v′, u) with v′  arriving before v.
+We further remove  a secondary  arc  (v, u)  if there  is a primary  arc  (v, u);  i.e., if a vertex u has at
+least one incoming primary arc, remove all incoming primary arcs that came after the ﬁrst primary
+arc and all secondary  arcs that came after or from the same  vertex as the ﬁrst primary arc.
+
+    It is easy to see that the matching constructed by Algorithm                  3  is a greedy matching constructed
+on Hτ  based on order of arrival and prioritizing primary arcs.  The following lemma shows that the
+set of matched vertices obtained by this greedy matching does not change much for any change in
+the random choices  of a single vertex  v, which will prove useful later  on.  It can be proven rather
+directly by an inductive argument showing the size of the symmetric diﬀerence in matched vertices
+in  Gτ  and  Gτ ′  does  not  increase  after  each  arrival  besides  the  arrival  of  v,  whose  arrival  clearly
+increases this symmetric diﬀerence by at most two.  See Appendix                      A  for details.
+
+Lemma 3.9.  Let Gτ  and Gτ ′  be two realizations of the random digraph where all the vertices in the
+two  graphs  make  the  same  choices  except for  one vertex v.  Then the  number of  vertices that  have
+diﬀerent  matched status (free/matched) in the matchings computed in Hτ  and Hτ ′  at any point of
+time is at most two.
+
+3.4    Analysis
+In this section,  we analyze  the competitive  ratio of  Algorithm                3.  We  start with an  outline of  the
+analysis where we highlight the main ideas.
+
+3.4.1     High-Level  Description  of  Analysis
+As described in Section        3.3, the main diﬀerence compared to the simpler  1/2-competitive algorithm
+is  the  change  of  the  construction  of  the  fractional  solution,  which  in  turn  makes  the  rounding
+more  complex.   In  particular,  we  may  have  at  the  arrival  of  a  vertex  v  that ∑u∈Nv(v) zu  >  1.
+The  majority  of  the  analysis  is  therefore  devoted  to  such  “problematic”  vertices  since  otherwise,
+if ∑u∈Nv(v) zu  ⩽  1,  the  rounding  is  lossless  due  to  the  same  reasons  as  described  in  the  simpler
+setting of Section     3.2.  We now outline the main ideas in analyzing a vertex v with∑u∈Nv(v) zu > 1.
+Let Fw  be the event that vertex w is free (i.e., unmatched) at the arrival of v.  Then, as described
+in  Section   3.3,  the  probability  that  we  select  edge{u, v}  in  our  matching  is  the  minimum  of  xuv
+(because of the pruning in Line          12), and
+                                                                                             
+                             Pr[Fu]·   z′u + z′u√ε· ∑             z′w· (1− Pr[Fw| Fu]) .
+
+                                                         w∈Nv(v)
+
+   3It is also possible to compute them exactly if we allow the algorithm to take exponential time.
+
+
+                                                              12
+
+===== PDF PAGE 14 =====
+By deﬁnition, Pr[Fu]· zu = xuv, and the expression inside the parentheses is at least zu  (implying
+Pr[{u, v}∈ M] = xuv) if
+
+                                    1 +√ε· ∑              z′w· (1− Pr[Fw| Fu]) /greaterorequalslant  zuz′u .                                           (8)
+                                                w∈Nv(v)
+
+To  analyze  this  inequality,  we  ﬁrst  use  the  structure  of  the  selected  function  f  =  f1+2ε  and  the
+selection  of  β  =  2− ε  to  show  that  if ∑u∈Nv(v) zu  >  1  then  several  structural  properties  hold
+(see Lemma       3.10  and Corollary       3.11   in Section    3.4.2).  In particular, there are absolute constants
+0 < c < 1 and C > 1 (both independent of ε) such that
+
+   1. ∑u∈Nv(v) zu ⩽ 1 + Cε;
+
+   2.  zu ⩽ C√ε for every u∈ Nv(v); and
+
+   3.  c ⩽ Pr[Fw] ⩽ 1− c for every w∈ Nv(v).
+
+The ﬁrst property implies that the right-hand-side of (8) is at most 1+Cε; and the second property
+implies that v has at least Ω(1/√ε) neighbors and that each neighbor u satisﬁes z′u ⩽ zu ⩽ C√ε.
+    For simplicity of notation, we assume further in the high-level overview that v has exactly 1/√ε
+neighbors and each u∈ Nv(v) satisﬁes z′u =√ε.  Inequality (8) would then be implied by
+                                                ∑
+                                                       (1− Pr[Fw| Fu]) /greaterorequalslant C .                                                       (9)
+                                             w∈Nv(v)
+
+To get an intuition why we would expect the above inequality to hold, it is instructive to consider
+the unconditional version:
+                                      ∑      (1− Pr[Fw]) /greaterorequalslant c|Nv(v)| = c/√ε≫ C ,
+
+
+                                   w∈Nv(v)
+
+where the  ﬁrst inequality  is  from  the  fact  that  Pr[Fw] ⩽ 1− c  for  any  neighbor  w∈ Nv(v).  The
+large  slack  in  the  last  inequality,  obtained  by  selecting  ε  >  0  to  be  a  suﬃciently  small  constant,
+is  used  to  bound the  impact  of  conditioning  on  the  event  Fu.  Indeed,  due  to  the  large  slack,  we
+have  that  (9)  is  satisﬁed  if  the  quantity ∑w∈Nv(v) Pr[Fw|Fu]  is  not  too  far  away  from  the  same
+summation  with  unconditional  probabilities,  i.e., ∑w∈Nv(v) Pr[Fw].   Speciﬁcally,  it  is  suﬃcient  to
+show
+                                        ∑      (Pr[Fw|Fu]− Pr[Fw]) ⩽ c/√ε− C .                                          (10)
+
+
+                                     w∈Nv(v)
+
+We do so by bounding the correlation between the events Fu and Fw in a highly non-trivial manner,
+which  constitutes  the  heart  of  our  analysis.  The main  challenges  are  that  events  Fu  and  Fw  can
+be  positively  correlated  and  that,  by  conditioning  on  Fu,  the  primary  and  secondary  choices  of
+diﬀerent vertices are no longer independent.
+    We  overcome  the  last  diﬃculty  by  replacing  the  conditioning  on  Fu  by  a  conditioning  on  the
+component  in  Hτ  (at  the  time  of  v’s  arrival)  that  includes  u.   As  explained  in  Section                    3.3,  the
+matching output by our algorithm is equivalent to the greedy matching constructed in Hτ  and so
+the component containing u (at the time of v’s arrival) determines Fu.  But how can this component
+look like, assuming the event Fu?  First, u cannot have any incoming primary arc since then u would
+be matched (and so the event Fu would be false).  However, u could have incoming secondary arcs,
+
+                                                                13
+
+===== PDF PAGE 15 =====
+        u                                                                    u
+
+
+Figure 2:  Two examples of the component of Hτ  containing u.  Vertices are depicted from right to
+left in the arrival order.  Primary and secondary arcs are solid and dashed, respectively.  The edges
+that take part in the matching are thick.
+
+
+assuming that the tails of those arcs are matched using their primary arcs.  Furthermore, u can have
+an  outgoing  primary and  possibly a  secondary  arc  if  the  selected  neighbors are  already  matched.
+These  neighbors  can  in  turn  have  incoming  secondary  arcs,  at  most  one  incoming  primary  arc
+(due  to  the  pruning  in  the  deﬁnition  of  Hτ ),  and  outgoing  primary  and  secondary  arcs;  and  so
+on.  In  Figure   2,  we  give  two  examples  of  the  possible structure,  when  conditioning  on  Fu,  of  u’s
+component in  Hτ  (at  the time  of  v’s  arrival).  The left example  contains  secondary  arcs,  whereas
+the component on the right is arguably simpler and only contains primary arcs.
+    An  important step  in  our proof  is  to  prove  that,  for  most  vertices  u,  the  component is  of  the
+simple form depicted to the right with probability almost one.  That is, it is a path P  consisting of
+primary arcs, referred to as a primary path (see Deﬁnition                  3.13) that further satisﬁes:
+
+  (i)  it has length O(ln(1/ε)); and
+
+ (ii)  the total z-value of the arcs in the blocking set of P  is O(ln(1/ε)).  The blocking set is deﬁned
+      in Deﬁnition      3.14.  Informally, it contains those arcs that if appearing as primary arcs in Gτ
+      would cause arcs of P  to be pruned (or blocked) from Hτ.
+
+LetP be the primary paths of above type that appear with positive probability as u’s component in
+Hτ .  Further let EQP  be the event that u’s component equals P .  Then we show (for most vertices)
+that∑P ∈P Pr[EQP| Fu] is almost one.  For simplicity, let us assume here that the sum is equal to
+one.  Then by the law of total probability and since∑P ∈P Pr[EQP| Fu] = 1,
+                                                                                                                      
+       ∑      (Pr[Fw| Fu]− Pr[Fw]) = ∑               Pr[EQP| Fu]       ∑         (Pr[Fw| Fu, EQP ]− Pr[Fw])
+
+     w∈Nv(v)                                   P ∈P                      w∈Nv(v)
+                                                                                                                 
+                                            = ∑      Pr[EQP| Fu]       ∑         (Pr[Fw| EQP ]− Pr[Fw]) ,
+                                               P ∈P                      w∈Nv(v)
+
+where the last equality  is because the component P  determines  Fu.  The proof is  then completed
+by analyzing the term inside the parentheses for each primary path P∈P  separately.  As we prove
+in  Lemma     3.15,  the  independence of  primary  and  secondary  arc  choices  of  vertices  is  maintained
+after conditioning on EQP .4         Furthermore, we show that there is a bijection between the outcomes
+of  the  unconditional  and  the  conditional  distributions,  so  that  the  expected  number  of  vertices
+
+   4To be precise,  conditioning on  a primary  path P  with  a so-called  termination  certiﬁcate T , see  Deﬁnition    3.13.
+In the overview, we omit this detail and consider the event EQP,T  (instead of EQP ) in the formal proof.
+
+
+                                                             14
+
+===== PDF PAGE 16 =====
+that make diﬀerent choices under this pairing can be upper bounded by roughly the length of the
+path  plus  the  z-value  of  the  edges  in  the  blocking  set.   So,  for  a  path  P  as  above,  we  have  that
+the expected  number of  vertices  that make  diﬀerent  choices  in the paired  outcomes  is  O(ln(1/ε))
+which, by Lemma        3.9, implies that the expected number of vertices that change matched status is
+also upper bounded by O(ln(1/ε)).  In other words, we have for every P∈P  that
+                ∑       (Pr[Fw|EQP ]− Pr[Fw]) ⩽ ∑              (Pr[Fw|EQP ]− Pr[Fw]) = O(ln(1/ε)),
+
+              w∈Nv(v)                                     w∈V
+
+which implies (10) for a small enough choice  of ε.  This completes  the overview  of the main steps
+in  the  analysis.  The main  diﬀerence  in  the  formal proof  is  that  not  all  vertices  satisfy  that  their
+component is a short primary path with probability close to 1.  To that end, we deﬁne the notion
+of good  vertices in Section      3.4.4, which are the vertices that are very unlikely to have long directed
+paths of primary arcs rooted at them.  These are exactly the vertices v for which we can perform the
+above analysis for most neighbors u (in the proof of the “key lemma”) implying that the rounding
+is almost lossless for v.  Then, in Section         3.4.6, we show using a rather simple charging scheme that
+most  of  the  vertices  in  the  graph  are  good.  Finally,  in  Section         3.4.7,  we  put everything  together
+and prove Theorem         1.2.
+
+3.4.2     Useful  Properties  of  W  Functions  and Algorithm                       3
+                                                                                         (   θ+ε  )     ε
+                                                                                                    1+2ε .  In Appendix
+For the choice of f  = f1+2ε as we choose, we have f(θ) = (1 + ε− θ)·                      1+ε−θ                            C
+we  give  a  more  manageable  upper  bound for  f(θ)  which  holds  for  suﬃciently  small  ε.   Based  on
+this  simple  upper bound  on  f  and  some  basic  calculus,  we  obtain  the  following  useful  structural
+properties for the conditional probabilities, zu, of Algorithm                3.  See Appendix      C.
+Lemma  3.10.  (Basic  bounds  on  conditional  probabilities  zu)  There  exist  absolute  constants  c∈
+(0, 1)  and C > 1/c > 1 and ε0∈ (0, 1)  such that for every ε∈ (0, ε0) the following holds:  for every
+vertex v∈ V , if yu  is the dual variable of a neighbor u∈ Nv(v) before v’s arrival and θ is the value
+chosen by Algorithm        1 on v’s arrival,  then for zu  as deﬁned in Algorithm              3, we have:
+
+(1)  If θ⁄∈ (c, 1− c),  then∑u∈Nv(v) zu ⩽ 1,
+
+(2)  If θ∈ [0, 1],  then∑u∈Nv(v) zu ⩽ 1 + Cε,
+
+(3)  If∑u∈Nv(v) zu > 1, then zu ⩽ C√ε for every u∈ Nv(v),
+
+(4)  If∑u∈Nv(v) zu > 1, then for every u∈ Nv(v) such that zu > 0, one has yu∈ [c/2, 1− c/2], and
+
+(5)  For all u∈ Nv(v), one has zu ⩽ 1/2 + O(√ε).
+
+    The following corollary will be critical to our analysis:
+Corollary  3.11.  There  exist  absolute  constants  c > 0  and  ε0  > 0  such  that  for  all  ε∈ (0, ε),  on
+arrival of any vertex v∈ V , if z as deﬁned in Algorithm                3 satisﬁes∑u∈Nv(v) zu > 1, then for every
+u∈ Nv(v) we have
+                                     c ⩽ Pr[u is free when v  arrives] ⩽ 1− c.
+Proof.  By Lemma        3.10, (1) and (4) we have that if∑u∈Nv(v) zu > 1, then θ∈ (c, 1− c) (c is the
+constant from Lemma          3.10), and for every u∈ Nv(v) one has
+
+                                                   yu∈ [c/2, 1− c/2].                                                               (11)
+
+                                                             15
+
+===== PDF PAGE 17 =====
+On the other hand, by Lemma                3.3  one has
+
+                                                 yu
+                                                 β  ⩽ xu ⩽  yu + f(1− yu)β            ,                                                       (12)
+where xu  is the fractional degree of u when v arrives.
+    We now note that by Lemma                 3.10, (2), we have that Algorithm              3  matches every vertex u with
+probability at least xu/(1 + Cε) (due to choices of primary arcs), and thus
+
+      Pr[u is free when v arrives] ⩽ 1−     xu1 + Cε
+
+                                            ⩽ 1−        yuβ(1 + Cε)          (by (12))
+
+                                            ⩽ 1−       c/22(1 + Cε)          (by (11) and the setting β = 2− ε ⩽ 2)
+
+                                            ⩽ 1− c/5,
+
+as long as ε is suﬃciently small.
+    For the other bound we will use two facts.  The ﬁrst is that the since f(y) is monotone decreasing
+by Observation       3.4  and since we picked β > β∗(f) = 1+f(0), we have that for any y ⩽ 1−c/2 ⩽ 1,
+
+                                       y + f(1− y) ⩽ 1− c/2 + f(0) < β− c/2.                                           (13)
+
+Then, using the fact that by Line             12, Algorithm       3  matches every vertex u with probability at most
+xu, we obtain the second bound, as follows.
+
+              Pr[u is free when v arrives] /greaterorequalslant 1− xu
+
+                                                    /greaterorequalslant 1− yu + f(1− yu)β                              (by (12))
+
+                                                    /greaterorequalslant 1− β− c/2β                                    (by (11) and (13))
+
+                                                    /greaterorequalslant c/5.                                            (β = 2− ε < 2.5)
+
+    Choosing c/5 as the constant in the statement of the lemma, we obtain the result.
+
+    Finally, for our analysis we will rely on the competitive ratio of the fractional solution maintained
+in Line   4  being 1/β.  This follows by Lemma                3.5  and the fact that for our choices of β = 2− ε and
+f  = f1+2ε  we have that β /greaterorequalslant β∗(f).  See Appendix C  for a proof of this fact.
+
+Fact  3.12.  For all suﬃciently small ε > 0, we have that 2− ε /greaterorequalslant β∗(f1+2ε).
+
+3.4.3     Structural  Properties  of  Gτ  and  Hτ
+In our analysis later, we focus on maximal primary paths (directed paths made of primary arcs) in
+Hτ , in  the sense that  the last  vertex  along  the primary path  has no outgoing  primary arc in Hτ .
+The following deﬁnition captures termination certiﬁcates of such primary paths.
+
+Deﬁnition  3.13  (Certiﬁed  Primary Path).  A  tuple  (P, T )  is  a  certiﬁed  primary  path  in  Hτ  if  P
+is a directed path of primary  arcs in Hτ  and either
+
+ (a)  the last vertex of P  does not have an outgoing primary  arc in Gτ  and T  =∅, or
+
+                                                                 16
+
+===== PDF PAGE 18 =====
+ (b)  the last vertex u of P  has an outgoing primary arc (u, w) in Gτ  and T  = (u′, w) is a primary
+       arc  in Hτ  such that u′  precedes  u in the arrival order.
+
+    To  elaborate,  a  certiﬁed  primary  path  (P, T )  is  made  of  a  (directed)  path  P  of  primary  arcs
+in  Hτ  and  T  is  a  certiﬁcate  of  P ’s  termination  in  Hτ  that  ensures  the  last  vertex  u  in  P  has  no
+outgoing primary arc in Hτ, either  due to u not picking a primary arc with T  =∅,  or due to the
+picked primary arc (u, w) being blocked by another primary arc T  = (u′, w) which appears in Hτ .
+    As described, Gτ  and Hτ  diﬀer in arcs (u, w) that are blocked  by previous primary arcs to their
+target vertex w.  We generally deﬁne sets of arcs which can block an edge, or a path, or a certiﬁed
+path from appearing in Hτ  as in the following deﬁnition:
+
+Deﬁnition  3.14  (Blocking sets).  For an arc  (u, w),  deﬁne its  blocking set
+
+                       B(u, w) :={(u′, w)|{u′, w} is an edge and u′  arrived before  u}
+
+to  be  those  arcs,  the  appearance  of  any  of  which  as  primary  arc  in  Gτ  blocks  (u, v)  from  being  in
+Hτ .  In  other  words,  an  arc  (u, v)  is  in  Hτ  as  primary  or  secondary  arc  if  and  only  if  (u, v)  is  in
+Gτ  and none of the arcs in its blocking set B(u, v) is in Gτ  as a primary  arc.
+    The blocking set of a path  P  is simply the union of its arcs’  blocking sets,
+
+                                                 B(P ) := ⋃           B(u, v) .
+                                                             (u,v)∈P
+
+    The blocking set of a certiﬁed primary  path (P, T ) is the union of blocking sets of P  and T ,
+
+                                                  B(P, T ) := B(P∪ T ).
+
+    The  probability  of  an  edge,  or  path,  or  certiﬁed  primary  path  appearing  in  Hτ  is  governed
+in  part  by  the  probability  of  arcs  in  their  blocking  sets  appearing  as  primary  arcs  in  Gτ .   As  an
+arc (v, u)  is picked  as  primary arc by when v  arrives  with probability  roughly zu  (more precisely,
+z′u∈ [zvu/(1 + Cε), zvu], by Lemma             3.10), it will be convenient to denote by z(v, u) and z′(v, u) the
+values  zu  and  z′u  when v  arrives,  and by  z(S) =∑s∈S z(s)  and  z′(S) =∑s∈S z(s)  the sum  of  z-
+and z′-values of arcs in a set of arcs S.
+    Product  distributions.  Note that by deﬁnition the distribution over primary and secondary
+arc  choices  of  vertices  are  product distributions  (they  are  independent).  As  such,  their  joint  dis-
+tribution  is  deﬁned  by  their  marginals.   Let  pw  and  sw  denote  the  distribution  on  primary  and
+secondary arc choices of w, respectively.  That is, for every u∈ Nw(w), pw(u) is the marginal prob-
+ability that w selects (w, u) as its primary arc, and sw(u) is the marginal probability that w selects
+(w, u) as its secondary arc.  Given our target bound (8), it would be useful to show that condition-
+ing on Fu  preserves the independence of these arc choices.  Unfortunately, conditioning on Fu  does
+not preserve this independence.  We will therefore reﬁne our conditioning later on the existence of
+primary paths in Hτ, which as we show below maintains independence of the arc choices.
+
+Lemma  3.15.  For  a certiﬁed  primary  path  (P, T )  let EQ(P,T )  be the  event that  the  path  P  equals
+a  maximal  connected  component  in  Hτ   and  the  termination  of  P   is  certiﬁed  by  T .    Then  the
+conditional  distributions  of  primary  and  secondary  choices  conditioned  on  EQ(P,T )  are  product
+distributions; i.e., these conditional choices are independent.  Moreover, if we let  ˜pw  and  ˜sw  denote
+the conditional  distribution on primary and secondary  choices of w, respectively,  then
+
+                          TV(pw, ˜pw) ⩽ z(R(w))        and         TV(sw, ˜sw) ⩽ z(R(w)),
+
+
+                                                               17
+
+===== PDF PAGE 19 =====
+where  R(w)⊆{w}× Nw(w)  is the  set of  arcs  leaving  w  whose  existence  as primary  arcs  in Gτ  is
+ruled out by conditioning  on EQ(P,T ), and the union of these R(w), denoted by R(P, T ), satisﬁes
+
+  R(P, T ) :=⋃R(w)⊆ B(P, T )∪{(w, r)| r  is root  of P}∪    ⋃                                           {w}× Nw(w).    (14)
+                   w                                                              w∈P ∪{w: T =(w,w′)}
+
+Proof.  We ﬁrst bound the total variation distance between the conditional and unconditional dis-
+tributions.   For  primary  choices,  conditioning  on  EQ(P,T )  rules  out  the  following  sets  of  primary
+arc choices.  For vertex w  /∈ P  arriving before the root r of P  this conditioning rules out w picking
+any  edge  in  B(P, T )  as  primary  arc.   For  vertices  w  /∈  P  with  w  arriving  after  the  root  r  of  P
+this conditioning  rules out picking  arcs (w, r).  Finally,  this conditioning rules out some subset of
+arcs leaving vertices in P∪{w :  T  = (w, w′)}.  Taking the union over these supersets of R(w), we
+obtain (14).  Now, the probability of each ruled out primary choice (w, u)∈ R(w) is zero under  ˜pw
+and z′(w, u)  under pw, and  all other  primary choices  have  their probability  increase,  with  a total
+increase of∑(w,u)∈R(w) z′(w, u), from which we conclude that
+                       TV(pw, ˜pw) =  1         ∑       |pw(u)− ˜pw(u)| = z′(R(w)) ⩽ z(R(w)).
+                                           2 u∈Nw(w)
+
+The  proof  for  secondary  arcs  is  nearly  identical,  the  only  diﬀerences  being  that  the  sets  of  ruled
+out secondary arcs can be smaller (speciﬁcally, secondary arcs to w′  such that T  = (u, w′) are not
+ruled out by this conditioning), and the probability of any arc (w, u) being picked as secondary arc
+of w is at most√ε· z′(w, u) ⩽ z(w, u).
+    Finally,  we  note  that  primary  and  secondary  choices  for  diﬀerent  vertices  are  independent.
+Therefore, conditioning on each vertex  w  not picking a primary arc in its ruled out set R(w) still
+yields a product distribution, and similarly for the distributions over secondary choices.
+
+    It is easy to show that a particular certiﬁed primary path (P, T ) with high value of z(B(P, T ))
+is  unlikely  to  appear  in  Hτ ,  due to  the high  likelihood  of  arcs  in  its  breaking  set  being picked  as
+primary arcs.  The following lemma asserts that the probability of a vertex u being the root of any
+primary certiﬁed path (P, T ) with high z(B(P, T )) value is low.
+
+Lemma  3.16.  For any k /greaterorequalslant 0 and any vertex u, we have the following
+
+Pr[Hτ  contains any certiﬁed primary path  (P, T ) with P  rooted  at u and z(B(P, T )) /greaterorequalslant k] ⩽ e−k/2,
+
+               Pr[Hτ  contains  any primary path  P  rooted  at u with z(B(P )) /greaterorequalslant k] ⩽ e−k/2.
+
+Proof.  We  ﬁrst  prove  the  bound for  certiﬁed  primary  paths.   For  a  certiﬁed  primary  path  (P, T )
+where the last vertex of P  is w, deﬁne P ∗  as follows:
+                                               {
+                                       P ∗ =      P                          if T  =∅
+                                                  P∪{(w, w′′)}    if T  = (w′, w′′).
+
+    Observe that z(B(P ∗)) /greaterorequalslant k  whenever z(B(P, T )) /greaterorequalslant k.  This is trivial when T  =∅.  To see this
+for the case T  = (w′, w′′), let w be the last vertex of P , and note that B(w′, w′′)⊆ B(w, w′′), as w
+arrives after w′.  Also note that for (P, T ) to be in Hτ , we have that P ∗  must be in Gτ .
+    We say  a directed primary path P ′ = u→ u1→···→ uℓ−1→ uℓ  is k-minimal  if z(B(P ′)) /greaterorequalslant
+k  and  z(B(P ′\{(uℓ−1, uℓ)}))  <  k.   For  such  a  path  P ′,  deﬁne  B∗(P ′)  as  follows:   Initially  set
+
+
+                                                                18
+
+===== PDF PAGE 20 =====
+B∗(P ′) = B(P\{(uℓ−1, uℓ)}).  Then from B(uℓ−1, uℓ),  the breaking set of  the last  arc of  P ′,  add
+arcs to B∗(P ′) in reverse order of their sources’ arrival until z(B∗(P ′)) /greaterorequalslant k.
+     Consider a certiﬁed primary path (P, T ) with P  rooted at u.  If a k-minimal path rooted at u
+which  is  not  a  preﬁx  of  P ∗  is  contained  in  Gτ ,  then  (P, T )  does  not  appear  in  Gτ ,  and  therefore
+it  does  not  appear  in  Hτ .   On  the  other  hand,  if  z(B(P, T ))  /greaterorequalslant  k  then  for  (P, T )  to  appear  in
+Hτ , we must have that the (unique) k-minimal preﬁx P ′  of P ∗  must appear in Gτ , and that none
+of  the  edges  of  B∗(P ′)  appear  in  Gτ .   Moreover,  for  any  certiﬁed  primary  path  with  z(B(P, T )),
+conditioning on the existence of P ′  in Gτ  does not aﬀect random choices of vertices with outgoing
+arcs  in  B∗(P ′),  as  these vertices  are not in  P ′.  Since by  Lemma                    3.10   each  arc (w, w′) appears in
+Gτ  with  probability  z′(v, u)  /greaterorequalslant  z(v, u)/(1 + Cε)  /greaterorequalslant  z(v, u)/2,  we  conclude  that  for  any  k-minimal
+primary path P ′ rooted at u, we have
+
+           Pr[Hτ  contains any certiﬁed primary path (P, T ) with z(B(P, T )) /greaterorequalslant k| P ′ is in Gτ ]
+        ⩽ Pr[No edge in B∗(P ′) is in Gτ| P ′  is in Gτ ]
+        = ∏       (1− Pr[Some primary edge in B∗(P ′)∩ ({w}× Nw(w))   is in   Gτ ])
+           w /∈P ′      (                                                 )
+        ⩽ ∏       exp     −∑(w,w′)∈B(P,T )×Nw(w) z(w, w′)/2
+           w /∈P ′
+        ⩽ exp(−z(B∗(P ′))/2) ⩽ e−k/2.
+
+     Taking total probabilityPu, the set of all k-minimal primary paths P ′ rooted at u, we get that
+indeed, since u is the root of at most one k-minimal primary path in any realization of Gτ ,
+
+       Pr[Hτ  contains a certiﬁed primary path (P, T ) rooted at u with z(B(P, T )) /greaterorequalslant k]
+    ⩽ ∑         Pr[Hτ  contains a (P, T ) with z(B(P, T )) /greaterorequalslant k| P ′  is in Gτ ]· Pr[P ′  is in Gτ ] ⩽ e−k/2.
+       P ′∈Pu   /bracehtipupleft                       /bracehtipdownright/bracehtipdownleft     /bracehtipupright
+                                                    ⩽ e−k/2
+
+     The proof for primary path is essentially the same as the above, taking P ∗ = P .
+
+3.4.4     Analyzing  Good  Vertices
+Consider the set of vertices that are unlikely to be roots of long directed paths of primary arcs in
+Hτ .  In this section, we show that Algorithm                   3  achieves almost lossless rounding for such vertices,
+and hence we call them good  vertices.  We start with a formal deﬁnition:
+
+Deﬁnition  3.17  (Good vertices).  We say that a vertex v  is  good if
+
+                Prτ  [Hτ  has a primary path  rooted  at v  of length at least 2000· ln(1/ε)] ⩽ ε6.
+
+Otherwise, we say v  is  bad.
+
+     As the main result of this section, for good vertices, we prove the following:
+
+Theorem  3.18.  Let v  be a good vertex.  Then
+
+                                 Pr[v  is matched  on arrival] /greaterorequalslant (1− ε2)· ∑     xuv.
+                                                                                         u∈Nv(v)
+
+
+
+                                                                   19
+
+===== PDF PAGE 21 =====
+Notational  conventions.    Throughout this section, we ﬁx v  and let z, z′  be as in Algorithm                               3.
+Moreover,  for  simplicity  of  notation,  we  suppose  that  the  stream  of  vertices  ends  just  before  v’s
+arrival and so quantities, such as Gτ  and Hτ , refer to their values when v  arrives.  For a vertex u,
+we  let  Fu  denote  the event  that u  is  free (i.e.,  unmatched) when v  arrives.  In other  words, Fu  is
+the event that u is free in the stream that ends just before v’s arrival.
+    To prove the theorem, ﬁrst note that it is immediate if∑u∈Nv(v) zu ⩽ 1:  in that case, we have
+z′ = z and so the probability to match v by a primary edge, by deﬁnition of zu, is simply
+                                              ∑      zu· Pr[Fu] = ∑             xuv.
+
+
+                                           u∈Nv(v)                    u∈Nv(v)
+    From now on we therefore assume∑u∈Nv(v) zu > 1, which implies
+   (I) ∑u∈Nv(v) z′u = 1,
+and moreover, by Lemma            3.10   and Corollary      3.11, for every u∈ Nv(v):
+  (II)  zu ⩽ C√ε,
+
+ (III)  zu ⩽ (1 + Cε)· z′u, and
+
+ (IV)  c ⩽ Pr[Fu] ⩽ 1− c ,
+where c is the constant of Corollary            3.11  and C  is the constant of Lemma             3.10.
+    We now state the key technical lemma in the proof of Theorem                         3.18:
+Lemma  3.19.  Consider a neighbor u∈ Nv(v) such that
+
+           Prτ  [Hτ  has a primary  path rooted  at u of length at least 2000· ln(1/ε)| Fu] ⩽ ε2 .         (15)
+
+Then,
+                                 ∑
+                                        z′w· Pr[Fw| Fu]− ∑                z′w· Pr[Fw] ⩽ ε1/3 .                                 (16)
+                              w∈Nv(v)                           w∈Nv(v)
+    Note that the above lemma bounds the quantity∑w∈Nv(v) z′w· Pr[Fw| Fu], which will allow us
+to  show  that  (8)  holds  and  thus  the  edge{u, v}  is  picked  in  the  matching  with  probability  very
+close  to xuv.  Before giving  the proof of  the lemma,  we give  the formal argument why the lemma
+implies the theorem.
+
+Proof  of Theorem       3.18.  Deﬁne S  to be the neighbors u in Nv(v) satisfying
+
+           Prτ  [Hτ  has a primary path rooted at u of length at least 2000· ln(1/ε)| Fu] > ε2 .
+
+In other words, S  is the set of neighbors of v that violate (15).  As v is good, we have
+
+ε6 /greaterorequalslant Prτ  [Hτ  has a primary path rooted at v of length at least 2000· ln(1/ε)]
+
+   /greaterorequalslant ∑z′u· Pr[Fu]· Prτ  [Hτ  has a primary path rooted at u of length at least 2000· ln(1/ε)− 1| Fu]
+      u∈Nv(v)
+   /greaterorequalslant ∑z′u· Pr[Fu]· Prτ  [Hτ  has a primary path rooted at u of length at least 2000· ln(1/ε)| Fu]
+      u∈Nv(v)
+   /greaterorequalslant∑z′u· Pr[Fu]· ε2.
+      u∈S
+
+                                                               20
+
+===== PDF PAGE 22 =====
+The  second  inequality  holds  because  v  selects  the  primary  arc  (u, v)  with  probability  z′u  and,
+conditioned  on  Fu,  u  cannot  already  have  an  incoming  primary  arc,  which  implies  that  (u, v)  is
+present in Hτ .  The last inequality follows from the choice of S.
+     By Property (III), zu ⩽ (1 + Cε)· z′u  and so by rewriting we get
+                  ∑    xuv =∑         zu· Pr[Fu] ⩽ (1 + Cε)·∑                z′u· Pr[Fu] ⩽ (1 + Cε)· ε4 ⩽ ε3.
+
+                  u∈S           u∈S                                    u∈S
+
+     In  other  words,  the  contribution  of  the  neighbors  of  v  in  S  to ∑u∈Nv(v) xuv  is  insigniﬁcant
+compared to the contribution of all neighbors,
+                                               ∑      xuv = ∑             zu· Pr[Fu] /greaterorequalslant c,                                               (17)
+
+
+                                            u∈Nv(v)             u∈Nv(v)
+
+where the inequality follows by the assumption∑u∈Nv(v) zu /greaterorequalslant 1 and Pr[Fu] /greaterorequalslant c by Property (IV).
+     We  proceed  to  analyze  a  neighbor  u∈  Nv(v)\ S.   Recall  that  it  is  enough  to  verify  (8)  to
+conclude that edge{u, v} is picked in the matching with probability xuv.  We have that
+
+                 1 +√ε ∑              z′w· (1− Pr[Fw| Fu])
+                            w∈Nv(v)
+              /greaterorequalslant 1 +√ε ∑z′w· (1− Pr[Fw])−√ε· ε1/3                              (by Lemma              3.19)
+                            w∈Nv(v)
+              /greaterorequalslant 1 +√ε ∑z′w· c−√ε· ε1/3                                    (Pr[Fw] ⩽ 1− c by (IV))
+                            w∈Nv(v)                                                                                        
+
+              = 1 +√εc−√ε· ε1/3                                                             ∑           z′w = 1 by (I)
+
+                                                                                              w∈Nv(v)
+              /greaterorequalslant 1 + Cε                                                                                       (for ε small enough)
+              /greaterorequalslant zu/z′u.                                                                                                           (by (III))
+
+Therefore, by deﬁnition of S  and Lemma                    3.19, we thus have that for every u∈ Nv(v)\ S, the edge
+{u, v}  is taken  in  the matching  with  probability  xuv.  Thus, the probability  that v  is  matched  on
+arrival is, as claimed, at least
+                  ∑
+                            xuv = ∑            xuv−∑         xuv /greaterorequalslant ∑xuv− ε3 /greaterorequalslant (1− ε2) ∑xuv ,
+              u∈Nv(v)\S              u∈Nv(v)            u∈S           u∈Nv(v)                                u∈Nv(v)
+
+where the last inequality holds because we have∑u∈Nv(v) xuv /greaterorequalslant c, as calculated in (17).
+
+3.4.5     Proof  of  the  Key  Lemma
+It remains to prove the key lemma, Lemma                       3.19, which we do here.
+
+Proof  of Lemma         3.19.  For  a  certiﬁed  primary  path  (P, T )  let  EQ(P,T )  be  the  event  as  deﬁned
+in  Lemma       3.15,  and  let  IN(P,T )  be  the  event  that  P  is  a  maximal  primary  path  in  Hτ  and  the
+termination of P  is certiﬁed by T .  Further, let
+
+            C ={(P, T ) : (P, T ) is a certiﬁed primary path rooted at u with Pr[IN(P,T )] > 0}
+
+
+                                                                    21
+
+===== PDF PAGE 23 =====
+be the set of certiﬁed primary paths rooted at u that have a nonzero probability of being maximal in
+Hτ .  Then, by the law of total probability and since∑(P,T )∈C Pr[IN(P,T )| Fu] = 1 (since conditioning
+on Fu  implies in particular that u has no incoming primary arc), we can rewrite the expression to
+bound,∑w∈Nv(v) z′w· Pr[Fw| Fu]−∑w∈Nv(v) z′w· Pr[Fw], as
+                                                                                                              
+              ∑                           ∑                                                                    .         (18)
+                     Pr[IN(P,T )| Fu]                z′w· Pr[Fw| Fu, IN(P,T )]− ∑                z′w· Pr[Fw]
+            (P,T )∈C                       w∈Nv(v)                                     w∈Nv(v)
+
+We analyze this expression in two steps.  First, in the next claim, we show that we can focus on the
+case  when  the certiﬁed  path  (P, T )  is  very  structured and  equals  the component  of  u in  Hτ .  We
+then analyze the sum in that structured case.
+Claim 3.20.  LetP⊆C  contain those certiﬁed primary paths (P, T ) ofC  that satisfy:  P  has length
+less than 2000· ln(1/ε) and z(B(P, T )) ⩽ 2 ln(1/ε).  Then, we have
+                                                                                                           
+   (18) ⩽ ∑          Pr[EQ(P,T )| Fu]      ∑          z′w· Pr[Fw| EQ(P,T )]− ∑                z′w· Pr[Fw] + ε1/3/2.
+
+            (P,T )∈P                         w∈Nv(v)                                 w∈Nv(v)
+
+
+Proof.  Deﬁne the following subsets of certiﬁed primary paths rooted at u:
+
+                           C1 ={(P, T )∈C| P  is of length at least 2000· ln(1/ε)}
+                           C2 ={(P, T )∈C\C1| z(B(P, T )) > 2 ln(1/ε)}
+
+Note thatP =C\ (C1∪C2).  Since u satisﬁes (15), we have that
+                                         ∑      Pr[IN(P,T )| Fu] ⩽ ε2 ⩽ ε1/3/6.
+
+
+                                       (P,T )∈C1
+
+On the other hand, by Lemma             3.16  and Pr[Fu] /greaterorequalslant c (by Property (IV)), we have that
+                     ∑
+                             Pr[IN(P,T )| Fu] ⩽ c−1· ∑               Pr[IN(P,T )] ⩽ c−1· ε ⩽ ε1/3/6.
+                   (P,T )∈C2                               (P,T )∈C2
+
+In other words, almost all probability mass lies in those outcomes where one of the certiﬁed paths
+(P, T )∈P  is  in  Hτ .   It  remains  to  prove  that,  in  those  cases,  we  almost  always  have  that  the
+component  of  u  in  Hτ  equals  the  path  P  (whose  termination  is  certiﬁed  by  T ).   Speciﬁcally,  let
+EQ(P,T ) denote the complement of EQ(P,T ).  We show
+                                              [                      ]
+                                          Pr   EQ(P,T )| IN(P,T )      ⩽ ε1/3/7 .                                                   (19)
+
+To  see  this,  note  that  by  the  deﬁnition  of  the  event  IN(P,T ),  if  we  restrict  ourselves  to  primary
+edges then the component of u in Hτ  equals P .  We thus have that for the event                       EQ(P,T ) to be true
+at  least  one  of  the  vertices  in  P  must  have  an  incoming  or  outgoing  secondary  edge.   Hence  the[]
+expression Pr      EQ(P,T )| IN(P,T )      can be upper bounded by
+
+              Pr[a vertex in P  has an incoming or outgoing secondary arc in Gτ| IN(P,T )]            (20)
+
+
+                                                              22
+
+===== PDF PAGE 24 =====
+Note that event IN(P,T )  is determined solely by choices of primary arcs.  By independence of these
+choices  and  choices  of  secondary  arcs,  conditioning  on  IN(P,T )  does  not  aﬀect  the  distribution  of
+secondary arcs.  So the probability that any of the nodes in P  selects a secondary edge is at most
+√ε.  Thus, by union bound, the probability that any of the|P| ⩽ 2000· ln(1/ε) vertices  in P  pick
+
+a secondary arc is at most√ε· 2000· ln(1/ε).  We now  turn our attention  to incoming secondary
+arcs.  First, considering the secondary arcs that go into u, we have
+
+                      c ⩽ Pr[Fu] ⩽  ∏                (1− z(w, u)/2) ⩽ exp(−z(B(v, u))/2),
+                                       (w,u)∈B(v,u)
+
+because  any  arc  (w, u)∈ B(v, u)  appears  as  a  primary  arc  in  Gτ  independently  with  probability
+at least z(w, u)/2  and the appearance of such an arc implies  that u has an incoming primary arc
+in Hτ  and is therefore matched; i.e., the event Fu  is false in this case.  We thus have z(B(v, u)) ⩽
+2 ln(1/c).  Further, since (P, T )⁄∈C2, we have z(B(P )) ⩽ z(B(P, T )) ⩽ 2 ln(1/ε).  Again using that
+the  conditioning  on  IN(P,T )  does  not  aﬀect  the  distribution  of  secondary  edges,  we  have  that  the
+probability of an incoming secondary arc to any vertex in P  is at most√ε· (2 ln(1/c) + 2 ln(1/ε)) .
+Thus, by union bound, the probability that any vertex in P  has an incoming or outgoing secondary
+arc conditioned on IN(P,T ) is at most
+                          √ε· 2000· ln(1/ε) +√ε· (2 ln(1/c) + 2 ln(1/ε)) ⩽ ε1/3/7,
+
+
+for suﬃciently small ε, which implies (19) via (20).
+    We now show how the above concludes the proof of the claim.  We have shown that each one of
+the two setsC1,C2 contributes at most ε1/3/6 to (18) (where we use that∑w∈Nv(v) z′w = 1).  Hence,
+                                                                                                           
+(18) ⩽ ∑           Pr[IN(P,T )| Fu]     ∑         z′w· Pr[Fw| IN(P,T ), Fu]− ∑               z′w· Pr[Fw] + 2ε1/3/6.
+
+          (P,T )∈P                       w∈Nv(v)                                    w∈Nv(v)
+
+This intuitively  concludes the proof of the claim as (19) says that Pr[EQ(P,T )|IN(P,T )] is almost 1.
+The formal calculations are as follows.  Since the event EQ(P,T )  implies the event IN(P,T ), we have
+that
+
+               Pr[EQ(P,T )] = Pr[EQ(P,T )∧ IN(P,T )] = Pr[IN(P,T )]− Pr[EQ(P,T )∧ IN(P,T )],
+
+which by (19) implies
+                                        (         [                      ])                   (              )
+       Pr[EQ(P,T )] = Pr[IN(P,T )]        1− Pr     EQ(P,T )| IN(P,T )       /greaterorequalslant Pr[IN(P,T )]1− ε1/3/7.           (21)
+                                                (∑                                                                        )
+We use this to rewrite Pr[IN(P,T )| Fu]              w∈Nv(v) z′w· Pr[Fw| IN(P,T ), Fu]−∑w∈Nv(v) z′w· Pr[Fw]                 .
+Speciﬁcally,  by  law  of  total  probability,  it  can  be  rewritten  as  the  sum  of  the  expressions  (22)
+and (23) below:
+                                                                                                                     
+    Pr[EQ(P,T )∧ IN(P,T )| Fu]        ∑          z′w· Pr[Fw| EQ(P,T ), IN(P,T ), Fu]− ∑                z′w· Pr[Fw]
+
+                                        w∈Nv(v)                                               w∈Nv(v)
+                                                                                                      
+             = Pr[EQ(P,T )| Fu]       ∑          z′w· Pr[Fw| EQ(P,T )]− ∑               z′w· Pr[Fw]                    (22)
+
+                                        w∈Nv(v)                                w∈Nv(v)
+
+
+                                                             23
+
+===== PDF PAGE 25 =====
+and
+                                                                                                                 
+ Pr[EQ(P,T )∧ IN(P,T )| Fu]        ∑         z′w· Pr[Fw|     EQ(P,T ), IN(P,T ), Fu]− ∑            z′w· Pr[Fw] ,  (23)
+
+                                     w∈Nv(v)                                               w∈Nv(v)
+
+where (23) can be upper bounded as follows:
+
+             (23) ⩽ Pr[EQ(P,T )∧ IN(P,T )| Fu]                                          (by ∑       z′w ⩽ 1)
+                                                                                          w∈Nv(v)
+                   ⩽ c−1· Pr[EQ(P,T )∧ IN(P,T )]                                         (by c ⩽ Pr[Fu])[]
+
+                   = c−1· Pr[IN(P,T )]· Pr       EQ(P,T )| IN(P,T )
+
+                   ⩽ c−1· Pr[EQ(P,T )]1− ε1/3/7 · (ε1/3/7)                                        (by (19) and (21))
+
+                   ⩽ Pr[EQ(P,T )]· ε1/3/6.                                                    (for ε small enough)
+
+∑   As  at  most  one  of  the  events{EQ(P,T )}(P,T )∈P  is  true  in  any  realization  of  Gτ ,  we  have  that()
+
+   (P,T )∈P Pr[EQ(P,T )∧ IN(P,T )| Fu] ⩽∑(P,T )∈P             Pr[EQ(P,T )]· ε1/3/6       ⩽ ε1/3/6.  Thus, again using
+that∑w∈Nv(v) zw ⩽ 1, we have that
+                                                                                                           
+ (18) ⩽ ∑          Pr[IN(P,T )| Fu]     ∑         z′w· Pr[Fw| IN(P,T ), Fu]− ∑               z′w· Pr[Fw] + 2ε1/3/6
+
+          (P,T )∈P                        w∈Nv(v)                                   w∈Nv(v)
+                                                                                                        
+       ⩽ ∑         Pr[EQ(P,T )| Fu]      ∑         z′w· Pr[Fw| EQ(P,T )]− ∑               z′w· Pr[Fw] + 3ε1/3/6,
+
+          (P,T )∈P                         w∈Nv(v)                                w∈Nv(v)
+
+as claimed.
+
+    The previous claim bounded the contribution of certiﬁed primary paths inC\P  to (18).  The
+following claim bounds the contribution of paths inP.
+Claim 3.21.  LetP⊆C  contain those certiﬁed primary paths (P, T ) ofC  that satisfy:  P  has length
+less than 2000· ln(1/ε) and z(B(P, T )) ⩽ 2 ln(1/ε).  Then, we have
+                                                                                                  
+            ∑      Pr[EQ(P,T )]    ∑         z′w· Pr[Fw| EQ(P,T )]− ∑                z′w· Pr[Fw] ⩽ ε1/3/2.
+
+
+          (P,T )∈P                   w∈Nv(v)                                w∈Nv(v)
+
+
+Proof.  We prove the claim in two steps:  ﬁrst we construct a chain of distributions that interpolates
+between the unconditional distribution of Hτ  and its conditional distribution, and then bound the
+expected number of vertices that change their matched status along that chain.  For the remainder
+of the proof we ﬁx the certiﬁed primary path (P, T ).
+
+
+
+
+
+
+
+                                                             24
+
+===== PDF PAGE 26 =====
+Constructing a chain of  distributions.    Let H(0)τ    denote the unconditional distribution of Hτ
+when v arrives, and let H(n)τ     denote the distribution of Hτ  conditioned on EQ(P,T ) when v arrives.
+Here  n  =|V|  is  the  number  of  vertices  in  the  input  graph.   For  every  w ∈  V   let  F (0)w    denote
+the  indicator  of  w  being  free  when  v  arrives  (unconditionally)  and  let  F (n)w    denote  the  indicator
+variables of w being free when v  arrives conditioned on EQ(P,T ).  Note that F (0)  is determined by
+H(0)τ    and F (n) is determined by H(n)τ   .  For t = 0, . . . , n, we deﬁne distributions H(t)τ    that interpolate
+between H(0)τ    and H(n+1)τ         as follows.
+    As  in  Lemma       3.15,  for  every  w∈  V   we  denote  the  unconditional  distribution  of  its  primary
+choice  by  pw,  and  the  unconditional  distribution  of  its  secondary  choice  by  sw.    Similarly,  we
+denote the conditional distribution given EQ(P,T ) of the primary choice by ~pw  and the conditional
+distribution  of  the  secondary  choice  by ~sw.  For  every  t =  0, . . . , n  the  primary  choice  of  vertices
+wj, j  =  1, . . . , t  are  sampled  independently  from ~pwj ,  and  the  primary  choices  of  vertices  wj, j  =
+t+1, . . . , n are sampled independently from the unconditional distribution pwt.  Similarly, secondary
+choices  of  vertices  wj, j  =  1, . . . , t  are  sampled  independently  from ~swj  and  secondary  choices  of
+vertices  wj, j  =  t + 1, . . . , n  are  sampled  independently  from  swj.    Note  that  H(0)τ     is  sampled
+from the unconditional distribution of  Hτ,  and H(n)τ     is sampled from the conditional  distribution
+(conditioned on EQ(P,T )), as required, due to the independence of the conditional probabilities  ˜pwj
+and ˜swj, by Lemma        3.15.  For t = 0, . . . , n let Mt denote the matching constructed by our algorithm
+on H(t)τ   , and let F (t)w   be the indicator variable for w being free when v arrives in the DAG sampled
+from H(t)τ   .
+
+Coupling the distributions of H(t)τ   .    We now exhibit a coupling between the H(t)τ   , t = 0, . . . , n.
+Speciﬁcally, we will show that for every such t the following holds.
+                                                                  
+                                       E ∑     |F (t+1)q  − F (t)q | ⩽ 4z(R(wt+1)),                                            (24)
+
+                                           q∈V
+
+where  R(wt+1)  is  as  deﬁned  in  Lemma             3.15   with  regard  to  the  certiﬁed  primary  path  R(P, T ).
+Recall  that  z(R(wt+1))  is  the  total  probability  assigned  to  arcs  leaving  wt+1  which  are  ruled  out
+from being primary arcs in Gτ  by conditioning on EQ(P,T ).
+    We construct the coupling by induction.  The base case corresponds to t = 0 and is trivial.  We
+now give the inductive step (t→ t + 1).  We write w := wt+1 to simplify notation.  Let Zp∈ Nw(w)
+denote the primary choice  of  w  in H(t)τ   , and let Zs∈ Nw(w)  denote the secondary  choice  of w  in
+Nw(w) (they are sampled according to the unconditional distributions pw and sw respectively).  Let~Zp∈ Nw(w) and ~Zs∈ Nw(w) be sampled from the conditional distributions~pw and~sw respectively,
+
+such that that the joint distributions (Zp,~Zp) and (Zs,~Zs) satisfy
+
+                        Pr[Zp⁄= ~Zp] = TV(pw,~pw)   and   Pr[Zs⁄= ~Zs] = TV(sw,~sw).                          (25)
+
+    First, we note that if Zp = ~Zp  and Zs = ~Zs, then w = wt+1  is matched to the same neighbor
+under H(t)τ    and H(t+1)τ       , and so Mt = Mt+1, due to the greedy nature of the matching constructed.
+Otherwise, by Lemma           3.9, at most two vertices  have diﬀerent matched status in Mt  and Mt+1  in
+the latter case (in the former case every vertex  has the same matched status).  To summarize, we
+
+
+
+
+
+                                                               25
+
+===== PDF PAGE 27 =====
+have, for R(w) determined by (P, T ) as in Lemma                3.15, that
+                                
+      E ∑     |F (t+1)q  − F (t)q | ⩽ 2· Pr[Zp⁄= ~Zp or Zs⁄= ~Zs]
+
+          q∈V                                                                                                         (26)
+                                    ⩽ 2(TV(pw,~pw) + TV(sw,~sw))     (by (25) and union bound)
+                                    ⩽ 4z(R(w)).                                     (by Lemma 3.15)
+
+This concludes the proof of the inductive step, and establishes (24).  In particular, we get
+                                                                                       
+                                                          n−1∑
+                           E∑      |F (n)q − F (0)q | ⩽     E  ∑     |F (t+1)q  − F (t)q |
+
+                               q∈V                        t=0      q∈V
+                                                          n−1∑                                                        (27)
+                                                       ⩽      4z(R(wt+1))         (by (26))
+                                                          t=0
+                                                       = 4z(R(P, T )),
+
+by the deﬁnition of R(P, T ) =⋃w R(w) in Lemma                  3.15.
+    We now ﬁnish the claim.  First note that for any (P, T ) such that P  has length at most 2000·
+ln(1/ε)  and  z(B(P, T ))  ⩽  2 ln(1/ε)  one  has∑w z(R(w))  = z(R(P, T ))  = O(ln(1/ε)).   Indeed,  by
+Lemma     3.15  and linearity of z, recalling that u is the root of P  and that no vertex appears after v
+(and thus B(v, u) ={(w, u)| w arrives between u and v}), we have
+
+              z(R(P, T )) ⩽ z(B(P, T )) + z(B(v, u)) +    ∑                           z ({w}× Nw(w)) .             (28)
+                                                                 w∈P ∪{w: T =(w,w′)}
+
+We now  bound the contribution  to the above upper bound on∑w z(R(w)) = z(R(P, T )) in (28).
+First, we have that z(B(P, T )) ⩽ 2 ln(1/ε) by assumption of the lemma.  To bound the contribution
+of z(B(v, u)), we note that by Property           IV, we have
+                                                                                  
+        c ⩽ Pr[Fu] =  ∏           (1− ze) ⩽ exp−  ∑                    z(w, u)/2 ⩽ exp(−z(B(v, u))/2),
+
+                         e∈B(v,u)                         (w,u)∈B(v,u)
+
+because any  arc e = (w, u)  appears as a primary arc in Gτ  with probability  z′(w, u) /greaterorequalslant z(w, u)/2,
+independently  of  other  such  arcs,  and  the  appearance  of  any  such  an  edge  implies  that  u  has  an
+incoming primary edge in Hτ  when v arrives and is therefore matched; i.e., the event Fu is false in
+this case.  We thus have z(B(v, u)) ⩽ 2 ln(1/c).  Finally, it remains to note that for every one of the
+at most 2000· ln(1/ε) + 1 vertices w∈ P∪{w :  T  = (w, w′)} the contribution of z({w}× Nw(w))
+to the right hand side of  (28) is at most 1 + Cε ⩽ 2, by Lemma                   3.10, (2).  Putting these bounds
+together, we get that for suﬃciently small ε,
+
+                 z(R(P, T )) ⩽ 2 ln(1/ε) + 2 ln(1/c) + 2· 2000· ln(1/ε) + 2 = O(ln(1/ε)).                 (29)
+
+
+
+
+
+
+
+
+                                                            26
+
+===== PDF PAGE 28 =====
+    The term we wish to upper bound is at most
+           ∑      z′w· Pr[Fw| EQ(P,T )]− ∑                z′w· Pr[Fw]
+
+
+         w∈Nv(v)                                w∈Nv(v)
+         (              )             ⏐⏐⏐Pr[Fw| EQ(P,T )]− Pr[Fw]⏐⏐⏐
+      ⩽    w∈Nv(v) z′wmax  · ∑
+                          ⏐⏐⏐Pr[Fw| EQ(P,T )]− Pr[Fw]w∈Nv(v)⏐⏐⏐                        (by Lemma
+      ⩽C√ε· ∑                                                                                  3.10, (3))
+                w∈Nv(v)                       
+
+      =C√ε· E       ∑         |F (n)w − F (0)w |                                         (by deﬁnition of F (0)  and F (n))
+
+                     w∈Nv(v)
+
+then, using (27) and (29), we ﬁnd that the term we wish to upper bound is at most
+                                      [∑                     ]
+                         ⩽C√ε· E             |F (n)w − F (0)w |
+                                        w∈V
+                         ⩽C√ε· z(R(P, T ))                                                     (by   (27))
+                         =O(√ε· log(1/ε))                                                       (by   (29))
+                         ⩽ε1/3/2,
+
+completing the proof.
+
+    Finally, we obtain Lemma          3.19  by combining Claim        3.20  and Claim     3.21, to ﬁnd that, as claimed
+                                                                                                           
+   (18) ⩽ ∑           Pr[EQ(P,T )| Fu]      ∑         z′w· Pr[Fw| EQ(P,T )]− ∑                z′w· Pr[Fw] + ε1/3/2
+
+            (P,T )∈P                         w∈Nv(v)                                 w∈Nv(v)
+         ⩽ ε1/3/2 + ε1/3/2 = ε1/3.
+
+3.4.6     Bounding  the  Impact  of  Bad  Vertices
+In this section, we show that we can completely  ignore the bad vertices  without losing too much.
+From the deﬁnition of good vertices, for a bad vertex v, we have that
+
+              Prτ  [Hτ  has a primary path rooted at v of length at least 2000· ln(1/ε)] /greaterorequalslant ε6.
+
+As the main result of this section, we prove the following theorem:
+
+Theorem  3.22.  The number of bad vertices is at most ε3·∑e∈E xe.
+
+    To prove this, we ﬁrst describe a charging mechanism in which, for each bad vertex, a charge of
+one is distributed among a subset of other vertices.  Then, using the following supplementary lemma,
+we show that the total distributed charge over all vertices in the graph is at most ε3·∑(u,v)∈E xuv.
+
+Lemma 3.23.  We call a primary path P  a  primary predecessor path of v if it ends at v.  That is,
+P  = vℓ→ vℓ−1→···→ v1 = v.  We have
+
+Prτ  [v  has any primary  predecessor  path P  with z(B(P )) ⩽ 20· ln(1/ε) and|P| /greaterorequalslant 1000· ln(1/ε)] ⩽ ε10.
+
+                                                             27
+
+===== PDF PAGE 29 =====
+Proof.  We  use  the  principle  of  deferred  decisions  and  traverse  the  path  backwards.  Let  b  be  the
+current  vertex,  which  is  initially  set  to  v.   Consider  all  incoming  arcs  to  b,  say  (a1, b), . . . , (ak, b)
+where we index a’s by time of arrival; i.e., ai arrives before aj  if i < j (and b arrived before any ai).
+     First consider the random choice of a1  and see if it selected the arc (a1, b).
+     •  If it does, then the path including b in Hτ  will use the arc (a1, b).
+     •  Otherwise, if a1  does not select the arc (a1, b), then go on to consider a2  and so on.
+If no a1, . . . , ak  selects  b,  then the process stops;  i.e.,  the primary path starts  at this  vertex  since
+b  has  no  incoming  primary  arc.   Otherwise  let  i  be  the  ﬁrst  index  so  that  (ai, b)  was  selected.
+Then (ai, b) is in the primary path ending at v  in Hτ.  Now,  observe that no  a1, . . . , ai−1  may  be
+in  the  path  in  this  case,  because  these  vertices  arrived  before  ai  and  after  b.  Moreover,  we  have
+not  revealed  any  randomness  regarding  ai+1, . . . , ak  that  may  appear  later  in  the  path.   We  can
+therefore repeat the above process with b now set to ai and “fresh” randomness for all vertices we
+consider,  as  the  random  choices  of  arcs  of  all  vertices  are  independent.   We  now  show  that  this
+process, with good probability, does not result in a long predecessor path P  of low z(B(P )) value.
+∑kRecall  from  Lemma               3.10,  (5),  that  z(u, v)  ⩽  3/5  for  all  (u, v) ∈  V × V .    Suppose  that
+
+   i=1 z(ai, b) /greaterorequalslant 4/5.  Let j  be the ﬁrst index such that∑ji=1 z(ai, b) /greaterorequalslant 1/5.  Thus∑ji=1 z(ai, b) ⩽
+4/5, and hence the probability that none of the ﬁrst j vertices select b is at least∏ji=1(1−z(ai, b)) /greaterorequalslant
+1−∑ji=1 z(ai, b) /greaterorequalslant 1/5.  Consequently, with probability at least 1/5, vertex b either has no prede-
+cessor or the increase to z(B(P )) is at least 1/5.
+     In the other case, we have∑ki=1 z(ai, b) ⩽ 4/5.  Then the probability that b has no  predecessor
+is∏ki=1(1− z(ai, b)) /greaterorequalslant 1−∑ki=1 z(ai, b) /greaterorequalslant 1/5.
+     Therefore,  at  any  step  in  the  above  random  process,  with  probability  at  least  1/5,  we  either
+stop  or  increase  z(B(P ))  by  1/5.   Let  Zi  be  an  indicator  variable  for  the  random  process  either
+stopping  or  increasing  z(B(P ))  by  at  least  1/5  at  step  i,  and  notice  that  according  to  the  above
+random  process,  each  Zi  is  lower  bounded by  an  independent Bernoulli  variable  with  probability
+1/5.  Thus if we deﬁne Z =∑i∈[1000·ln(1/ε)] Zi, we have E[Z] /greaterorequalslant 200· ln(1/ε), and thus by standard
+coupling arguments and Chernoﬀ bounds, we have that
+              Pr[Z ⩽ 100· ln(1/ε)] ⩽ Pr [Z ⩽ (1− 1/2)· E[Z]] ⩽ e−(1/2)·(1/2)2·200·ln(1/ε) ⩽ ε10.
+But if the path does not terminate within 1000·ln(1/ε) steps and Z /greaterorequalslant 100·ln(1/ε), then z(B(P )) /greaterorequalslant
+20· ln(1/ε).
+
+     We now prove Theorem                3.22.
+
+Proof  of Theorem         3.22.  By  Lemma            3.16,  the  probability  that  Hτ   has  a  primary  path  P   with
+z(B(P ))  /greaterorequalslant  20· ln(1/ε)  starting  at  v  is  at  most  ε10.   Thus,  for  a  bad  vertex  u,  the  probability
+that Hτ  has some primary path P  rooted at u with|P| /greaterorequalslant 2000· ln(1/ε) and z(B(P )) ⩽ 20· ln(1/ε)
+is at least ε6− ε10 /greaterorequalslant ε6/2.
+     Let k = 20· ln(1/ε) and ℓ = 2000· ln(1/ε).  LetPu  be the set of all primary paths P  rooted at
+u such that z(B(P )) ⩽ k and|P| = ℓ starting at u.  Since all such primary paths with length more
+than  ℓ  are  extensions  of  those  with  length  exactly  ℓ,  we  have ∑P ∈Pu Pr[P  is in Hτ ] /greaterorequalslant ε6/2.  For
+each such path P∈Pu, consider the two vertices wPℓ   and wPℓ−1 at distances ℓ and ℓ− 1 respectively
+from  u.  For  each  such  vertex  wPj   (j∈{ℓ− 1, ℓ}),  charge  (2/ε6)· Pr[P  is in Hτ ]· ywPj .  Then  the
+sum of these charges is∑
+                      (2/ε6)· Pr[P  is in Hτ ]· (ywPℓ  + ywPℓ−1)             /greaterorequalslant (2/ε6)· ∑Pr[P  is in Hτ ] /greaterorequalslant 1.
+               P ∈Pu                                    /bracehtipupleft/bracehtipdownright/bracehtipdownleft/bracehtipuprightP ∈Pu
+                                                                 /greaterorequalslant1
+
+                                                                     28
+
+===== PDF PAGE 30 =====
+Notice  that  the  fact  (ywPℓ  + ywPℓ−1) /greaterorequalslant 1  follows  because  yw’s  form  a  feasible  dual solution  (to  the
+vertex cover problem).
+    On the other hand, consider how many times each vertex is charged.  For this, for every vertex
+w, letQw  be the set of primary predecessor paths Q of u such that|Q| = ℓ− 1 and z(B(P )) ⩽ k.
+As|Q| = ℓ− 1 /greaterorequalslant 1000· ln(1/ε) for all Q∈Qw, by Lemma         3.23,∑Q∈Qw Pr[Q is in Hτ ] ⩽ ε10  .  For
+a primary predecessor path Q∈Qw (or one of its extensions), the vertex w can be charged at most
+twice  according  to  the  above  charging  mechanism.   Since  any  predecessor  path  of  w  with  length
+more than ℓ− 1 must be an extension  of one with length exactly  ℓ− 1, we have that the amount
+w is charged is at most∑
+                               2· 2· Pr[Q is in Hτ]· yw/ε6 ⩽ 4· (ε10/ε6)· yw ⩽ 4· ε4· yw.
+                       Q∈Qw
+Summing over all w∈ V  and using Lemma∑                    3.3, the total charge is at most
+                                          4· ε4· yw ⩽ 4· ε4· β·∑            xe ⩽ ε3∑        xe.
+                                     w∈v                               e∈E             e∈E
+
+3.4.7     Calculating  the  Competitive  Ratio  of  Algorithm                          3
+We now show that the competitive  ratio of Algorithm                       3 is indeed (1/2 + α) competitive for some
+suﬃciently  small  absolute  constant  α  >  0,  thus  proving  Theorem                    1.2.   This  essentially  combines
+the  facts  that  for  good  vertices,  the  matching  probability  is  very  close  to  the  fractional  values  of
+incident  edges,  and  that  the  number  of  bad  vertices  is  very  small  compared  to  the  total  value  of
+the fractional algorithm (over the entire graph).
+Proof  of Theorem       1.2.  Let OPT denote the size of the maximum cardinality matching in the input
+graph  G.  Then, by  Lemma            3.5   and our  choice  of  f  = f1+2ε  and β  = 2− ε /greaterorequalslant β∗(f1+2ε),  we  have
+that∑e xe /greaterorequalslant (1/β)· OPT /greaterorequalslant (1/2 + ε/4)· OPT, where the xe’s are the fractional values we compute
+in Algorithm      3.
+    Now let M  be the matching output by Algorithm                       3.  We have
+             E[|M|] =∑         Pr[e is matched]
+                          e∈E
+                       /greaterorequalslant  ∑(1− ε2)· ∑   xuv                                       (By Theorem 3.18)
+                          good v∈V                u∈Nv(v)
+                                                                             
+                       /greaterorequalslant (1− ε2)·∑xe− ∑       ∑      xuv
+
+                                          e∈E         bad v∈V   u∈Nv(v)
+                                       (∑                         )
+                       /greaterorequalslant (1− ε2)·xe− ∑       1                                ( ∑        xuv ⩽ 1)
+                                         e∈E          bad v∈V                                      u∈Nv(v)
+                                       (∑                        )
+                       /greaterorequalslant (1− ε2)·xe− ε3∑   xe                              (By Theorem        3.22)
+                                         e∈E             e∈E
+                       /greaterorequalslant (1− 2ε2)·∑xe
+                                        e∈E
+                       /greaterorequalslant (1− 2ε2)· (1/2 + ε/4)· OPT
+                       /greaterorequalslant (1/2 + ε/5)· OPT,
+where the last line holds for a suﬃciently small constant ε > 0.
+
+                                                                 29
+
+===== PDF PAGE 31 =====
+Appendix
+
+A    Deferred  Proofs  of  Section                         3.3
+
+Here we prove that a change of the realized arc choices of any vertex does not change the matched
+status of more than two vertices (at any point in time).  This is Lemma                     3.9, restated below.
+Lemma 3.9.  Let Gτ  and Gτ ′  be two realizations of the random digraph where all the vertices in the
+two  graphs  make  the  same  choices  except for  one vertex v.  Then the  number of  vertices that  have
+diﬀerent  matched status (free/matched) in the matchings computed in Hτ  and Hτ ′  at any point of
+time is at most two.
+Proof.  We  consider  the  evolution,  following  each  vertex  arrival,  of  the  matchings  Mτ  and  Mτ ′
+computed in Hτ  and Hτ ′, respectively,  as well as the set of vertices  with diﬀerent matched status
+in these matchings, denoted by D := (Mτ\ Mτ ′)∪ (Mτ ′\ Mτ ).  The set D is empty before the ﬁrst
+arrival and remains empty until the arrival of v, as all earlier vertices than v have the same primary
+and secondary arcs and have the same set of free neighbors in Hτ  and Hτ ′ (as D =∅, by induction).
+Now,  if  immediately  after  v  arrives  it  remains  free  in  both  Mτ  and  Mτ ′,  or  it  is  matched  to  the
+same neighbor in both matchings, then clearly D remains empty.  Otherwise, either v is matched to
+diﬀerent neighbors in Mτ  and Mτ ′, or v is matched in one of these matchings but not in the other.
+Both these cases result in|D| = 2.  We now show by induction that the cardinality of D  does not
+increase following subsequent arrivals, implying the lemma.
+    Let u be some vertex which arrives after v.  If when u arrives u is matched to the same neighbor
+w  in  Mτ  and  Mτ ′  or  if  u  remains  free  in  both  matchings,  then  D  is  unchanged.  If  u  is  matched
+to some w on arrival in Mτ , but not in Mτ ′, then since the arcs of u are the same in Gτ  and Gτ ′,
+this implies that w  must have been free in Mτ  but not in Mτ ′, and so D∋ w.  Therefore, after  u
+arrives, we have D← (D\{w})∪{u}, and so D’s cardinality is unchanged.  Finally, if u is matched
+to two  distinct neighbors,  denoted by  w  and w′,  respectively,  then one of  (u, w)  and (u, w′) must
+be the primary arc of u in both Gτ  and Gτ ′.  Without loss of generality, say (u, w) is this primary
+arc.  Since u is matched to w in Mτ  but not in Mτ ′, then w must be free in Mτ  when u arrives, but
+not in Mτ ′, and so D∋ w.  Consequently, we have that after u arrives we have D← S for some set
+S⊆ (D\{w})∪{w′}, and so D’s cardinality does not increase.
+
+B    Deferred  Proofs  of  Section                         3.1
+
+Here we prove the bound on the fractional degree xu  in terms of its dual value, restated below.
+Lemma  3.3.  For  any  vertex u, v∈ V ,  let  yu  be  the  potential  of  u prior  to  arrival  of  v.  Then  the
+fractional  degree just before v  arrives, xu :=∑w∈Nv(u) xuw, is bounded as follows:
+
+                                             yu
+                                              β  ⩽ xu ⩽  yu + f(1− yu)β            .
+Proof.  Let y0  be u’s potential after u’s arrival.  For the lower bound, note that it suﬃces to prove
+that every increase in the fractional degree is bounded below by the increase in the potential divided
+by β.  When vertex u ﬁrst arrived, we consider two cases.
+
+   1.  y0 > 0 (thus y0 = 1− θ > 0, and so θ < 1), then the increase in u’s fractional degree was:
+                       ∑       (θ− yv)+     (             )
+                                    β         1 + 1− θf(θ)   =  f(θ) + 1− θβ           =  f(1− y0) + y0β             /greaterorequalslant  y0β .
+                     v∈Nu(u)
+
+                                                             30
+
+===== PDF PAGE 32 =====
+   2.  y0 = 0 (thus θ = 1), then the increase in u’s fractional degree was:
+                              ∑      (θ− yv)+     (              )               (θ− yv)+
+                                          β         1 + 1− θf(θ)    = ∑               β         /greaterorequalslant 0 =  y0β .
+                           v∈Nu(u)                                     v∈Nu(u)
+
+For every subsequent increase of the fractional degree due to a newly-arrived vertex we have that:
+                                      (θ− yold       (             )
+                                              u   )+   1 + 1− θ       /greaterorequalslant  (θ− yoldu   )+
+                                            β                f(θ)               β         ,
+Which concludes the proof for the lower bound.
+    For the upper bound, by [25, Invariant 1], we have that
+                                                                       ∫  yc 1− x
+                                      β· xu ⩽ yc + f(1− y0) +                f(x)  dx.                                             (30)
+                                                                        y0
+This  upper  bound  can  be  simpliﬁed  by  using  Equation  (5),  as  follows.   Taking  (30),  adding  and
+subtracting  1 + f(1− yu)  and  writing  the  integral ∫ yu               1−x
+∫ 1                                                                   y0  f(x) dx  as  the  diﬀerence  of  two  integrals
+    1−x              1−x                                         5), we ﬁnd that
+ y0 f(x) dx -∫ 1yu  f(x) dx, and relying on Equation (
+                                                      ∫  yc 1− x
+                     β· xu ⩽ yc + f(1− y0) +                 f(x)  dx
+                                (                      ∫  1y0          )                ∫  yc
+                             =    1 + f(1− y0) +            1− x          − 1 + yc +          1− x
+                                                         y0  f(x)  dx                     1    f(x)  dx
+                                                 (                      ∫  1 1− x       )
+                             = β∗(f) + yc−         1 + f(1− yc) +             f(x)  dx     + f(1− yc)
+                                                                          yc
+                             = β∗(f) + yc− β∗(f) + f(1− yc)
+                             = yc + f(1− yc),
+
+from which the lemma follows.
+
+C     Deferred  Proofs  of  Section                         3.4.2
+
+In  this  section  we  present  the  proofs  deferred from  Section           3.4.2.  We  start  by  presenting  a  more
+manageable form for the function f  = f1+2ε  which we use.
+    A function in the WW family is determined by a parameter k /greaterorequalslant 1 and takes the following form
+                                              (1 + κ         ) 1+κ                 ) κ−1
+                                                                2κ (                  2κ  .
+                                    fκ(θ) =        2 − θ              θ + κ− 12
+
+Letting κ = 1 + 2ε, we get that f  := fκ  is of the form
+
+                                                               1+ε               ε
+                                       f(θ) = (1 + ε− θ)1+2ε· (θ + ε)          1+2ε
+                                                                (    θ + ε     )     ε
+                                                                                 1+2ε .
+                                             = (1 + ε− θ)·         1 + ε− θ
+
+Clearly this is water ﬁlling when ε = 0 and otherwise we have that the ﬁrst term is like water ﬁlling
+and then the second term is less than 1 for z ⩽ 1/2 and greater than 1 if z > 1/2.
+    By Taylor expansion, we obtain the following more manageable form for f.
+
+                                                              31
+
+===== PDF PAGE 33 =====
+Lemma  C.1.  There exists ε0∈ (0, 1)  such that for every ε∈ (0, ε0) and every θ∈ [0, 1],  we have
+                                                    (           (    θ + ε    ))
+                                 f(θ) ⩽ (1− θ)        1 + ε ln    1 + ε− θ         + 1.01ε.
+
+Proof.  Taking the Taylor expansion of ex, we ﬁnd that
+                                                   (    θ + ε    )     ε
+                                                                    1+2ε
+                         f(θ) = (1 + ε− θ)·          1 + ε− θ
+                                                        (    (   θ+ε  )         )i
+                                                    ∞∑    ln   1+ε−θ     ·      ε1+2ε
+                                = (1 + ε− θ)·                       i!
+                                                 (i=0       (    θ + ε    )            )
+                                = (1 + ε− θ)       1 + ln     1 + ε− θ       ·      ε1 + 2ε+ o(ε)
+                                                                 (    θ + ε    )
+                                = (1 + ε− θ) + (1− θ) ln           1 + ε− θ       ·      ε1 + 2ε + o(ε)
+                                                                  (    θ + ε     )
+                                = (1 + ε− θ) + (1− θ)ε ln            1 + ε− θ      + o(ε)
+                                            (           (    θ + ε     ))
+                                = (1− θ)      1 + ε ln     1 + ε− θ         + ε + o(ε).
+
+To be precise, for θ∈ [0, 1] and 0 < ε ⩽ ε0 ⩽ 1 (implying for example     θ+ε1+ε−θ  ⩽  2ε ), we will show that
+terms dropped in the third, fourth and ﬁfth lines are all at most some O((ln( 1ε )· ε)2) = o(ε), from
+which the lemma follows  as the sum of these terms is at most 0.01ε  for ε ⩽ ε0  and ε0  suﬃciently
+small.
+    Indeed, in the third line, we dropped
+                      (   (   θ+ε   )        )i                                      (ln( 2)· ε)i
+                 ∞∑    ln   1+ε−θ     ·      ε1+2ε       ∞∑  (ln( 2              ∞∑
+(1 + ε− θ)·                                                       ε )· ε)i                 ε
+                 i=2              i!                  ⩽ 2·i=2      i!         ⩽·i=2        i2          = O((ln(1/ε)· ε)2),
+
+where the last step used that ln(1/ε)· ε ⩽ 1 holds for all ε /greaterorequalslant 0.  In the fourth line, we dropped
+                               (    θ + ε    )
+                        ε· ln    1 + ε− θ       ·      ε1 + 2ε  ⩽ ε2· ln (2/ε) = O((ln(1/ε)· ε)2).
+
+Finally, in the ﬁfth line, we dropped
+                  (               )      (    θ + ε     )
+       (1− z)·      ε−      ε1 + 2ε  · ln   1 + ε− θ       ⩽ 1· (ε2/(1 + 2ε))· ln (2/ε) = O((ln(1/ε)· ε)2).
+
+    Given this more manageable form for f, we can now turn to prove Lemma                           3.10, restated below.
+Lemma  3.10.  (Basic  bounds  on  conditional  probabilities  zu)  There  exist  absolute  constants  c∈
+(0, 1)  and C > 1/c > 1 and ε0∈ (0, 1)  such that for every ε∈ (0, ε0) the following holds:  for every
+vertex v∈ V , if yu  is the dual variable of a neighbor u∈ Nv(v) before v’s arrival and θ is the value
+chosen by Algorithm        1  on v’s arrival,  then for zu  as deﬁned in Algorithm              3, we have:
+
+(1)  If θ⁄∈ (c, 1− c),  then∑u∈Nv(v) zu ⩽ 1,
+
+(2)  If θ∈ [0, 1],  then∑u∈Nv(v) zu ⩽ 1 + Cε,
+
+                                                              32
+
+===== PDF PAGE 34 =====
+(3)  If∑u∈Nv(v) zu > 1, then zu ⩽ C√ε for every u∈ Nv(v),
+
+(4)  If∑u∈Nv(v) zu > 1, then for every u∈ Nv(v) such that zu > 0, one has yu∈ [c/2, 1− c/2], and
+
+(5)  For all u∈ Nv(v), one has zu ⩽ 1/2 + O(√ε).
+
+Proof.  We begin by getting a generic upper bound for zu.  We note that each edge e is matched by
+Algorithm      3  with probability at most xe by Line                12.  Therefore, u is matched before v arrives with
+probability at most xu :=∑w∈Nv(u)\{v} xwu, the fractional degree of u before v arrives.  Therefore,
+by Lemma       3.3, the probability that u is free is at least
+
+                             Pr[u free when v arrives] /greaterorequalslant 1− xu /greaterorequalslant 1− yu + f(1− yu)β            ,                             (31)
+
+                                                                                                    )
+from  which,  together  with  the deﬁnition  of  xuv  =   1β (θ− yu)+(1 +  1−θf(θ)                    ,  we obtain  the following
+upper bound on zu:
+                                                                                       )                  (            )
+                                                          1                 1 +  1−θ           (θ− yu)      1 +  1−θ
+        zu =                     xuv                      β (θ− yu)+(             f(θ)    =                       f(θ)
+                Pr[u is free when v arrive]  ⩽                 1−  yu+f(1−yu)β               β− (yu + f(1− yu)).           (32)
+
+    We start by upper bounding∑u∈Nv(v) zu, giving a bound which will prove useful in the proofs
+of both (1) and (2).  Recall that θ is deﬁned as the largest θ ⩽ 1 such that
+                                                      ∑
+                                                             (θ− yu)+ ⩽ f(θ).                                                         (33)
+                                                    u∈Nv(v)
+
+    Summing (32) over all u∈ Nv(v), we ﬁnd that
+
+     ∑       zu ⩽ ∑            (θ− yu)+· (1 +  1−θf(θ))                                                                3.4)
+
+   u∈Nv(v)          u∈Nv(v)     β− (θ + f(1− θ))      (f(·) is non-increasing, by Observation
+
+                 ⩽       f(θ) + 1− θβ− (θ + f(1− θ))                     (by (33) and β /greaterorequalslant β∗(f) = 1 + f(0) /greaterorequalslant θ + f(1− θ))
+
+                                                                                                                 (   θ+ε   )
+We  therefore  wish  to  upper  bound      f(θ)+1−θβ−θ−f(1−θ).   To  this  end  let  γ(θ, ε)  :=  ε ln             1+ε−θ     .   Before
+proceeding to the proof, it would be useful to summarize some properties of the function γ(θ, ε).
+
+   1.  γ(θ, ε) =−γ(1− θ, ε) for all θ∈ [0, 1] .
+                                                                                                         (   c+ε   )
+   2.  For c, ε0 suﬃciently small we have for all θ∈ [0, c) that γ(θ, ε) ⩽ ε ln(     1−c+ε)                1+ε−c      ⩽−20· ε, and
+        for all θ∈ (1− c, 1] that γ(θ, ε) /greaterorequalslant ε ln1+ε−(1−c)   /greaterorequalslant 20· ε.
+
+   3.  γ(θ, ε)· (1− 2θ) ⩽ 0 for θ∈ [0, 1], since γ(θ, ε) ⩽ 0 for θ ⩽ 1/2 and γ(θ, ε) /greaterorequalslant 0 for θ /greaterorequalslant 1/2.
+
+   4.  θ· γ(θ, ε) /greaterorequalslant−ε for all θ∈ [0, 1].( 1+ε−θ)         ( 1+ε+θ   )         (            )
+        The  last  property  follows  from  ln              θ+ε      ⩽  ln      θ+ε      ⩽  ln    1 +    1θ+ε   ⩽     1θ+ε  ⩽   1θ ,  which
+                                                                     (       ( 1+ε−θ))
+        implies in particular that θ· γ(θ, ε) = θ· ε·                  − ln      θ+ε        /greaterorequalslant−ε.
+
+
+
+                                                                   33
+
+===== PDF PAGE 35 =====
+    We will use γ as shorthand for γ(θ, ε).  Recalling that β = 2− ε and using Lemma                              C.1, we have:
+                                                             (            (   θ+ε  ))
+                           f(θ) + 1− θ              (1− θ)     1 + ε ln(    1+ε−θ( 1−θ+ε− θ + 1 + 1.01ε))
+                       β− (θ + f(1− θ))  ⩽           2− ε− θ− θ          1 + ε ln                − 1.01ε
+                                                                                       θ+ε
+                                                ⩽  (1− θ)(2 + γ) + 2ε                                                         (34)
+                                                     2− 2θ + θγ− 3ε
+                                                = 1 +   γ(1− 2θ) + 5ε2− 2θ + θγ− 3ε.
+
+    We  will  continue  by  proving  that  the  second  term  is  negative.   First  we  prove  that  the  de-
+nominator  is  positive.   To  this  end,  ﬁrst  consider  the  case  when  θ∈  [0, c).   In  this  case  for  ε0, c
+suﬃciently  small  one  has  that:   2− 2θ + θγ− 2ε  >  2− 2θ− ε− 2ε  >  0  from  Item                                4.   More-
+over,  when  θ∈  (1− c, 1]  one  has  that  θ  >   12  (since  c  is  small)  and  γ  /greaterorequalslant  20ε  from  Item2.   Thus
+2− 2θ + θγ− 2ε /greaterorequalslant θγ− 2ε /greaterorequalslant  12· 20ε− 3ε = 7ε > 0.  Now, it remains to prove that the numerator
+is always negative.  When θ∈ [0, c) we have that 1− 2θ /greaterorequalslant 3/4(since c is small) and γ ⩽−20ε from
+Item   2,  therefore  γ(1− 2θ) + 5ε  ⩽  γ·  34  + 5· (−  γ20)  =   γ2  <  0.   In  the  case  where  θ∈  (1− c, 1],
+we  have  that  1− 2θ  <−3/4,  and  θ  >  1/2  (since  c  is  small),  and  γ  /greaterorequalslant  20ε  from  Item      2,  thus
+γ(1− 2θ) + 5ε ⩽− 34· 20ε + 5ε =−10ε < 0.
+    We now turn to (2).  We assume that θ∈ (c, 1− c), since otherwise the claim is trivial, by (1).
+We have by (34) that       f(θ)+1−θβ−(θ−f(1−θ))  ⩽ 1+  γ(1−2θ)+5ε2−2θ+θγ−3ε.  We have that γ(1−2θ)+5ε ⩽ 5ε from Item             3.
+Furthermore, using Item          4  we have that 2− 2θ + θγ− 3ε /greaterorequalslant 2c +−4ε > c for a suﬃciently small ε0.
+Overall, the second term is bounded above by  5c· ε < C· ε, for C >  5c  >  1c  as required.
+    We  now  prove  (3).   Note  that  by  (1), ∑u∈Nv(v) zu  >  1  implies  that  θ∈  (c, 1− c).   Now,  for
+every  u∈  Nv(v),  let  αu  :=   (θ−yu)+f(θ)    ,  so  that  yu  =  θ− f(θ)· αu  if  yu  ⩽  θ.   We  also  note  that  by
+deﬁnition  of  αu  and  our  choice  of  θ,  we  have∑                                           (θ−yu)+
+                                                                 u∈Nv(v) αu  =∑u∈Nv(v)             f(θ)     ⩽ 1.  In  the  proof
+of  (3) and (4) we will assume for notational  simplicity  that all  u∈ Nv(v) have  yu  ⩽ θ, implying
+zu /greaterorequalslant 0.  Summing up (32) over all u∈ Nv(v) and substituting in αu, we thus ﬁnd that
+
+         ∑      zu ⩽ ∑             (θ− yu)+(1 +  1−θf(θ))
+
+       u∈Nv(v)          u∈Nv(v)   β− (yu + f(1− yu))
+
+                    = ∑          αu·        f(θ) + 1− θβ− (yu + f(1− yu))
+                        u∈Nv(v)
+
+                    ⩽ ∑          αu·              f(θ) + 1− θ2− yu− f(1− yu)− 2.01ε          (by LemmaC.1and β = 2− ε)
+                        u∈Nv(v)
+
+                    ⩽ ∑          αu· f(θ) + 1− θ2− 4ε− 2yu ,
+                        u∈Nv(v)
+                                                                                          ( 1−yu+ε   )
+In  the  last  transition  we  used  again  (as  in  Item           4)  that  yu· ε ln        yu+ε       ⩽  ε,  which  implies
+f(θ) ⩽ 1− θ + ε for all θ∈ [0, 1].  Substituting yu = θ− f(θ)· αu  into the above upper bound on
+
+
+
+
+
+
+                                                                34
+
+===== PDF PAGE 36 =====
+∑
+   u∈Nv(v) zu, we get
+      ∑      zu ⩽ ∑           αu·           f(θ) + 1− θ
+
+    u∈Nv(v)         u∈Nv(v)         2− 4ε− 2θ + 2f(θ)· αu
+
+                 = ∑          αu· f(θ) + 1− θ                              (f(θ) + 1− θ)· 2f(θ)· α2u
+                    u∈Nv(v)         2− 4ε− 2θ − ∑u∈Nv(v)          (2− 4ε− 2θ)· (2− 4ε− 2θ + 2f(θ)· αu),     (35)
+
+using the  elementary  identity     1a+b  =   1a−        ba(a+b)  for  appropriate  a and  b.  Now,  both  terms  in  the
+last  line  of  (35)  can  be signiﬁcantly  simpliﬁed,  as  follows.  For  the  former  term,  again  using that
+f(θ) ⩽ 1− θ + ε, together with∑u∈Nv(v) αu ⩽ 1 noted above, we ﬁnd that
+   ∑                                                                                   (                      )
+          αu· f(θ) + 1− θ2− 4ε− 2θ  ⩽ ∑       αu·  2 + ε− 2θ2− 4ε− 2θ  = ∑       αu·     1 +         5ε2− 4ε− 2θ ⩽ 1 + O(ε),
+ u∈Nv(v)                             u∈Nv(v)                           u∈Nv(v)
+                                                                                                                            (36)
+
+where in the last step we used that θ ⩽ 1− c and c is some ﬁxed constant.  For the second term in
+the last line of  (35), we note that
+                                                                                                           
+                   ∑                 (f(θ) + 1− θ)· 2f(θ)· α2u                               ∑          α2u .                (37)
+
+                 u∈Nv(v)   (2− 4ε− 2θ)· (2− 4ε− 2θ + 2f(θ)· αu)  = Ω(1)·                       u∈Nv(v)
+
+To see this, ﬁrst note that for θ∈ (c, 1− c), the numerator of each summand of the LHS is at least
+2f(c)2· α2u  /greaterorequalslant  Ω(α2u),  since  f  is  decreasing  by  Observation3.4and  f(c)  /greaterorequalslant   12· (1 + ε− c)  /greaterorequalslant  Ω(1)
+for c and ε suﬃciently small.  To verify the ﬁrst inequality of this lower bound for f(c), recall that(   c+ε)     ε(   θ+ε)     ε
+
+                                     1+2ε .  Now,  for  ε  tending to  zero  and  c < 1/2,  the  term                       1+2ε
+f(c) = (1 + ε− c)·          1+ε−c                                                                                  1+ε−θ
+tends  to  one  as  ε  tends  to  zero.   Therefore  for  ε  suﬃciently  small  we  have  f(c)  /greaterorequalslant   12· (1 + ε− c)
+for all c < 1/2.  We now turn to upper bounding the denominator of each summand in the LHS of
+Equation  (37).  Indeed, substituting yu  = θ− f(θ)· αu, we ﬁnd that  each  such  denominator  is at
+most (2− 4ε− 2θ)· (2− 4ε− 2θ + 2f(θ)· αu) ⩽ (1/2)· (2− 4ε− 2yu) ⩽ (1/2)· (2− 4ε− 2c) ⩽ O(1) for
+c and ε suﬃciently small.  Note that both numerator and denominator are positive for suﬃciently
+small c and ε0.  Substituting the bounds of  (36) and (37) into (35), we obtain
+                                                                                         
+                                     ∑                                      ∑             .                                       (38)
+                                            zu ⩽ 1 + O(ε)− Ω(1)·                       α2u
+                                   u∈Nv(v)                                   u∈Nv(v)
+
+    From Eq. (38) and∑u∈Nv(v) zu > 1 by assumption of (3), we get that
+                                                        ∑      α2u ⩽ C′ε                                                                (39)
+
+
+                                                      u∈Nv(v)
+
+
+
+
+
+
+
+
+
+                                                               35
+
+===== PDF PAGE 37 =====
+                                ′ > 1, since otherwise∑
+for an absolute constant C                                   u∈Nv(v) zu ⩽ 1.  Finally, it remains to note that
+     ∑                    (  αu· (f(θ) + 1− θ)        )2
+           z2u = ∑           β− (yu + f(1− yu))
+   u∈Nv(v)        u∈Nv(v)
+                                  (      f(θ) + 1− θ       )2
+               ⩽   ∑        α2u·     β− (θ + f(1− θ))                  (by Observation     3.4 and yu ⩽ θ)
+                  u∈Nv(v)      
+                                    (     f(θ) + 1− θ        )2
+               ⩽   ∑        α2u·     β− (1− c + f(c))                  (by Observation     3.4 and θ ⩽ 1− c)
+
+                    u∈Nv(v)
+                                  (     1− θ + ε + 1− θ         )2
+               ⩽   ∑        α2u·     β− (1− c + 1− c + ε)              (f(c) ⩽ 1− c + ε)
+
+                    u∈Nv(v)
+                               
+               ⩽   ∑        α2u·       22c− 2ε
+
+                    u∈Nv(v)
+               ⩽ Cε,
+
+for some constant C /greaterorequalslant       22c−2ε.  Thus z2u ⩽∑u∈Nv(v) zu ⩽ Cε and so zu ⩽√C· ε ⩽ C√ε, as claimed.
+    We now prove (4).  Since∑u∈Nv(v) zu > 1 implies θ∈ (c, 1− c) by (1), using the deﬁnition of
+                                                                          ′√
+αu’s from the proof of (3) together with the fact that αu ⩽ C                ε for every u∈ Nv(v) by (39) and
+the fact that f(θ) ⩽ 2 for all θ∈ [0, 1] (by Lemma           C.1), we get that
+
+                          yu = θ− f(θ)· αu∈ [c− O(√ε), 1− c]⊆ [c/2, 1− c/2],
+
+for suﬃciently small ε0 > 0, as required.
+    As for (5), simplifying (32) and using the fact that θ− yu ⩽ f(θ), we get
+
+                              zu ⩽      θ− yu + 1− θβ− yu− f(1− yu)  =            1− yuβ− yu− f(1− yu).
+                                                                                     (          (   θ+ε  ))
+    Recall from Lemma       C.1  that for all θ∈ [0, 1], we have f(θ) ⩽ (1−θ)          1 + ε ln   1+ε−θ     +1.01ε,
+which implies the following:
+   1.  For all θ∈ [0, 1], we have f(θ) ⩽ 1− θ +√ε, and
+
+   2.  For θ < e−10, we have f(θ) ⩽ (1− θ)(1 + ε(ln((e−10 + ε)/(1− e−10 + ε)) + 1.01ε ⩽ 1− θ− 2ε.
+Suppose that yu ⩽ 1− e−10.  Then using Item             1, we have
+
+                      zu ⩽            1− yuβ− yu− f(1− yu)  ⩽              1− yu2− ε− yu− yu−√ε
+
+                          ⩽          1− yu                           ε                      ε).
+                             2(1− yu)− 2√ε  ⩽ 1/2 +         2√2e−10− 2√ε  ⩽ 1/2 + O(√
+Now suppose that yu > 1− e−10.  Then 1− yu < e−10, and so by Item                    2, f(1− yu) ⩽ 1− yu− 2ε.
+Thus we have
+
+              zu ⩽             1− yβ− yu− f(1− yu)  ⩽               1− yu2− ε− yu− (yu− 2ε)  =       1− yu2(1− yu) + ε  ⩽ 1/2,
+
+completing the proof.
+
+                                                         36
+
+===== PDF PAGE 38 =====
+    Finally,  we  rely  on  Lemma      C.1   to  prove  that  the  fractional  solution  maintained  by  Line        4  is
+1/β  competitive, as implied by Lemma            3.5  and the following restated fact.
+
+Fact  3.12.  For all suﬃciently small ε > 0, we have that 2− ε /greaterorequalslant β∗(f1+2ε).
+
+Proof.  Let us denote as before f  = f1+2ε.  Recall that β∗(f) = 1 + f(0).  By Lemma((   ε))          (   εC.1), this is at
+most 1+f(0) ⩽ 1+        1 + ε ln    1+ε     +1.01ε.  But for small enough ε, we have that ln            1+ε    ⩽−2.01,
+implying that 1 + f(0) ⩽ 2− ε, as claimed.
+
+References
+
+[1]  Ageev, A. A. and Sviridenko, M. I. 2004.  Pipage rounding:  A new method of constructing
+   algorithms  with  proven  performance  guarantee.   Journal  of  Combinatorial  Optimization  8,  3,
+   307–328.
+
+[2]  Birnbaum,  B.  and  Mathieu,  C.  2008.    On-line  bipartite  matching  made  simple.    ACM
+   SIGACT News  39, 1, 80–87.
+
+[3]  Buchbinder,  N., Segev,  D., and Tkach,  Y. 2018.  Online algorithms  for maximum cardi-
+   nality matching with edge arrivals.  Algorithmica, 1–19.
+
+[4]  Chiplunkar,  A., Tirodkar,  S., and Vishwanathan,  S. 2015.  On randomized algorithms
+   for  matching  in  the  online  preemptive  model.    In  Proceedings  of  the  23rd  Annual  European
+   Symposium  on Algorithms (ESA). 325–336.
+
+[5]  Cohen,  I.  R. and Wajc,  D. 2018.  Randomized  online  matching  in  regular  graphs.  In  Pro-
+   ceedings of the 29th Annual ACM-SIAM Symposium  on Discrete Algorithms (SODA). 960–979.
+
+[6]  Devanur, N. R., Jain, K., and Kleinberg, R. D. 2013. Randomized primal-dual analysis of
+   ranking for online bipartite matching. In Proceedings of the 24th Annual ACM-SIAM Symposium
+   on Discrete Algorithms (SODA). 101–107.
+
+[7]  Eden,  A.,  Feldman,  M.,  Fiat,  A.,  and  Segal,  K.  2018.   An  economic-based  analysis  of
+   ranking for online bipartite matching.  arXiv preprint  arXiv:1804.06637 .
+
+[8]  Edmonds,  J.  1965a.   Maximum  matching  and  a  polyhedron  with  0,  1-vertices.   Journal  of
+   research  of the National Bureau of Standards  B  69, 125-130, 55–56.
+
+[9]  Edmonds,  J. 1965b.  Paths, trees, and ﬂowers.  Canadian  Journal  of  mathematics  17, 3, 449–
+   467.
+
+[10]  Epstein,  L., Levin,  A., Segev,  D., and Weimann,  O. 2013.  Improved bounds for online
+   preemptive matching. In Proceedings of the 30th International Symposium on Theoretical Aspects
+   of Computer Science (STACS). 389.
+
+[11]  Feige,    U.   2018.       Tighter   bounds   for   online   bipartite   matching.       arXiv   preprint
+   arXiv:1812.11774 .
+
+[12]  Gandhi,  R.,  Khuller,  S.,  Parthasarathy,  S.,  and  Srinivasan,  A.  2006.   Dependent
+   rounding and its applications to approximation algorithms.  Journal of the ACM (JACM) 53, 3,
+   324–360.
+
+
+                                                           37
+
+===== PDF PAGE 39 =====
+[13]  Goel,  G.  and  Mehta,  A.  2008.   Online  budgeted  matching  in  random  input  models  with
+   applications to adwords.  In Proceedings of the 19th Annual ACM-SIAM Symposium on Discrete
+   Algorithms (SODA). 982–991.
+
+[14]  Guruganesh, G. P. and Singla, S. 2017. Online matroid intersection:  Beating half for ran-
+   dom arrival.  In Proceedings  of the  19th  Conference  on Integer Programming  and Combinatorial
+   Optimization (IPCO). 241–253.
+
+[15]  Huang,  Z.,  Kang,  N.,  Tang,  Z.  G.,  Wu,  X.,  Zhang,  Y.,  and  Zhu,  X.  2018a.   How  to
+   match  when  all  vertices  arrive  online.  In  Proceedings  of  the  50th  Annual  ACM  Symposium  on
+   Theory of Computing  (STOC). 17–29.
+
+[16]  Huang,  Z.,  Peng,  B.,  Tang,  Z.  G.,  Tao,  R.,  Wu,  X.,  and  Zhang,  Y.  2019.   Tight
+   competitive ratios of classic matching algorithms in the fully online model.  In Proceedings of the
+   30th Annual ACM-SIAM Symposium on Discrete Algorithms (SODA). 2875–2886.
+
+[17]  Huang,  Z.,  Tang,  Z.  G.,  Wu,  X.,  and  Zhang,  Y.  2018b.  Online vertex-weighted  bipar-
+   tite  matching:   Beating  1-1/e  with  random  arrivals.   In  Proceedings  of  the  45th  International
+   Colloquium on Automata, Languages and Programming  (ICALP). 1070–1081.
+
+[18]  Karp,  R.  M.,  Vazirani,  U.  V.,  and  Vazirani,  V.  V.  1990.   An  optimal  algorithm  for
+   on-line  bipartite  matching.  In  Proceedings  of  the  22nd  Annual  ACM  Symposium  on  Theory  of
+   Computing  (STOC). 352–358.
+
+[19]  Kuhn,  H.  W.  1955.   The  hungarian  method  for  the  assignment  problem.   Naval  research
+   logistics quarterly  2, 1-2, 83–97.
+
+[20]  Lee,  E.  and  Singla,  S.  2017.   Maximum  matching  in  the  online  batch-arrival  model.   In
+   Proceedings  of  the  19th  Conference  on  Integer  Programming  and  Combinatorial  Optimization
+   (IPCO). 355–367.
+
+[21]  Lov´asz, L. and Plummer, M. D. 2009.  Matching theory. Vol. 367.  American Mathematical
+   Society.
+
+[22]  Mehta, A. 2013. Online matching and ad allocation. Foundations and Trends R© in Theoretical
+   Computer Science  8, 4, 265–368.
+
+[23]  Schrijver, A. 2003.  Combinatorial optimization:  polyhedra  and eﬃciency. Vol. 24.  Springer
+   Science & Business Media.
+
+[24]  Tirodkar,  S.  and  Vishwanathan,  S.  2017.   Maximum  matching  on  trees  in  the  online
+   preemptive and the incremental dynamic graph models.  In Proceedings of the 23rd International
+   Computing  and Combinatorics  Conference (COCOON). 504–515.
+
+[25]  Wang, Y. and Wong, S. C.-w. 2015. Two-sided online bipartite matching and vertex cover:
+   Beating the greedy algorithm. In Proceedings of the 42nd International Colloquium on Automata,
+   Languages and Programming  (ICALP). 1070–1081.
+
+
+
+
+
+
+
+                                                           38

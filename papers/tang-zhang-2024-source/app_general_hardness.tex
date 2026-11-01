@@ -1,0 +1,147 @@
+\section{Formal Proof of Theorem~\ref{thm:general_upper}}
+\label{app:general_upper}
+
+Recall that $\gamma$ is the average matched portion of vertices in $A$ after the first stage; $\alpha_i, \beta_i$ equal the average matched portion of vertices in $A_i, B_i$ respectively, after the second stage. We first have the following observation from our construction.
+\begin{lemma}
+\label{lem:constraint}
+$\{\alpha_i\},\{\beta_i\},\gamma$ satisfy the following conditions:
+\begin{itemize}
+\item $\forall i \in [n-1], \quad \sum_{j=1}^{i-1} \alpha_j + (n-i+1) \cdot \alpha_i \le \sum_{j=1}^{i} \beta_j + n \cdot \gamma$;
+\item $\sum_{i=1}^{n} \alpha_i = \gamma \cdot n + \sum_{i=1}^{n} \beta_i$.
+\end{itemize}
+\end{lemma}
+\begin{proof}
+For each $i\in[n]$, consider the moment after $B_i$'s arrival. According to the definition of $A_i$, they have the least average matched portion among all vertices in $\cup_{j=i}^{n} A_j$. Thus, the total matched portion of all vertices in $A$ is at least $\left( \sum_{j=1}^{i-1}\alpha_j + (n-i+1) \cdot \alpha_i \right) \cdot k$. On the other hand, the total matched portion of all vertices in $A$ should equal the total matched portion of $\cup_{j=1}^{i} B_j$ plus the total matched portion from the first stage, which is $\left(\sum_{j=1}^{i} \beta_j + n \cdot \gamma \right)\cdot k$. This gives the first family of inequalities.
+Moreover, after the second stage (i.e., the arrival of $B_n$), the inequality becomes an equality since the total matched portion of $A$ equals $\sum_{i=1}^{n} \alpha_i$, which gives the second equation.
+\end{proof}
+
+Next, we study the optimal behavior of any algorithm at the third stage.
+\begin{lemma}
+\label{lem:triangle}
+For each $i \in I$, the total matching made on the arrival of $C_i$ is at most $\left( 1-e^{\alpha_i-1} + o(1) \right) \cdot k$ and the total matching made on the arrival of $D_i$ is at most $\left( 1-e^{\beta_i-1} + o(1) \right) \cdot k$.
+\end{lemma}
+\begin{proof}
+Let $x_j$ be the matched portion of vertex $a_{ij}$ for each $j\in[k]$. Similar to the analysis above, consider the moment after $a_{ij}$'s arrival. By our construction, $a_{ij}$ is the least matched vertex among $\{a_{i\ell}\}_{\ell=j}^{k}$. Therefore, $\sum_{\ell=1}^{j-1} x_\ell + (k-j+1) \cdot x_j \le \alpha_i \cdot k + j$, here the right hand side comes from the fact that the average matched portion of $A_i$ equals $\alpha_i$ before the third stage and each $c_{i\ell} \in C_i$ can match at most one edge on its arrival.
+Let $j^*$ be an index to be optimized later. Summing up the above inequality for $j \le j^*$ with an appropriate factor, we have
+\begin{align*}
+& \sum_{j=1}^{j^*} \frac{1}{(k-j)(k-j+1)} \cdot \left( \sum_{\ell=1}^{j-1} x_\ell + (k-j+1) \cdot x_j\right) \le \sum_{j=1}^{j^*} \frac{1}{(k-j)(k-j+1)} \cdot \left( \alpha_i \cdot k + j \right) \\
+\Rightarrow & \sum_{j=1}^{j^*} \left( \frac{1}{k-j} + \sum_{\ell=j+1}^{j^*} \frac{1}{(k-\ell)(k-\ell+1)} \right) x_j \le k \cdot (\alpha_i+1) \cdot \left(\frac{1}{k-j^*} - \frac{1}{k}\right) - \sum_{j=1}^{j^*} \frac{1}{(k-j+1)} \\
+\Rightarrow & \frac{1}{k-j^*} \cdot \sum_{j=1}^{j^*} x_j \le (\alpha_i+1) \cdot \frac{j^*}{k-j^*} - \ln \left(\frac{k}{k-j^*} \right) + o(1) \\
+\Rightarrow & \sum_{j=1}^{j^*} x_j \le (\alpha_i+1) \cdot j^* - (k-j^*) \cdot \left( \ln \left(\frac{k}{k-j^*} \right) - o(1) \right) 
+\end{align*}
+For $j>j^*$, we apply the trivial bound of $x_j \le 1$. To sum up, we have
+\[
+\sum_{j=1}^{k} x_j \le (\alpha_i+1) \cdot j^* + (k-j^*) \cdot \left( 1 - \ln \left(\frac{k}{k-j^*} \right) + o(1) \right).
+\]
+Let $j^* = \left\lfloor (1-e^{\alpha_i-1})\cdot k \right\rfloor$, and when $k\to \infty$,
+\begin{multline*}
+ (\alpha_i+1) \cdot j^* + (k-j^*) \cdot \left( 1 - \ln \left(\frac{k}{k-j^*} \right) + o(1) \right) \\
+= k \cdot \left((\alpha_i+1) (1-e^{\alpha_i-1}) + e^{\alpha_i-1} \cdot (1 - \ln (e^{1-\alpha_i})) + o(1) \right) = k \cdot \left(\alpha_i + 1 - e^{\alpha_i-1} + o(1) \right).
+\end{multline*}
+Finally, observe that the total matching made on the arrival of $C_i$ is
+\[
+\sum_{j=1}^{k} x_j - \alpha_i \cdot k \le \left(1 - e^{\alpha_i-1} + o(1) \right) \cdot k.
+\]
+Similarly, the total matching made on the arrival of $D_i$ is at most $\left( 1-e^{\beta_i-1} + o(1) \right) \cdot k$.
+\end{proof}
+
+
+According to the above discussion, we conclude that the optimal competitive ratio for our construction is upper bounded by the following optimization problem.
+\begin{align}
+\label{program:p1}
+\max_{\Gamma,\gamma,\{\alpha_i\},\{\beta_i\}}: \quad  & \Gamma \tag{P1}\\
+\label{eq:1}
+\mbox{subject to :} \quad & \gamma \ge \Gamma; \\
+\label{eq:2}
+& \sum_{i=1}^{n} (\alpha_i + \beta_i) \ge 2 \Gamma n + 2 \sum_{i=1}^{n} \max(0,\Gamma - (1-e^{\alpha_i-1}) - (1-e^{\beta_i-1})); \\
+\label{eq:3}
+\forall i \in [n], \quad & \sum_{j=1}^{i-1} \alpha_j + (n-i+1) \cdot \alpha_i \le \sum_{j=1}^{i} \beta_j + n \cdot \gamma; \\
+\label{eq:4}
+	& \sum_{i=1}^{n} \alpha_i \ge \gamma \cdot n + \sum_{i=1}^{n} \beta_i; \\
+\forall i \in [n], \quad & 0 \le \alpha_i, \beta_i \le 1 \\
+& \{\alpha_i\} \text{ is increasing}
+\end{align}
+
+
+
+The first constraint~\eqref{eq:1} corresponds to the first stage. Note that if $\gamma < \Gamma$, our instance ends right after the first stage and the algorithm cannot be $\Gamma$ competitive. The second constraint~\eqref{eq:2} corresponds to the case when our instance ends after the third stage.
+By Lemma~\ref{lem:triangle}, the total matched portion over all vertices of our algorithm is at most
+\[
+\left( \sum_{i=1}^{n} (\alpha_i + \beta_i) + 2 \cdot \sum_{i \in I} (1-e^{\alpha_i-1} + 1-e^{\beta_i-1}) + o(1) \right) \cdot k.
+\]
+On the other hand, there is a perfect matching of the graph, by matching every $A_i$ with $C_i$ and $B_i$ with $D_i$ for $i \in I$, and matching every $A_i$ with $B_i$ for $i \notin I$. That is, the optimal matching has size $k \cdot (2n + 2|I|)$, in terms of the number of matched vertices. Let $k$ tends to infinity. If an algorithm is $\Gamma$-competitive, it must satisfies that
+\begin{align*}
+& \sum_{i=1}^{n} (\alpha_i + \beta_i) + 2 \cdot \sum_{i \in I} (1-e^{\alpha_i-1} + 1-e^{\beta_i-1})  \ge \Gamma \cdot (2n + 2|I|) \\
+ \iff & \sum_{i=1}^{n} (\alpha_i + \beta_i) \ge 2 \Gamma n + 2 \sum_{i=1}^{n} \max(0,\Gamma - (1-e^{\alpha_i-1}) - (1-e^{\beta_i-1})),
+\end{align*}
+due to our construction of $I = \{i \in [n]: 1-e^{\alpha_i-1} + 1-e^{\beta_i-1} < \Gamma\}$.
+The third and fourth constraints~\eqref{eq:3} and \eqref{eq:4} are from Lemma~\ref{lem:constraint}. We are now left to solve the optimization. 
+
+\paragraph{Solving the Optimization.} We shall prove that certain constraints of the above optimization are tight, that indeed justify the assumptions we made in Section~\ref{sec:general_upper}. 
+%Our analysis goes through three steps of reduction, so that at the end, we prove that the optimal solution $\Gamma,\gamma,\{\alpha_i, \beta_i\}$ satisfy a few conditions that is equivalent to the three assumptions we made in Section~\ref{sec:general_upper}.
+
+\begin{lemma}
+There exists an optimal solution to \eqref{program:p1} that $1-e^{\alpha_i-1} + 1-e^{\beta_i-1} \ge \Gamma$ for all $i\in[n]$.
+\end{lemma}
+\begin{proof}
+If there exists an $i$ with $1-e^{\alpha_i-1} + 1-e^{\beta_i-1} < \Gamma$, we decrease the values of $\alpha_i, \beta_i$ by $\epsilon$. It is straightforward to check that all constraints of \eqref{eq:3},~\eqref{eq:4} become looser. For constraint~\eqref{eq:2}, observe that the LHS decreases by $2\epsilon$, while the RHS decreases by
+\[
+2 (e^{\alpha_i+\epsilon-1} - e^{\alpha_i-1} + e^{\beta_i+\epsilon-1} - e^{\beta_i-1}) \approx 2\epsilon \cdot (e^{\alpha_i-1} + e^{\beta_i-1}) > 2 \epsilon \cdot (2-\Gamma) > 2\epsilon, 
+\]
+where the last inequality follows from the fact that the solution must satisfy that $\Gamma < 1$. Therefore, after the modification to $\alpha_i, \beta_i$, all constraints become looser. We can thus keeps increasing $\alpha_i, \beta_i$ until the stated condition holds.
+\end{proof}
+
+The above lemma corresponds to a weaker version of the third assumption we made in Section~\ref{sec:general_upper}: $(1-e^{\alpha_{i}-1}) + (1-e^{\beta_i-1}) \ge \Gamma$ for all $i$. Recall that in Section~\ref{sec:general_upper}, we further assume that this inequality is tight if the constraint $\alpha_i < 1$ is not tight. We shall elaborate on it later.
+
+Next, we observe that the variables $\beta_i$'s are decreasing in the optimal solution. 
+\begin{lemma}
+There exists an optimal solution to \eqref{program:p1} that $\{\beta_i\}$ is decreasing.
+\end{lemma}
+\begin{proof}
+By reordering all $\beta_i$'s in a descending order, it is straightforward to check that all constraints become looser.	
+\end{proof}
+
+Therefore, it suffices to solve the following optimization problem.
+\begin{align}
+\label{program:p2}
+\max_{\Gamma,\gamma,\{\alpha_i\},\{\beta_i\}}: \quad  & \Gamma \tag{P2}\\
+\mbox{subject to :} \quad & \gamma \ge \Gamma; \\
+& \sum_{i=1}^{n} (\alpha_i + \beta_i) \ge 2 \Gamma n; \\
+\label{cons:gamma}
+\forall i \in [n], \quad & (1-e^{\alpha_{i}-1}) + (1-e^{\beta_i-1})) \ge \Gamma; \\
+\label{cons:even}
+\forall i \in [n], \quad & \sum_{j=1}^{i-1} \alpha_j + (n-i+1) \cdot \alpha_i \le \sum_{j=1}^{i} \beta_j + n \cdot \gamma; \\
+	& \sum_{i=1}^{n} \alpha_i \ge \gamma \cdot n + \sum_{i=1}^{n} \beta_i; \\
+\forall i \in [n], \quad & 0 \le \alpha_i, \beta_i \le 1 \\
+& \{\alpha_i\} \text{ is increasing}, \{\beta_i\} \text{ is decreasing}
+\end{align}
+
+Finally, we introduce two operations for modifying a feasible solution of \eqref{program:p2}. With these two operations, we can apply them alternatively so that the solution we obtain satisfies all the three assumptions of Section~\ref{sec:general_upper}.
+\begin{lemma}
+Let $i$ be the minimum index with $1-e^{\alpha_i-1} + 1-e^{\beta_i-1} > \Gamma$. If there exists $j >i$ with $\beta_j > 0$, we can construct another feasible solution so that $1-e^{\alpha_\ell-1} + 1-e^{\beta_\ell-1} = \Gamma$ for all $\ell \le i$.
+%There exists an $\ell \in [n]$ such that in the optimal solution of \eqref{program:p2}, constraints \eqref{cons:gamma} and \eqref{cons:even} are tight for all $ i \in [\ell]$. And for $i > \ell$, $\alpha_i=1$ and $\beta_i=0$.
+\end{lemma}
+\begin{proof}
+Suppose there exists an $i$ with $(1-e^{\alpha_{i}-1}) + (1-e^{\beta_i-1})) > \Gamma$ and there exists a $\beta_j >0$ for some $j >i$.
+We modify the solution by increasing $\beta_i$ by $\epsilon$ and decreasing $\beta_j$ by $\epsilon$ at the same time. It is straightforward to check all constraints become looser except the constraint $(1-e^{\alpha_{i}-1}) + (1-e^{\beta_i-1})) > \Gamma$.
+\end{proof}
+
+\begin{lemma}
+Let $i$ be the minimum index with $\sum_{j=1}^{i-1} \alpha_j + (n-i+1) \cdot \alpha_i < \sum_{j=1}^{i} \beta_j + n \cdot \gamma$. We can construct another feasible solution so that $\sum_{j=1}^{i-1} \alpha_j + (n-i+1) \cdot \alpha_i = \sum_{j=1}^{i} \beta_j + n \cdot \gamma;$ for all $\ell \le i$.
+%There exists an $\ell \in [n]$ such that in the optimal solution of \eqref{program:p2}, constraints \eqref{cons:gamma} and \eqref{cons:even} are tight for all $ i \in [\ell]$. And for $i > \ell$, $\alpha_i=1$ and $\beta_i=0$.
+\end{lemma}
+
+\begin{proof}
+Suppose constraint \eqref{cons:even} is not tight for some $i$, consider increasing $\alpha_i$ by an sufficiently small $\epsilon$ and decreasing $\beta_i$ by $\delta$ so that 
+$1-e^{\alpha_i-1} + 1-e^{\beta_i-1}$ remains the same. Next, we decrease $\alpha_{i+1}$ and increase $\beta_{i+1}$. We claim that all constraints remain feasible.
+
+Let $\alpha_i' = \alpha_i' + \epsilon, \alpha_{i+1}' = \alpha_{i+1} - \epsilon, \beta_i'=\beta_i - \delta$, and $\beta_{i+1}' = \beta_{i+1} + \delta$.
+Then 
+\begin{multline*}
+\left(1-e^{\alpha_{i+1}'-1} + 1-e^{\beta_{i+1}'-1} \right) - \left(1-e^{\alpha_{i+1}-1} + 1-e^{\beta_{i+1}-1} \right) = e^{\alpha_{i+1}-1}-e^{\alpha_{i+1}'-1} + e^{\beta_{i+1}-1} - e^{\beta_{i+1}'-1} \\
+= e^{\alpha_{i+1}' -1} (e^{\epsilon} - 1)  - e^{\beta_{i+1}-1}(e^{\delta} -1) \ge e^{\alpha_i -1} (e^{\epsilon} - 1)  - e^{\beta_i'-1}(e^{\delta} -1) = 0,
+\end{multline*}
+where the inequality holds by the monotonicity of $\{\alpha_j\}$ and $\{\beta_j\}$. Moreover, all constraints ~\eqref{cons:even} remain feasible.
+\end{proof}
+
+Finally, the competitive ratio is calculated with computer assistance, as provided in Section~\ref{sec:general_upper}.

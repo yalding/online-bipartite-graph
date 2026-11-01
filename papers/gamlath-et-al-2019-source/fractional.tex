@@ -1,0 +1,108 @@
+\subsection{Finding a fractional solution}\label{sec:fractional-algo}
+In this section we revisit the algorithm of \citet{wang2015two}, which beats the $\nicefrac{1}{2}$ competitiveness barrier for online fractional matching under general vertex arrivals. 
+Their algorithm (technically, family of algorithms) applies the primal-dual method to compute both a fractional matching and a fractional vertex cover -- the dual of the fractional matching relaxation. The LPs defining these dual problems are as follows.
+
+\begin{minipage}[t]{0.49\linewidth}
+
+	\begin{center}
+    \text{Primal-Matching}\par\medskip
+		\begin{tabular}{rll}
+			maximize & $\sum_{e \in E} x_e$ \\
+			subject to: & $\sum_{u \in N(v)} x_{uv}\leq 1$ & $\forall u\in V$ \\
+			            & $ x_e \geq 0 $ & $ \forall e \in E$    \\ 
+		\end{tabular}
+	\end{center}
+%	\vspace{-0.5cm}
+    \label{fig:primal-matching}	
+\end{minipage}
+\begin{minipage}[t]{0.49\linewidth}
+	\begin{center}
+    \text{Dual-Vertex Cover}\par\medskip
+		\begin{tabular}{rll}
+			minimize & $\sum_{u \in V} y_u$ \\
+			subject to: & $  y_u + y_v  \geq 1$ & $\forall e = \{u,v\} \in E$ \\
+			            & $ y_u \geq 0 $ & $ \forall u \in V$    \\ 
+		\end{tabular}
+	\end{center}
+	\vspace{-0.5cm}
+    \label{fig:dual-vertexcover}
+\end{minipage}
+
+Before introducing the algorithm of \cite{wang2015two}, we begin by defining the fractional online vertex cover problem for vertex arrivals. 
+When a vertex $v$ arrives, if $N_v(v)$ denotes the previously-arrived neighbors of $v$, then for each $u\in N_v(v)$, a new constraint $y_u+y_v\geq 1$ is revealed, which an online algorithm should satisfy by possibly increasing $y_u$ or $y_v$.
+Suppose $v$ has its dual value set to $y_v = 1-\theta$. Then all of its neighbors should have their dual increased to at least $\theta$. Indeed, an algorithm may as well increase $y_u$ to $\max\{y_u,\theta\}$. 
+The choice of $\theta$ therefore determines an online fractional vertex cover algorithm. 
+The increase of potential due to the newly-arrived vertex $v$ is thus $1-\theta + \sum_{u\in N_v(v)} (\theta-y_u)^+$.\footnote{Here and throughout the paper, we let $x^+ := \max\{0,x\}$ for all $x\in \mathbb{R}$.} In \cite{wang2015two} $\theta$ is chosen to upper bound this term by $1-\theta+f(\theta)$ for some function $f(\cdot)$. The primal solution (fractional matching) assigns values $x_{uv}$ so as to guarantee feasibility of $\vec{x}$ and a ratio of $\beta$ between the primal and dual values of $\vec{x}$ and $\vec{y}$, implying $\frac{1}{\beta}$-competitiveness of this online  fractional matching algorithm, by feasibility of $\vec{y}$ and weak duality. The algorithm, parameterized by a function $f(\cdot)$ and parameter $\beta$ to be discussed below, is given formally in \Cref{algo:TOBVC}. In the subsequent discussion, $N_v(u)$ denotes the set of neighbors of $u$ that arrive before $v$. 
+
+\begin{algorithm}[h]
+  \DontPrintSemicolon
+  \SetKwInOut{Input}{Input}
+  \SetKwInOut{Output}{Output}
+  \Input{A stream of vertices $v_1, v_2, \dots v_n$. At step $i$, vertex $v_i$ and $N_{v_i}(v_i)$ are revealed.}
+  \Output{A fractional vertex cover solution $\vec{y}$ and a fractional matching $\vec{x}$.}
+  Let $y_u \gets 0$ for all $u$, let $x_{uv} \gets 0$ for all $u, v$. \;
+  \ForEach{$v$ in the stream}{ 
+    {
+        \begin{tabular}{rll}
+			&maximize $\theta$ \\
+			&subject to: &$ \theta \leq 1$ \\
+			           & & $ \sum_{u \in N_v(v)} \left( \theta - y_u \right)^{+} \leq f(\theta) $
+		\end{tabular}
+    } \;
+    \ForEach{$u \in N_v (v) $}{
+        $x_{uv} \xleftarrow[]{}  
+                \frac{\left( \theta - y_u \right)^{+} }{\beta}
+                \left(  1 + \frac{1-\theta}{f(\theta)}  \right).$ \;
+         $y_u \xleftarrow[]{} \max \{ y_u, \theta\}$.
+    }
+    $y_v \xleftarrow[]{}  1 - \theta$. \;
+    }
+    
+    \caption{Online general vertex arrival fractional matching and vertex cover}
+    \label{algo:TOBVC}
+\end{algorithm}
+
+\Cref{algo:TOBVC} is parameterized by a function $f$ and a constant $\beta$. The family of functions considered by \cite{wang2015two} are as follows.
+\begin{Def}
+	Let $f_{\kappa}(\theta) := \left( \frac{1+ \kappa}{2}  - \theta  \right)^{\frac{1 + \kappa}{2 \kappa}} 
+	\left( \theta +  \frac{\kappa - 1}{2}\right)^{\frac{\kappa - 1}{2 \kappa}}$.
+	We define $W := \{ f_{\kappa} \mid \kappa \geq 1 \}$.
+\end{Def}
+
+As we will see, choices of $\beta$ guaranteeing feasibility of $\vec{x}$ are related to the following quantity.
+\begin{Def}
+For a given $f : \left[ 0,1 \right]  \xrightarrow{}  \mathbb{R}_{+} $    let $\beta^*(f) := \max_{\theta \in \left[ 0,1 \right]} 1 +  f(1-\theta)+  \int_{\theta}^{1} \frac{1-t}{f(\theta)} \,d\theta$.
+\end{Def}
+
+For functions $f\in W$ this definition of $\beta^*(f)$ can be simplified to $\beta^*(f)=1+f(0)$, due to the observation  (see \cite[Lemmas 4,5]{wang2015two}) that all functions $f\in W$ satisfy 
+\begin{equation}\label{WW-tight}
+	\beta^*(f) = 1+f(1-\theta)+\int_{\theta}^1 \frac{1-\theta}{f(\theta)}\,d\theta \qquad \forall \theta\in [0,1].
+\end{equation} 
+
+
+As mentioned above, the competitiveness of \Cref{algo:TOBVC} for appropriate choices of $f$ and $\beta$ is obtained by relating the overall primal and dual values, $\sum_e x_e$ and $\sum_v y_v$. As we show (and rely on later), one can even bound individual vertices' contributions to these sums. In particular, for any vertex $v$'s arrival time, each vertex $u$'s contribution to $\sum_e x_e$, which we refer to as its \emph{fractional degree}, $x_u := \sum_{w\in N_v(u)} x_{uw}$, can be bounded in terms of its dual value by this point, $y_u$, as follows.
+
+\begin{restatable}{lem}{refinedwwbound}\label{refined-ww-xu-bound}
+For any vertex $u,v \in V $, let $y_u$ be the potential of $u$ prior to arrival of $v$. Then the fractional degree just before $v$ arrives,  $x_u:=\sum_{w\in N_v(u)} x_{uw}$, is bounded as follows:
+\begin{align*}
+\frac{y_u}{\beta} \leq	x_u  \leq \frac{y_u + f(1-y_u)}{\beta}.
+\end{align*}
+\end{restatable}
+Broadly, the lower bound on $x_u$ is obtained by lower bounding the increase $x_u$ by the increase to $y_u/\beta$ after each vertex arrival, while the upper bound follows from a simplification of a bound given in \cite[Invariant 1]{wang2015two} (implying feasibility of the primal solution), which we simplify using \eqref{WW-tight}. See \Cref{app:fractional-algo} for a full proof.
+
+Another observation we will need regarding the functions $f\in W$ is that they are decreasing.
+\begin{obs}\label{f-non-increasing}
+	Every function $f\in W$ is non-increasing in its argument in the range $[0,1]$.
+\end{obs}
+\begin{proof}
+	As observed in \cite{wang2015two}, differentiating \eqref{WW-tight} with respect to $z$ yields $- f'(1-z) - \frac{1-z}{f(z)} = 0$, from which we obtain $f(z)\cdot f'(1-z) = z-1$. Replacing $z$ by $1-z$, we get $f(1-z)\cdot f'(z) = -z$, or $f'(z) = -\frac{z}{f(1-z)}$. As $f(z)$ is positive for all $z\in [0,1]$, we have that $f'(z)<0$ for all $z\in [0,1]$.
+\end{proof}
+
+The next lemma of \cite{wang2015two} characterizes the achievable competitiveness of \Cref{algo:TOBVC}.
+
+\begin{lem}[\cite{wang2015two}]\label{ww-approx}
+\cref{algo:TOBVC} with function $f \in W$ and $\beta \geq \beta^{*}(f) = 1+f(0)$ is $\frac{1}{\beta}$ competitive.
+\end{lem}
+\citet{wang2015two} showed that taking $\kappa \approx 1.1997$ and $\beta = \beta^*(f_\kappa)$, \Cref{algo:TOBVC} is $\approx 0.526$ competitive. In later sections we show how to round the output of \Cref{algo:TOBVC} with $f_\kappa$ with $\kappa=1+ 2 \epsilon$ for some small constant $\epsilon$ and $\beta=2-\epsilon$ to obtain a $(\nicefrac{1}{2}+\Omega(1))$-competitive algorithm. But first, as a warm up, we show how to round this algorithm with $\kappa=1$ and $\beta=\beta^*(f_1)=2$.
+
+
