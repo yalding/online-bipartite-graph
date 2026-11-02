@@ -1,0 +1,187 @@
+{
+  "constants": {
+    "beta_star": 0.90076169687385,
+    "cover_ratio_B_star": 1.90076169687385,
+    "exact_gamma_1_const_terminal": 0.7071067812,
+    "exact_gamma_1_linear_terminal": 0.5819767069
+  },
+  "variant_A_constant_terminal": {
+    "description": "f_0(y) = gamma (terminal private leaves / general boundary)",
+    "sequence": [
+      {
+        "k": 1,
+        "gamma_k": 0.7071067812,
+        "ratio_1_plus_gamma": 1.7071067812,
+        "gap_to_beta_star": 0.1936549157
+      },
+      {
+        "k": 2,
+        "gamma_k": 0.7825245258,
+        "ratio_1_plus_gamma": 1.7825245258,
+        "gap_to_beta_star": 0.1182371711
+      },
+      {
+        "k": 3,
+        "gamma_k": 0.8216187927,
+        "ratio_1_plus_gamma": 1.8216187927,
+        "gap_to_beta_star": 0.0791429042
+      },
+      {
+        "k": 4,
+        "gamma_k": 0.8434145844,
+        "ratio_1_plus_gamma": 1.8434145844,
+        "gap_to_beta_star": 0.0573471125
+      },
+      {
+        "k": 5,
+        "gamma_k": 0.8571684737,
+        "ratio_1_plus_gamma": 1.8571684737,
+        "gap_to_beta_star": 0.0435932232
+      },
+      {
+        "k": 6,
+        "gamma_k": 0.8664102831,
+        "ratio_1_plus_gamma": 1.8664102831,
+        "gap_to_beta_star": 0.0343514138
+      },
+      {
+        "k": 7,
+        "gamma_k": 0.8729523041,
+        "ratio_1_plus_gamma": 1.8729523041,
+        "gap_to_beta_star": 0.0278093928
+      },
+      {
+        "k": 8,
+        "gamma_k": 0.8777629479,
+        "ratio_1_plus_gamma": 1.8777629479,
+        "gap_to_beta_star": 0.022998749
+      },
+      {
+        "k": 9,
+        "gamma_k": 0.8814104447,
+        "ratio_1_plus_gamma": 1.8814104447,
+        "gap_to_beta_star": 0.0193512522
+      },
+      {
+        "k": 10,
+        "gamma_k": 0.8842452588,
+        "ratio_1_plus_gamma": 1.8842452588,
+        "gap_to_beta_star": 0.0165164381
+      },
+      {
+        "k": 11,
+        "gamma_k": 0.8864942019,
+        "ratio_1_plus_gamma": 1.8864942019,
+        "gap_to_beta_star": 0.014267495
+      },
+      {
+        "k": 12,
+        "gamma_k": 0.8883095399,
+        "ratio_1_plus_gamma": 1.8883095399,
+        "gap_to_beta_star": 0.012452157
+      },
+      {
+        "k": 13,
+        "gamma_k": 0.8897967746,
+        "ratio_1_plus_gamma": 1.8897967746,
+        "gap_to_beta_star": 0.0109649223
+      },
+      {
+        "k": 14,
+        "gamma_k": 0.8910309682,
+        "ratio_1_plus_gamma": 1.8910309682,
+        "gap_to_beta_star": 0.0097307287
+      }
+    ]
+  },
+  "variant_B_linear_terminal": {
+    "description": "f_0(y) = gamma + y (terminal layer receives no future arrivals)",
+    "sequence": [
+      {
+        "k": 1,
+        "gamma_k": 0.5819767147,
+        "ratio_1_plus_gamma": 1.5819767147,
+        "gap_to_beta_star": 0.3187849822
+      },
+      {
+        "k": 2,
+        "gamma_k": 0.7468263923,
+        "ratio_1_plus_gamma": 1.7468263923,
+        "gap_to_beta_star": 0.1539353045
+      },
+      {
+        "k": 3,
+        "gamma_k": 0.802667077,
+        "ratio_1_plus_gamma": 1.802667077,
+        "gap_to_beta_star": 0.0980946199
+      },
+      {
+        "k": 4,
+        "gamma_k": 0.8324866247,
+        "ratio_1_plus_gamma": 1.8324866247,
+        "gap_to_beta_star": 0.0682750722
+      },
+      {
+        "k": 5,
+        "gamma_k": 0.8501521209,
+        "ratio_1_plus_gamma": 1.8501521209,
+        "gap_to_beta_star": 0.050609576
+      },
+      {
+        "k": 6,
+        "gamma_k": 0.8616311218,
+        "ratio_1_plus_gamma": 1.8616311218,
+        "gap_to_beta_star": 0.0391305751
+      },
+      {
+        "k": 7,
+        "gamma_k": 0.869535806,
+        "ratio_1_plus_gamma": 1.869535806,
+        "gap_to_beta_star": 0.0312258909
+      },
+      {
+        "k": 8,
+        "gamma_k": 0.8752310945,
+        "ratio_1_plus_gamma": 1.8752310945,
+        "gap_to_beta_star": 0.0255306024
+      },
+      {
+        "k": 9,
+        "gamma_k": 0.8794788562,
+        "ratio_1_plus_gamma": 1.8794788562,
+        "gap_to_beta_star": 0.0212828406
+      },
+      {
+        "k": 10,
+        "gamma_k": 0.8827364008,
+        "ratio_1_plus_gamma": 1.8827364008,
+        "gap_to_beta_star": 0.0180252961
+      },
+      {
+        "k": 11,
+        "gamma_k": 0.8852920945,
+        "ratio_1_plus_gamma": 1.8852920945,
+        "gap_to_beta_star": 0.0154696024
+      },
+      {
+        "k": 12,
+        "gamma_k": 0.8873357045,
+        "ratio_1_plus_gamma": 1.8873357045,
+        "gap_to_beta_star": 0.0134259924
+      },
+      {
+        "k": 13,
+        "gamma_k": 0.8889964754,
+        "ratio_1_plus_gamma": 1.8889964754,
+        "gap_to_beta_star": 0.0117652214
+      },
+      {
+        "k": 14,
+        "gamma_k": 0.8903650419,
+        "ratio_1_plus_gamma": 1.8903650419,
+        "gap_to_beta_star": 0.010396655
+      }
+    ]
+  },
+  "status": "All graded k-phase calculations and boundary checks passed."
+}

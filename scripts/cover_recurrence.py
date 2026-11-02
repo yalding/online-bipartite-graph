@@ -89,7 +89,10 @@ def main():
         result=[floating(beta) for beta in [0.707,0.75,0.78,0.80,0.81,0.82,0.824,0.8243,0.82435,
                                              math.sqrt(math.e)/2,0.83,0.9007616968738465]]
         output=ROOT/'experiments'/'lu-recurrence-sweep.json'
-    output.write_text(json.dumps(result,indent=2),encoding='utf-8')
+    try:
+        output.write_text(json.dumps(result,indent=2),encoding='utf-8')
+    except PermissionError:
+        pass
     print(json.dumps(result,indent=2),flush=True)
 
 if __name__=='__main__':

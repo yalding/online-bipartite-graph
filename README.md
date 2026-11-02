@@ -62,6 +62,17 @@ four-parameter interface gives their exact payoff. The universal target
 remains unresolved; start with [the session-4 report](notes/SESSION_4_WORKING.md)
 and [the completion game](notes/COMPLETION_GAME.md).
 
+Session 5 proved that rooted trees of pools are capped at $1 + 1/\sqrt{2} \approx 1.7071$
+and that graded $k$-phase graphs admit an explicit $(1 + \gamma_k)$-competitive
+layer-dependent algorithm ($\gamma_k \uparrow \beta^*$). Resumable Phase-1 / interleaved
+Phase-2 alternation strictly beats Lu's baseline, extrapolating to $\approx 1.772$
+at $k=2$. See [the completion game obstructions note](notes/COMPLETION_GAME_OBSTRUCTIONS.md).
+
+Session 6 audited the graded allocation operator under constant vs. linear terminal
+boundaries, recovering the classic Karp--Vazirani--Vazirani $1 + 1/(e-1)$ bound at $k=1$,
+and analyzed the active partition dynamics of Tang's (2026) matching proof vs.
+vertex cover. See [the graded phases and partitions note](notes/GRADED_PHASES_AND_PARTITIONS.md).
+
 ## Relevant recent papers
 
 - Zhihao Gavin Tang, *Optimal Competitive Ratio of Two-sided Online Bipartite
@@ -92,6 +103,8 @@ python scripts/finite_adversary_lp.py --vertices 5
 python scripts/finite_adversary_lp.py --vertices 4 --sizes 1,4 --root-size 4
 python scripts/construction_obstructions.py
 python scripts/two_pool_response.py --lp-check
+python scripts/resumable_alternation_check.py
+python scripts/graded_phase_recursion.py
 ```
 
 The integer recurrence and rational LP scripts verify certificates. The star

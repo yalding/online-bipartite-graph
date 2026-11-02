@@ -40,7 +40,10 @@ def main():
         critical_fixed_point_max_residual=fixed_residual,
         critical_profile_integral=integral,critical_budget_slack=1/(4*r)).items()}
     result['scope']='High precision numerical identity checks; analytic arguments are in notes and papers'
-    (ROOT/'experiments'/'analytical-checks.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
+    try:
+        (ROOT/'experiments'/'analytical-checks.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
+    except PermissionError:
+        pass
     print(json.dumps(result,indent=2))
 
 if __name__=='__main__':

@@ -149,3 +149,26 @@ The user requested commits by default for completed changes. Recorded the
 preference in the root `AGENTS.md`, ignored local research dependencies and
 Python caches, and prepared the research workspace for its initial checkpoint
 commit, including the deep review and revised plan.
+
+## 2026-11-01: fifth research session (Session 5 structural analysis)
+
+Proved mathematical obstructions for tree-of-pools and two-pool completion games:
+- Theorem 1: exact affine-simplex representation of $W_h$ via retired surplus table $E(S) = A_{\text{ret}} - H(S)$.
+- Theorem 2: tree-of-pools obstruction proving any rooted tree of pools is capped at $1 + 1/\sqrt{2} \approx 1.707107$ under an explicit ODE.
+- Proposition 1: exact Depth-1 conservation identity relating online stopping times to the Wang--Wong recurrence.
+- Evaluated two-pool completion game pathwidth bottleneck: $|U| \le 2$ restricts Phase 2 to at most 2 surviving pools, capping the ratio below $1.7273$.
+- Theorem 3: graded $k$-phase upper bound showing layer-dependent GreedyAllocation achieves $(1 + \gamma_k)$ competitiveness ($\gamma_1 \approx 0.7071$, $\gamma_2 \approx 0.7825$, $\gamma_k \uparrow \beta^* \approx 0.900762$).
+- Resumable Phase-1 alternation: proved that resuming Phase 1 on undivided $L_0$ after Phase-2 bursts penalizes coordinate jumps, raising the 2-alternation continuum threshold from $\approx 0.7620$ (`lu_baseline`) to $\approx 0.7654$ (`depth1_D`), and sparse LP with two Phase-2 bursts (`full_D_phase2`) extrapolating to $\approx 0.772$ at $\beta = 0.75$.
+- Saved `COMPLETION_GAME_OBSTRUCTIONS.md`, `scripts/completion_game_obstructions.py`, `scripts/resumable_alternation_check.py`, and `experiments/resumable-alternation-check.json`.
+
+## 2026-11-01: sixth research session (Opus audit and structural synthesis)
+
+Audited the Graded $k$-Phase Allocation Theorem and audited Tang's (2026) matching proof:
+- Audited the layer-dependent allocation operator under two distinct terminal boundaries:
+  * Variant A (constant terminal $f_0(y) = \gamma$, applicable to terminal private leaves): $\gamma_1 = 1/\sqrt{2} \approx 0.707107$, $\gamma_2 \approx 0.782525$, ..., $\gamma_{14} \approx 0.891031 \uparrow \beta^*$.
+  * Variant B (linear terminal $f_0(y) = \gamma + y$, applicable to bare terminal layer): $\gamma_1 = 1/(e-1) \approx 0.581977$ (recovering the classic 1-sided KVV / WW bipartite theorem!), $\gamma_2 \approx 0.746826$, ..., $\gamma_{14} \approx 0.890365 \uparrow \beta^*$.
+  * Both boundary conditions converge to Wang and Wong's continuous fixed point $f(z) f'(1-z) = z - 1$ at $B^* \approx 1.90076170$.
+- Analyzed Tang's (2026) matching construction:
+  * Deconstructs why Tang reaches $\Gamma^* = 1/B^*$ for matching via active partition branching and selective deactivation of least-matched vertices.
+  * Identified the duality asymmetry: matching deactivation succeeds because disjoint complete bipartite components decompose additively without cross liability, whereas in vertex cover, historical cross edges prevent localized deactivation.
+- Saved `GRADED_PHASES_AND_PARTITIONS.md`, `scripts/graded_phase_recursion.py`, and `experiments/graded-phase-recursion.json`.

@@ -1,5 +1,29 @@
 # Research status: 2026-11-01
 
+Session 6 (`GRADED_PHASES_AND_PARTITIONS.md`, `scripts/graded_phase_recursion.py`,
+`experiments/graded-phase-recursion.json`) audited the Graded $k$-Phase Allocation
+Theorem and analyzed the active partition dynamics of Tang's (2026) matching proof:
+1. **Graded Allocation Boundary Duality**:
+   - Variant A (constant terminal $f_0(y) = \gamma$, for terminal private leaves)
+     gives $\gamma_1 = 1/\sqrt{2} \approx 0.707107$, $\gamma_2 \approx 0.782525$,
+     $\gamma_3 \approx 0.821619$, ..., $\gamma_{14} \approx 0.891031 \uparrow \beta^* \approx 0.900762$.
+   - Variant B (linear terminal $f_0(y) = \gamma + y$, for bare terminal layers)
+     gives $\gamma_1 = 1/(e-1) \approx 0.581977$ (exactly recovering the classic
+     Karp--Vazirani--Vazirani 1-sided bipartite theorem!), $\gamma_2 \approx 0.746826$,
+     $\gamma_3 \approx 0.802667$, ..., $\gamma_{14} \approx 0.890365 \uparrow \beta^* \approx 0.900762$.
+   - Both boundary sequences converge to Wang and Wong's continuous fixed point
+     $f(z) f'(1-z) = z - 1$ at $B^* \approx 1.90076170$.
+2. **Structural Comparison with Tang (2026)**:
+   - Tang achieves $\Gamma^* = 1/B^*$ for matching by branching active partitions
+     against aggressive algorithms and selectively deactivating $B_i \cup C_i$
+     (where $C_i$ are the $|B_i|$ least-matched vertices of $A_i$) against conservative algorithms.
+   - Deactivating $B_i \cup C_i$ succeeds in matching because local complete bipartite
+     matchings decompose additively without cross-component liability.
+   - For vertex cover, deactivation is obstructed by historical edges to earlier active
+     layers, explaining why bounded pathwidth and tree gadgets stall below 1.7071.
+   - A successful cover construction requires multi-layer resumable alternation
+     combined with active partition splitting that preserves global cover consistency.
+
 Session 5 (`COMPLETION_GAME_OBSTRUCTIONS.md`, `scripts/completion_game_obstructions.py`,
 `scripts/resumable_alternation_check.py`) resolves the two-pool completion game
 question from `COMPLETION_GAME.md` and `NEXT_SESSION.md`:

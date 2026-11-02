@@ -1,7 +1,7 @@
-**Resume after Session 5 structural analysis — November 1, 2026**
+**Resume after Session 6 audit and partition synthesis — November 1, 2026**
 
-Read `COMPLETION_GAME_OBSTRUCTIONS.md` first, then `RESEARCH_REVIEW.md`,
-`CONSTRUCTION_TARGET.md`, `COMPLETION_GAME.md`, and `TWO_POOL_RESPONSE.md`.
+Read `GRADED_PHASES_AND_PARTITIONS.md` and `COMPLETION_GAME_OBSTRUCTIONS.md` first,
+then `RESEARCH_REVIEW.md`, `CONSTRUCTION_TARGET.md`, `COMPLETION_GAME.md`, and `TWO_POOL_RESPONSE.md`.
 
 ### Summary of Session 5 Findings
 
