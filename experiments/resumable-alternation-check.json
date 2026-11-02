@@ -1,0 +1,80 @@
+{
+  "two_alternation_constants": {
+    "gamma_1_depth1": 0.7071067812,
+    "ww_prop2_pigeonhole_beta": 0.7534372181,
+    "continuum_lu_baseline_profile_beta": 0.76202043,
+    "continuum_depth1_resumable_beta": 0.76535003,
+    "gamma_2_layered_upper_bound_beta": 0.7825245219
+  },
+  "sparse_lp_scaling_with_mixed_covers": {
+    "K_6": {
+      "beta_0.73": {
+        "lu_baseline": -0.025495563,
+        "depth1_D": -0.024276627,
+        "full_D_phase2": -0.017931182,
+        "gain_full_over_lu": 0.007564381
+      },
+      "beta_0.74": {
+        "lu_baseline": -0.036516097,
+        "depth1_D": -0.035305362,
+        "full_D_phase2": -0.029561127,
+        "gain_full_over_lu": 0.00695497
+      },
+      "beta_0.75": {
+        "lu_baseline": -0.047505619,
+        "depth1_D": -0.046324039,
+        "full_D_phase2": -0.041183172,
+        "gain_full_over_lu": 0.006322447
+      }
+    },
+    "K_8": {
+      "beta_0.73": {
+        "lu_baseline": -0.011024808,
+        "depth1_D": -0.009566288,
+        "full_D_phase2": -0.001418181,
+        "gain_full_over_lu": 0.009606627
+      },
+      "beta_0.74": {
+        "lu_baseline": -0.021730983,
+        "depth1_D": -0.020321315,
+        "full_D_phase2": -0.012785773,
+        "gain_full_over_lu": 0.00894521
+      },
+      "beta_0.75": {
+        "lu_baseline": -0.032437158,
+        "depth1_D": -0.031067666,
+        "full_D_phase2": -0.024151425,
+        "gain_full_over_lu": 0.008285733
+      }
+    },
+    "K_10": {
+      "beta_0.73": {
+        "lu_baseline": -0.002485871,
+        "depth1_D": -0.000668239,
+        "full_D_phase2": 0.007827912,
+        "gain_full_over_lu": 0.010313782
+      },
+      "beta_0.74": {
+        "lu_baseline": -0.012973842,
+        "depth1_D": -0.011270738,
+        "full_D_phase2": -0.003374535,
+        "gain_full_over_lu": 0.009599307
+      },
+      "beta_0.75": {
+        "lu_baseline": -0.02344776,
+        "depth1_D": -0.021836338,
+        "full_D_phase2": -0.014495647,
+        "gain_full_over_lu": 0.008952113
+      }
+    },
+    "K_12": {
+      "beta_0.75": {
+        "lu_baseline": -0.017511592,
+        "depth1_D": -0.015477276,
+        "full_D_phase2": -0.007494417,
+        "gain_full_over_lu": 0.010017175
+      }
+    }
+  },
+  "status": "All layered upper bound and resumable Phase-1 LP checks passed."
+}

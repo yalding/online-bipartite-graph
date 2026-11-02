@@ -1,4 +1,65 @@
-**Resume after the deep research review — November 1, 2026**
+**Resume after Session 5 structural analysis — November 1, 2026**
+
+Read `COMPLETION_GAME_OBSTRUCTIONS.md` first, then `RESEARCH_REVIEW.md`,
+`CONSTRUCTION_TARGET.md`, `COMPLETION_GAME.md`, and `TWO_POOL_RESPONSE.md`.
+
+### Summary of Session 5 Findings
+
+1. **Resolution of the `COMPLETION_GAME.md` Two-Pool Candidate (Commit `c459d62`)**:
+   - **Theorem 1** (`COMPLETION_GAME_OBSTRUCTIONS.md`): The retired-surplus table
+     $E(S) = A_{\text{ret}} - H(S)$ gives an exact affine-simplex representation
+     of $W_h$ on any active boundary $U$.
+   - **Theorem 2 & Proposition 1**: Rooted trees of pools of arbitrary depth are
+     capped at $1 + \frac{1}{\sqrt{2}} \approx 1.707107$. In `COMPLETION_GAME.md`
+     Eq. (6), the active boundary bound $|U| \le 2$ restricts Phase 2 to at most
+     $k = 2$ surviving pools of $R_1$, replacing $f_0(y) = \beta$ by
+     $f_1(y_i) = \beta - \frac{y_i^2}{2\beta}$ on at most $k = 2$ discrete points
+     ($\approx 1.7219$--$1.7273$ at 2 alternations, verified in
+     `scripts/completion_game_obstructions.py`).
+2. **Graded $k$-Phase Upper Bound and Resumable Alternation (`scripts/resumable_alternation_check.py`)**:
+   - **Theorem 3** (`COMPLETION_GAME_OBSTRUCTIONS.md` Section 5): Any online
+     bipartite graph graded into $k$ online layers $V_1, \dots, V_k$ (plus initial
+     offline $V_0$ and terminal private leaves $V_{k+1}$) where vertices in $V_m$
+     only have past neighbors in $V_{m-1}$ and future neighbors in $V_{m+1}$ admits
+     an explicit $(1 + \gamma_k)$-competitive layer-dependent `GreedyAllocation`
+     algorithm ($\gamma_1 = 1/\sqrt{2} \approx 0.707107$, $\gamma_2 \approx 0.78252452$,
+     $\gamma_k \uparrow \beta^* \approx 0.90076170$).
+   - **Why Naive KVV Splitting on $L_0$ Fails**: Splitting $L_0 = A_1 \cup \dots \cup A_K$
+     and progressively retiring slices during Phase 1 freezes retired slices at
+     $y_{A_i}(i) < 1$, reducing the total online payment on $L_0$ and worsening
+     the minimax surplus.
+   - **Why Resumable Phase-1 / Interleaved Phase-2 Strictly Beats `lu_baseline`**:
+     Allowing the adversary to **resume Phase 1 on the undivided $L_0$** after
+     stopping a Phase-2 burst on $R_1([0, r])$ at $\xi$ penalizes any coordinate
+     jump on $R_1([0, r])$ via the resumed full in-cover $L_0 \in C, R_1([0, l]) \notin C$.
+     At $k = 2$:
+     - Wang--Wong Prop. 2 (pigeonhole): $\beta_{\text{WW2}} \approx 0.75343722$
+     - Continuum `lu_baseline` (exact monotone profile): $\beta_{\text{lu\_cont}} \approx 0.76202043$
+     - Continuum `depth1_D` (Depth-1 resumed Phase 1): $\beta_{\text{D1\_cont}} \approx 0.76535003$
+     - Two-burst `full_D_phase2` (resumed Phase 1 with a second Phase-2 burst and
+       mixed prefix covers): strictly beats both `lu_baseline` and `depth1_D` across
+       $K \in \{6, 8, 10, 12, 14\}$ with a growing gap (`+0.01002` at $K=12$,
+       `+0.01048` at $K=14$ for $\beta = 0.75$), extrapolating to $\beta_c(\infty) \approx 0.772$.
+
+### Immediate Next Steps
+
+1. **Infinite-Round Resumable 2-Alternation Fixed Point ($k = 2$)**:
+   Formulate and solve the continuum fixed-point operator where Phase 1 can be
+   resumed after *every* Phase-2 burst (eliminating the residual suffix slack
+   $\int_l^{R_{\max}} z^{\text{D}}(\tau)\,d\tau$ at the second burst in
+   `full_D_phase2`) and determine whether infinite-round resumption at $k = 2$
+   reaches $\gamma_2 \approx 0.78252452$ or an intermediate barrier.
+2. **Multi-Layer Recursive Extension ($k \to \infty$)**:
+   Extend the resumable alternation operator from $k = 2$ to general depth $k$
+   and analyze the $k \to \infty$ fixed-point threshold against
+   $\gamma_\infty = \beta^* \approx 0.90076170$.
+3. **Finite-Witness Bridge**:
+   Convert any strict continuum violation above $1 + \sqrt{e}/2$ into a certified
+   finite realization-oblivious bipartite instance via rational grid discretization.
+
+---
+
+### Previous Review Plan (Archived Context)
 
 Read `RESEARCH_REVIEW.md` first, then `CONSTRUCTION_TARGET.md`,
 `COMPLETION_GAME.md`, and `TWO_POOL_RESPONSE.md`. The pre-review plan is

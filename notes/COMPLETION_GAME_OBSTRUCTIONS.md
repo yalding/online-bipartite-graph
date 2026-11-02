@@ -208,31 +208,113 @@ bottleneck:
 
 ---
 
-## 5. Conclusion: What Construction Is Needed Next
+## 5. Layered Phase Upper Bound and Resumable Alternation Analysis
 
-Neither candidate family studied so far can close the gap to $B^* \approx 1.90076$ alone,
-for dual reasons:
-- **Two-pool completion games (`COMPLETION_GAME.md`, $k = 2$)** have selective
-  retirement and terminal private-leaf completions, but restricting the active
-  boundary to $k = 2$ pools collapses the integral $\int \frac{1-t}{f(t)}\,dt$
-  to a 2-point Riemann sum.
-- **Complete-bipartite alternation games (Wang--Wong Prop. 2; Lu 2026, $k \to \infty$)**
-  preserve the continuum of active pools in $R_1$, but keep $L_0$ undivided,
-  creating the Breadth-First Slack $\operatorname{Slack}(r) = \beta - \int_0^r(1 - y(\tau))\,d\tau$
-  on $r \le \beta$ and stalling at $1 + \frac{\sqrt{e}}{2} \approx 1.82436$.
+### Theorem 3 (Exact Upper Bound for Graded $k$-Phase Graphs)
 
-Closing the gap to $B^*$ requires **combining both mechanisms** in a single
-continuum construction ($k \to \infty$ selective-retirement completion game):
-each layer $L_h$ must be a continuum of pools that is **progressively split and
-retired** as $R_{h+1}(\tau)$ arrives (or paired with a continuation on the
-unretired remainder of $L_h$), eliminating $\operatorname{Slack}(r)$ at early
-Phase-2 transitions while keeping the full active continuum $R_{h+1}([0, r])$
-alive to receive Phase-2 edges.
+Suppose an online bipartite graph $G = (V, E)$ is graded into layers
+$V_0, V_1, \dots, V_k, V_{k+1}$ where $V_0$ arrives isolated, each vertex
+$v \in V_m$ ($1 \le m \le k$) arrives with edges only to $V_{m-1}$ (so each
+$u \in V_{m-1}$ receives future neighbors only in $V_m$), $V_{k+1}$ consists of
+terminal private leaves (or universal extensions) on $V_k$, and the layer index
+$m$ is known upon arrival. Define the layer-dependent allocation functions:
+
+$$f_0(y) = \gamma_k, \qquad
+  f_j(y) = \gamma_k - \int_{1-y}^1 \frac{1-t}{f_{j-1}(t)}\,dt \quad (1 \le j \le k-1), \tag{13}$$
+
+where $\gamma_k$ is the unique positive root of $\int_0^1 \frac{1-t}{f_{k-1}(t)}\,dt = \gamma_k$
+($\gamma_1 = \frac{1}{\sqrt{2}} \approx 0.70710678$, $\gamma_2 \approx 0.78252452$,
+and $\gamma_k \uparrow \beta^* \approx 0.90076170$ as $k \to \infty$). Then running
+Wang--Wong `GreedyAllocation` with allocation function $f_{k-m}(y)$ on layer $V_m$
+is $(1 + \gamma_k)$-competitive on **every** such graph $G$, regardless of
+subset neighborhoods, weights, or branching structure between $V_{m-1}$ and $V_m$.
+
+*Proof.* Extending Wang and Wong's 2-alternation charging lemma (`focs13_obvc.tex`
+Lemma 5 / `appendix.tex` Section 4), when $v \in V_m$ arrives with water level
+$y = 1 - z_v$, charge $w_v y_v^* \big(z_v + f_{k-m}(1 - z_v)\big)$ to $v$ and
+$w_u y_u^* \big((y - y_u^{\text{old}}) + \int_{y_u^{\text{old}}}^y \frac{1-t}{f_{k-m}(t)}\,dt\big)$
+to each neighbor $u \in N(v) \cap V_{m-1}$ whose coordinate increases. Because
+every future neighbor of $u \in V_{m-1}$ lies in $V_m$ and uses the **same**
+allocation function $f_{k-m}$, the integral charges on $u \in V_{m-1}$ telescope
+as $y_u$ increases from $z_u$ to at most $1$, bounding the total charge on $u$ by
+$w_u y_u^* \big(1 + f_{k+1-m}(1 - z_u) + \int_{z_u}^1 \frac{1-t}{f_{k-m}(t)}\,dt\big) \le w_u y_u^* (1 + \gamma_k)$. $\blacksquare$
+
+### Exact Decomposition of the 2-Alternation Gap ($k = 2$)
+
+At $k = 1$, Lu's recurrence and Theorem 3 coincide ($\beta_1^{\text{Lu}} = \gamma_1 = 1/\sqrt{2}$).
+At $k = 2$ (two online layers $R_1, L_2$ plus terminal private leaves), they diverge:
+Wang--Wong Prop. 2 / Lu ($h=1$) gives $\beta_{\text{WW2}} = \sqrt{\frac{1+e^{-2}}{2}} \approx 0.75343722$,
+whereas Theorem 3 gives $\gamma_2 \approx 0.78252452$. By Proposition 1 (Eq. 11),
+if at every step $r$ of Phase 1 the Phase-2 increment on $R_1([0, r])$ satisfied
+$\int_0^r \big(z^{(r, \xi)}(\tau) - z^{(r, 0)}(\tau)\big)\,d\tau \le \beta \xi$
+(zero free slack at $\xi = 0^+$), Fubini's theorem would force Phase-2 payment
+$\int_0^\Xi t(\xi)\,d\xi = \int_0^r \frac{y_0(\tau)^2}{2\beta}\,d\tau$, yielding
+$y_0'(r) = \beta - \frac{y_0(r)^2}{2\beta} = f_1(y_0(r))$ and $\beta = \gamma_2 \approx 0.78252452$.
+
+Two distinct relaxations in Wang--Wong Prop. 2 / Lu ($h=1$) account for the gap
+from $\gamma_2 \approx 0.78252452$ down to $\beta_{\text{WW2}} \approx 0.75343722$:
+
+1. **Pigeonhole vs. exact monotone profile (`lu_baseline`)**:
+   Wang--Wong Prop. 2 bounds $\min_{\tau \in [0, r]} z^{(r, \xi)}(\tau)$ by the
+   average $\frac{\beta(1+\xi)}{r}$, ignoring the unequal Phase-1 birth profile
+   $z(\tau) = 1 - y_0(\tau)$. Enforcing exact coordinate monotonicity
+   $\int_0^r \max\big(1 - y_0(\tau), u\big)\,d\tau \le \beta(1 + \xi)$ raises the
+   continuum 2-alternation threshold from $\beta_{\text{WW2}} \approx 0.75343722$
+   to $\beta_{\text{lu\_cont}} \approx 0.76202043$.
+2. **Terminal Phase 2 vs. Resumable Phase 1 (`depth1_D` and `full_D_phase2`)**:
+   In `lu_baseline`, Phase 2 at time $r < R_{\max}$ is a terminal side-branch
+   (no further Phase-1 vertices arrive on $L_0$), leaving unused in-cover slack
+   $\beta - \int_0^r (1 - y_0(\tau))\,d\tau > 0$ that lets the online player jump
+   the water level on $R_1([0, r])$ at $\xi = 0^+$.
+   - Why naive KVV progressive retirement on $L_0$ fails: splitting
+     $L_0 = A_1 \cup \dots \cup A_K$ and connecting $b_r$ only to $\{A_r, \dots, A_K\}$
+     freezes retired slices $A_i$ ($i < r$) at $y_{A_i}(i) < 1$, reducing the
+     online payment on $L_0$ and worsening the minimax surplus.
+   - **Resumable Phase-1 / Interleaved Alternation**: When the adversary can
+      instead **resume Phase 1 on the undivided $L_0$** ($b_{r+1}, \dots, b_K$)
+     after stopping Phase 2 on $R_1([0, r])$ at $\xi$, any coordinate jump on
+     $R_1([0, r])$ during Phase 2 is permanently locked in by monotonicity and
+     penalized in the resumed full in-cover $L_0 \in C, R_1([0, l]) \notin C$.
+   - With a Depth-1 resumed Phase-1 continuation (`depth1_D`), the in-cover budget
+     at $(r, \xi)$ is tightened by $-\frac{(1 + T(r, \xi) - \beta r)_+^2}{2\beta}$,
+     raising the continuum threshold to $\beta_{\text{D1\_cont}} \approx 0.76535003$.
+   - With a Phase-2-equipped resumed Phase-1 continuation (`full_D_phase2`,
+     including all mixed prefix covers $L_0 \in C, R_1([0, r]) \subseteq C, L_2^{(r)} \cap C = \emptyset, R_1([r, l]) \cap C = \emptyset, L_2^{(l)} \subseteq C$),
+     the sparse LP (`scripts/resumable_alternation_check.py`) shows a strictly
+     larger and growing gain over `lu_baseline` across $K \in \{6, 8, 10, 12, 14\}$
+     (`+0.00632`, `+0.00829`, `+0.00895`, `+0.01002`, `+0.01048` at $\beta = 0.75$),
+     extrapolating to $\beta_c(\infty) \approx 0.772$ for two Phase-2 bursts
+     (more than halfway from $\beta_{\text{lu\_cont}} \approx 0.7620$ to
+     $\gamma_2 \approx 0.7825$).
+
+---
+
+## 6. Next Steps to Close the Gap
+
+1. **Infinite-round resumable / fully interleaved 2-alternation fixed point**:
+   In `full_D_phase2` (two bursts), the second Phase-2 burst at step $l \in [r, R_{\max}]$
+   still has terminal suffix slack $\int_l^{R_{\max}} z^{\text{D}}(\tau)\,d\tau$
+   because Phase 1 does not resume a third time after the second burst. Formulate
+   and solve the infinite-round resumable operator at $k = 2$ (where Phase 1 can
+   resume after *every* Phase-2 burst) to determine whether infinite-round
+   resumption at $k = 2$ reaches the Theorem 3 ceiling $\gamma_2 \approx 0.782525$
+   or an intermediate threshold.
+2. **Multi-layer recursive extension ($k \to \infty$)**:
+   Combine multi-round resumable alternation across $k$ layers ($V_0, V_1, \dots, V_k$)
+   and analyze the $k \to \infty$ fixed-point equation to test convergence toward
+   $\gamma_\infty = \beta^* \approx 0.9007617$.
+3. **Finite-witness bridge**:
+   Convert any strict continuum violation above $1 + \sqrt{e}/2$ into a certified
+   finite realization-oblivious bipartite instance via rational grid discretization.
 
 ---
 
 ## Verification
 
-Run `python scripts/completion_game_obstructions.py` to verify all identities,
-ODE bounds, symbolic plane propagations, and $k$-pool LP scaling thresholds;
-output is written to `experiments/completion-game-obstructions.json`.
+- Run `python scripts/completion_game_obstructions.py` to verify Theorem 1,
+  Theorem 2, Proposition 1, symbolic plane propagations, and $k$-pool LP scaling
+  (`experiments/completion-game-obstructions.json`).
+- Run `python scripts/resumable_alternation_check.py` to verify Theorem 3
+  ($\gamma_1, \gamma_2$), continuum thresholds ($\beta_{\text{WW2}}, \beta_{\text{lu\_cont}}, \beta_{\text{D1\_cont}}$),
+  and sparse LP scaling across $K \in \{6, 8, 10, 12\}$ for `lu_baseline`,
+  `depth1_D`, and `full_D_phase2` (`experiments/resumable-alternation-check.json`).

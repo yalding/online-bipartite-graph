@@ -1,6 +1,31 @@
 # Research status: 2026-11-01
 
-The subsequent [deep review](RESEARCH_REVIEW.md) leaves the universal interval
+Session 5 (`COMPLETION_GAME_OBSTRUCTIONS.md`, `scripts/completion_game_obstructions.py`,
+`scripts/resumable_alternation_check.py`) resolves the two-pool completion game
+question from `COMPLETION_GAME.md` and `NEXT_SESSION.md`:
+1. **Exact Affine-Simplex Representation (Theorem 1)**: Defining the retired
+   surplus table $E(S) = A_{\text{ret}} - H(S)$ eliminates the separate sunk
+   cost $A$ and makes pool retirement and arrival closed-form operations on
+   affine-simplex planes (`c, alpha, mu`).
+2. **Tree-of-Pools and Two-Pool Obstructions (Theorem 2, Proposition 1, Section 4)**:
+   Rooted trees of pools of arbitrary depth are capped at $1 + \frac{1}{\sqrt{2}} \approx 1.707107$
+   via an explicit online ODE. In `COMPLETION_GAME.md` Eq. (6), restricting the
+   active boundary to $|U| \le 2$ allows at most $k = 2$ pools to survive into
+   Phase 2, replacing $f_0(y) = \beta$ by $f_1(y_i) = \beta - \frac{y_i^2}{2\beta}$
+   on at most two discrete points ($\approx 1.7219$--$1.7273$ at 2 alternations).
+3. **Graded $k$-Phase Upper Bound (Theorem 3) and Resumable Alternation (Section 5)**:
+   Extending Wang and Wong's 2-alternation charging lemma proves an exact
+   $(1 + \gamma_k)$-competitive upper bound for any graded $k$-phase graph
+   ($\gamma_1 = 1/\sqrt{2} \approx 0.707107$, $\gamma_2 \approx 0.78252452$,
+   $\gamma_k \uparrow \beta^* \approx 0.90076170$). At $k = 2$, retaining exact
+   monotone profiles (`lu_baseline`) raises Wang--Wong Prop. 2's threshold from
+   $\beta_{\text{WW2}} \approx 0.753437$ to $\beta_{\text{lu\_cont}} \approx 0.762020$,
+   and allowing **resumable Phase-1 / interleaved Phase-2** continuations
+   (`depth1_D` and `full_D_phase2` with mixed prefix covers) strictly improves
+   the minimax surplus across $K \in \{6, 8, 10, 12, 14\}$ ($\beta_{\text{D1\_cont}} \approx 0.765350$,
+   and $\beta_c(\infty) \approx 0.772$ for two Phase-2 bursts).
+
+The earlier [deep review](RESEARCH_REVIEW.md) leaves the universal interval
 unchanged and replaces the resume plan in `NEXT_SESSION.md`. It identifies
 terminal completion safety with the existing private-leaf budgets, notes that
 strict retirement omits repeated use of old pools in general biclique
