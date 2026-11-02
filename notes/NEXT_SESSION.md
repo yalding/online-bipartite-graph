@@ -1,4 +1,26 @@
-**Resume after Session 6 audit and partition synthesis — November 1, 2026**
+# Handoff after Session 7
+
+The [new optimality proof](OPTIMALITY_PROOF.md) reaches the requested
+$B^*-\epsilon$ against arbitrary randomized fractional algorithms.
+Sections 2–3 are the main argument. Independent marginal tests can be
+interleaved under an ordered joint walk, so the joint online strategy
+induces feasible local strategies at their own decision times. Section 4
+obtains the exact analytic threshold. Section 5 gives finite unweighted
+inputs with oblivious selection. The result is ready for independent
+mathematical review.
+
+The [finite example at 1.9005](../experiments/fork-1801-2000.json) records
+the strict integer comparison. Replay it with
+`python scripts/fork_certificate.py --check experiments/fork-1801-2000.npz`.
+Run `python scripts/interleaving_check.py` for the exact finite conditional-law
+fixture. The [tree counterexample](TREE_CONTINUATIONS.md) and the
+[bounded-reuse upper bound](BOUNDED_REUSE.md) correct the earlier handoff.
+In particular, the old claim about all trees of pools is false.
+
+The material below is the historical Session 6 handoff. Its open questions
+and proposed directions predate the proof.
+
+## Session 6 handoff (archived)
 
 Read `GRADED_PHASES_AND_PARTITIONS.md` and `COMPLETION_GAME_OBSTRUCTIONS.md` first,
 then `RESEARCH_REVIEW.md`, `CONSTRUCTION_TARGET.md`, `COMPLETION_GAME.md`, and `TWO_POOL_RESPONSE.md`.

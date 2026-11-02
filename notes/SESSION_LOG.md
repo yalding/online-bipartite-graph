@@ -1,5 +1,29 @@
 # Session log
 
+## 2026-11-01: seventh research session
+
+Derived the [universal lower bound](OPTIMALITY_PROOF.md) for vertex arrivals
+on unweighted bipartite graphs. The proof uses an ordered coupling of
+posterior probabilities on two rooted subtrees. Finite minimax and this
+coupling turn the ability of an arbitrary full-history algorithm to handle
+every interleaving into two necessary local budget inequalities. Taking
+small rational child weights recovers the Wang–Wong variational bound.
+Compactness, a finite LP search, private leaves, and a common integer
+blowup complete the finite oblivious construction.
+
+Generated and replayed the compressed fork certificate excluding $1.9005$.
+Its integer intercept exceeds the root budget by 76,706,847 at scale
+$4\cdot 10^{12}$. An exact ordered-walk fixture separately checks the
+conditional test distributions and terminal compatibility. The all-epsilon
+argument is analytic and awaits independent review.
+
+Found a finite counterexample to the Session 5 tree-of-pools ceiling,
+certified a $1.84$ strategy when just one endpoint survives, and proved
+a $13/7$ bound when each pool has at most two later neighboring batches.
+The untracked biclique heuristic's Lu birth rule has an unbounded ratio on
+geometrically growing cohorts. See [tree continuations](TREE_CONTINUATIONS.md)
+and [bounded reuse](BOUNDED_REUSE.md).
+
 ## 2026-11-01: first research session
 
 ### Plan written before the main investigation

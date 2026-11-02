@@ -1,0 +1,63 @@
+{
+  "tree_witness": {
+    "beta": "71/100",
+    "old_right_cost": "1161/2000",
+    "root_floor": "1941/2200",
+    "outside_cost": "31721/22000",
+    "budget": "71/50",
+    "strict_excess": "481/22000"
+  },
+  "spine_invariant": {
+    "beta": "21/25",
+    "knots": [
+      "0",
+      "1/4",
+      "1/2",
+      "3/4",
+      "1"
+    ],
+    "values": [
+      "3/4",
+      "9/20",
+      "9/40",
+      "3/40",
+      "0"
+    ],
+    "lines": [
+      [
+        "0",
+        "0"
+      ],
+      [
+        "3/4",
+        "6/5"
+      ],
+      [
+        "27/40",
+        "9/10"
+      ],
+      [
+        "21/40",
+        "3/5"
+      ],
+      [
+        "3/10",
+        "3/10"
+      ]
+    ],
+    "nonnegative_quadratics": 125
+  },
+  "two_pool_bound": {
+    "beta": "6/7",
+    "slope": "9/14",
+    "required_root": "311/196",
+    "cube_comparison_margin": "37913/7529536"
+  },
+  "biclique_probe": {
+    "rounds": 9,
+    "left": 512,
+    "right": 9,
+    "lower_bound_left_cost": "92/5",
+    "lower_bound_ratio": "92/45"
+  }
+}

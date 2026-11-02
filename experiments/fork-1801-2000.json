@@ -1,0 +1,17 @@
+{
+  "beta": "1801/2000",
+  "excluded_ratio": "3801/2000",
+  "mesh": 4000,
+  "scale": 4000000000000,
+  "sweeps": 126,
+  "columns": 5001,
+  "fork_records": 559566,
+  "root_record": [
+    126,
+    4105
+  ],
+  "root_intercept": 3602076706847,
+  "root_budget": 3602000000000,
+  "integer_margin": 76706847,
+  "rule": "fork child mass / parent mass = mesh / (mesh^2 - level * child_index)"
+}

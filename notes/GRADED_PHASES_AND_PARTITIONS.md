@@ -2,6 +2,11 @@
 
 Session 6, 2026-11-01.
 
+Session 7 corrected the limiting-threshold calculation below and
+disproved the tree ceiling used in the historical synthesis. See
+[the finite counterexample](TREE_CONTINUATIONS.md) and the
+[optimality proof](OPTIMALITY_PROOF.md).
+
 This note documents the audit and structural analysis of the Graded $k$-Phase
 Allocation Theorem (Session 5 Theorem 3), its exact terminal boundary conditions,
 and its synthesis with Tang's (2026) active partition construction for two-sided
@@ -75,18 +80,35 @@ recorded in `experiments/graded-phase-recursion.json`) are:
 | 14 | 0.89103097 | 1.89103097 | 0.89036504 | 1.89036504 | 0.009731 / 0.010397 |
 | $\infty$ | **0.90076170** | **1.90076170** | **0.90076170** | **1.90076170** | 0.000000 |
 
-### Limiting Fixed Point Characterization
-As $k \to \infty$, the discrete layer shift vanishes: $f_j(y) \to f(y)$ uniformly on $[0, 1]$.
-The integral equation becomes:
-$$f(y) = \beta^* - \int_{1-y}^1 \frac{1-t}{f(t)}\,dt, \qquad \int_0^1 \frac{1-t}{f(t)}\,dt = \beta^*.$$
-Differentiating with respect to $y$ (setting $z = 1 - y$) gives:
-$$f'(y) = -\frac{y}{f(1 - y)} \iff f(1 - y) f'(y) = -y \iff f(z) f'(1 - z) = z - 1.$$
-This is precisely Wang and Wong's functional differential equation (`focs13_obvc.tex` Eq. 10),
-whose unique solution is:
-$$f(z) = \left(\frac{1+k}{2} - z\right)^{\frac{1+k}{2k}} \left(z + \frac{k-1}{2}\right)^{\frac{k-1}{2k}},
-  \qquad k = \operatorname{coth}(k) \approx 1.19967864.$$
-Thus, **both graded layer-dependent algorithms converge to the universal Wang--Wong
-bound $B^* = 1 + \beta^* \approx 1.90076170$**.
+### Limiting threshold (corrected in Session 7)
+
+The finite calibration makes the *last* iterate zero at 1. The Wang–Wong
+optimizer has $f_*(1)>0$ and satisfies
+$\int_0^1(1-t)/f_*(t)\,dt=\beta^*-f_*(1)$.
+One cannot pass the finite zero endpoint directly to this optimizer.
+
+Instead, fix a trial $\gamma$ and iterate the operator in (13) of the
+Session 5 note. It preserves order, and the first iterate is at most either
+initial function, so the sequence is decreasing as long as it stays
+positive. At $\gamma=\beta^*$, both initial functions dominate $f_*$,
+which is a fixed point. Thus all depths are feasible. Feasibility is
+monotone in $\gamma$ and in decreasing the depth.
+
+If $\gamma<\beta^*$ works at every depth, the decreasing iterates have a
+nonnegative limit $f$. Their integrals over $[0,1]$ are at most
+$\gamma$. Monotone convergence gives the limiting integral equation
+$f(y)=\gamma-\int_{1-y}^1(1-t)/f(t)\,dt$, so $f$ is continuous.
+It is nonincreasing and positive on $[0,1)$, since a zero strictly before
+1 would make the integral infinite. Differentiation in the interior gives
+$f(1-y)f'(y)=-y$ and hence
+$f(y)f(1-y)=y(1-y)+f(0)f(1)$. If $f(1)=0$, then
+$f'/f=-1/(1-y)$, which gives $f(y)=\gamma(1-y)$ and $\gamma=1$,
+a contradiction. If $f(1)>0$, the same product identity implies
+$(1-y)/f(y)$ is decreasing and $f$ is a positive admissible equalizer.
+Its value $\gamma$ contradicts Wang and Wong's minimax bound.
+This proves convergence of the finite **allocation thresholds** to
+$\beta^*$ without a universal hardness inference.
+[Wang and Wong, Section 4](https://arxiv.org/abs/1305.1694)
 
 ---
 

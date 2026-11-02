@@ -1,5 +1,12 @@
 # Structural obstructions for tree-of-pools and two-pool completion games
 
+**Session 7 correction.** Theorem 2 below is false for the stated family.
+A [finite tree with a strictly violated budget](TREE_CONTINUATIONS.md)
+pinpoints the use of a future subtree cost in the proposed strategy.
+The smaller two-pool game does have an [all-horizon $13/7$ upper
+bound](BOUNDED_REUSE.md), proved by a different argument. The historical
+text follows.
+
 Session 5, 2026-11-01. The universal target $B^* = 1 + \beta^* \approx 1.9007617$
 remains unresolved. This note resolves the mathematical task posed at the end of
 `COMPLETION_GAME.md` (lines 199--201):

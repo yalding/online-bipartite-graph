@@ -2,41 +2,35 @@
 
 Research started 2026-11-01 (America/Los_Angeles).
 
-## Objective
+## Result
 
-**Clarified target:** construct universal hardness approaching the exact
-1.9007616968738465... cover bound and settle optimality. Incremental lower
-bounds are not the project's objective. Read
-[the construction target](notes/CONSTRUCTION_TARGET.md) before continuing.
+The [optimality proof](notes/OPTIMALITY_PROOF.md) derives a lower bound of
+$B^*-\epsilon$ for every randomized online fractional vertex-cover
+algorithm on a finite unweighted bipartite input fixed independently of
+its random seed. With Wang and Wong's upper bound, the optimal ratio is
+$B^*=1.9007616968738465\ldots$. This is a new research proof in this
+repository and has not received independent review.
 
-Investigate Section 7 of Wang and Wong, *Online Vertex Cover and Matching:
-Beating the Greedy Algorithm*, arXiv:1305.1694. Distinguish tightness of the
-specific algorithms/analyses from optimality among all online algorithms.
-Find, audit, and reproduce subsequent hardness constructions, with particular
-attention to the remaining vertex-cover gap.
+The core graph is a tree of pools. After each parent-child edge, both
+endpoints may have future children. A shared random walk interleaves
+their continuations, preserving what an algorithm can learn at each
+arrival while ensuring that the two hidden offline covers jointly cover
+the connecting edge. This yields a necessary inequality for arbitrary
+algorithms and gives the Wang–Wong constant.
 
-## Working plan
-
-The [deep research review](notes/RESEARCH_REVIEW.md) assesses the current
-proofs, restrictions, and missing forcing argument. The active execution plan
-is [NEXT_SESSION.md](notes/NEXT_SESSION.md); the previous plan is archived as
-[SESSION_4_PLAN.md](notes/SESSION_4_PLAN.md).
-
-1. Specify the completion game precisely and integrate response elimination
-   with its response-dependent retired table.
-2. Test graph-realized forcing against an explicit safety strategy, using the
-   normalized surplus state `A-c` and exact continuous responses.
-3. Seek a recursive amplification lemma or a below-target invariant for the
-   stated family; change its persistence/retirement operations if warranted.
-4. Derive limiting necessary inequalities from legal graph continuations.
-5. Complete any successful argument with finite witnesses and obliviousness.
+The proof includes a terminating finite-witness construction for every
+strictly smaller ratio. For the concrete ratio $1.9005$, a separate
+[finite fork certificate](experiments/fork-1801-2000.npz) can be replayed
+with exact integer arithmetic. The [handoff](notes/NEXT_SESSION.md) lists
+the checks and proof locations.
 
 ## Findings at the first checkpoint
 
 The specific cover algorithm is tight on center-last stars. Its exact bound
 is `1.9007616968738465...`. The universal matching question is settled by Tang
-(2026). The universal fractional cover question remains open in the literature
-located, between `1.824360635350064...` and `1.900761696873847...`.
+(2026). The primary sources available at that checkpoint placed the
+universal fractional cover ratio between `1.824360635350064...` and
+`1.900761696873847...`.
 
 Start with [the research report](notes/RESEARCH_STATUS.md),
 [the star proof](notes/STAR_TIGHTNESS.md), and
@@ -50,7 +44,7 @@ not improve the known universal lower bound. See
 
 Session 3 ruled out two candidate transfers of edge-arrival hardness and
 derived an exact offline state closed under alternating two-pool phases.
-The universal hypothesis remains unresolved. Start with
+The universal hypothesis was unresolved at that checkpoint. See
 [the session-3 report](notes/SESSION_3_WORKING.md),
 [the construction obstructions](notes/CONSTRUCTION_OBSTRUCTIONS.md), and
 [the exact boundary state](notes/BOUNDARY_STATE.md).
@@ -58,12 +52,13 @@ The universal hypothesis remains unresolved. Start with
 Session 4 derived exact scalar-response certificates, identified a 15/8
 obstruction for equal-size strictly retired batch phases, and changed the
 candidate to permit terminal private-leaf completions. A reweighted
-four-parameter interface gives their exact payoff. The universal target
-remains unresolved; start with [the session-4 report](notes/SESSION_4_WORKING.md)
+four-parameter interface gives their exact payoff. See
+[the session-4 report](notes/SESSION_4_WORKING.md)
 and [the completion game](notes/COMPLETION_GAME.md).
 
-Session 5 proved that rooted trees of pools are capped at $1 + 1/\sqrt{2} \approx 1.7071$
-and that graded $k$-phase graphs admit an explicit $(1 + \gamma_k)$-competitive
+Session 5 studied a proposed upper bound for rooted trees of pools. A
+[finite counterexample](notes/TREE_CONTINUATIONS.md) disproves its
+$1+1/\sqrt2$ claim. Graded $k$-phase graphs admit a $(1 + \gamma_k)$-competitive
 layer-dependent algorithm ($\gamma_k \uparrow \beta^*$). Resumable Phase-1 / interleaved
 Phase-2 alternation strictly beats Lu's baseline, extrapolating to $\approx 1.772$
 at $k=2$. See [the completion game obstructions note](notes/COMPLETION_GAME_OBSTRUCTIONS.md).
@@ -105,11 +100,14 @@ python scripts/construction_obstructions.py
 python scripts/two_pool_response.py --lp-check
 python scripts/resumable_alternation_check.py
 python scripts/graded_phase_recursion.py
+python scripts/branch_certificates.py
+python scripts/interleaving_check.py
+python scripts/fork_certificate.py --check experiments/fork-1801-2000.npz
 ```
 
-The integer recurrence and rational LP scripts verify certificates. The star
-limit has an analytic proof. High precision identity checks and floating-point
-experiments are numerical checks, not replacements for proofs.
+The fork certificate and ordered-walk check use exact arithmetic. The
+universal limit and the general interleaving lemma have separate analytic
+proofs in the optimality note.
 
 See `notes/SESSION_LOG.md` for the audit trail. The Python dependencies are
 listed in `requirements.txt`; all are already installed in this environment.

@@ -1,5 +1,13 @@
 # Research status: 2026-11-01
 
+Session 7 gives a [research proof of the optimal ratio](OPTIMALITY_PROOF.md)
+and a finite certificate at $1.9005$. The interleaving lemma in that
+proof supplies the forcing argument missing from the earlier sessions.
+The [finite tree counterexample](TREE_CONTINUATIONS.md) supersedes the
+tree-of-pools ceiling reported below.
+
+## Historical status through Session 6
+
 Session 6 (`GRADED_PHASES_AND_PARTITIONS.md`, `scripts/graded_phase_recursion.py`,
 `experiments/graded-phase-recursion.json`) audited the Graded $k$-Phase Allocation
 Theorem and analyzed the active partition dynamics of Tang's (2026) matching proof:

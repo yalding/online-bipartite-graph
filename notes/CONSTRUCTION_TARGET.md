@@ -1,5 +1,8 @@
 # Objective: a hardness construction matching the algorithmic bound
 
+Session 7 supplies the [proof and finite construction](OPTIMALITY_PROOF.md)
+for the target below. The remaining text states the original objective.
+
 User clarification, 2026-11-01: incremental lower-bound improvements are not
 the objective. The objective is a construction that settles optimality.
 
