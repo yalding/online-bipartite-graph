@@ -8,53 +8,84 @@ lemma for two rooted subproblems with a single connecting edge.
 vertex-cover algorithm there is a finite, unweighted bipartite vertex-arrival
 input, independent of the algorithm's realized random bits, with $\mathrm{OPT}_f>0$ and
 $\mathbb E[\mathrm{ALG}]> (B^*-\epsilon)\mathrm{OPT}_f$.
-The core inputs are blowups of rooted trees. Each new pool is adjacent
-to just one old pool, and old pools can receive arbitrarily many children.
-Together with the upper bound this gives the optimal ratio, also for the
-general-graph fractional problem. [Wang and Wong](https://arxiv.org/abs/1305.1694)
+Together with Wang and Wong's upper bound, this gives the optimal competitive
+ratio on bipartite graphs and on general graphs. [Wang and Wong](https://arxiv.org/abs/1305.1694)
 
 Explicitly, let $k>1$ solve $k=\coth k$, put
 $a=(k+1)/2,\ b=(k-1)/2$, and write $B^*=1+a^{a/k}b^{b/k}$.
+We build the input in two stages. The first stage, called the *core*,
+starts with a rooted tree and replaces each node by a *pool*: a group
+of vertices with no edges between them and identical neighbors in the
+core. For every parent and child in the tree, we put an edge between
+every vertex of the parent's pool and every vertex of the child's pool.
+These are all the core edges. For example, a parent with three vertices
+and a child with two give the six edges of $K_{3,2}$. The second stage
+adds individual leaves to selected vertices of the core.
+
 The proof keeps track of the worst cost separately according to whether
 the offline cover includes the root. After a child arrives there are
-three compatible pairs of root choices. A full-history strategy might
+three ways to cover their connecting edge: select the parent only, the
+child only, or both. A full-history strategy might
 try to spend less by observing which of the two branches grows first.
 Sections 2–3 show that the adversary can order the two tests so this
 information has no value at either branch's decisions. Section 4 converts those conditional costs into a feasible function for
-Wang and Wong's minimax problem.
+Wang and Wong's minimax problem. Section 5 then constructs the finite input and completes the theorem. Section 6 gives a separate numerical example.
 
 ## 1. A countable game and its conditional costs
 
-Normalize the root pool to weight one. A core move adds an independent pool
-of announced positive rational weight joined completely to its named parent.
-There are no other new edges. Number pools in local arrival order and use
-the opposite color of the parent. Allow every finite such history, including
-a stop just after the root. An online response gives monotone coordinates
-in $[0,1]$ satisfying each edge inequality. A pool represents an average
-over twins. Section 5 removes the batch and rational-weight conventions.
+We first describe the core by its tree of pools. A positive rational
+weight $w_P$ specifies the size of pool $P$ relative to the root, whose
+weight is one. In any finite core, choose an integer $d$ that clears
+all weight denominators. Pool $P$ then stands for $d w_P$ ordinary
+vertices, called twins because they have the same core neighbors. For
+example, weights $1$ and $2/3$ on a parent and child give the $K_{3,2}$
+above when $d=3$. The two pools lie on opposite sides of the bipartition.
 
-Fix a rational $0<\beta<B^*-1$. For any integral cover $C$ of a core
-prefix, put
+At each move the adversary announces the new pool's weight and its
+parent among earlier pools. The parent may acquire further children at
+later moves. A public prefix is the ordered list of weights and parent
+choices seen so far. A causal strategy assigns its response from this
+prefix alone. The adversary may stop after any move, including the root.
+
+A pool coordinate $y_P\in[0,1]$ represents the mean of the fractions
+bought on its twins. Their individual fractions may differ. At the end
+of a pool's arrivals, summing those fractions gives $d w_P y_P$, and
+averaging the edge inequalities between adjacent pools $P,Q$ gives
+$y_P+y_Q\ge1$. Thus in units of $d$ the total cost is
+$\sum_P w_P y_P$. In the pool game a response maintains these edge
+inequalities and may only increase old coordinates. Section 5 obtains such responses from algorithms that see ordinary vertices one at a time.
+
+Fix a rational $0<\beta<B^*-1$. We test the proposed competitive ratio
+$1+\beta$. An integral pool cover $C$ is a set of pools containing at
+least one endpoint of each tree edge in the prefix. In the expanded
+graph it selects every twin in every pool in $C$. Write
+$w(C)=\sum_{v\in C}w_v$, where $v$ indexes pools. Define the surplus
 
 $$
 L(C)=\sum_{v\notin C}w_v y_v-\beta\sum_{v\in C}w_v .
 $$
 
-To see how a positive surplus forces a violation, use a common integer
-scale for all pool weights in this prefix. Attach a
-private leaf to each individual vertex represented by $C$. The completed
-graph has an offline cover $C$ and a disjoint private matching of the same
-cardinality. Each private matching edge costs at least one unit, and
-monotonicity preserves the weight outside $C$. In units of the common
-scale the cost is at least $w(C)+\sum_{v\notin C}w_v y_v$, while
-$\mathrm{OPT}_f=w(C)=\sum_{v\in C}w_v$. Lu uses a complete-bipartite
+If $L(C)>0$, the algorithm has spent more than $\beta w(C)$ outside
+the proposed cover. To turn this into a violation of $1+\beta$, complete
+the core by presenting one new vertex for each selected twin. This
+vertex is a private leaf: its only edge joins it to that twin. The
+$d w(C)$ private edges have disjoint endpoints. Even a fractional
+offline cover must pay at least one on each of these edges, and the
+selected twins cover the entire completed graph for exactly $d w(C)$.
+The online algorithm must pay for the same private edges while retaining
+its earlier purchases outside $C$. Hence in ordinary vertex units
+$$
+\mathrm{OPT}_f=d w(C),\qquad \mathrm{ALG}\ge d w(C)+d\sum_{v\notin C} w_v y_v.
+$$ Lu uses a complete-bipartite
 extension with the same matching accounting. The edge-arrival construction
 uses private edges. [Lu](https://arxiv.org/abs/2608.09210)
 [Tang and Zhang](https://arxiv.org/abs/2608.04994)
 
 Start the isolated root at zero. Assume for contradiction that every
 finite family of core prefixes admits a strategy with $L(C)\le0$ for
-every prefix and cover in the family. For real $p\ge0$, define $F(p)$
+every prefix and cover in the family. Split the covers into two classes according to whether they
+select the root. We allow a different upper bound on surplus in each class.
+For real $p\ge0$, define $F(p)$
 as the infimum of the values $q$ for which a **single causal strategy on all core histories**
 can maintain both promises
 
@@ -81,11 +112,11 @@ A *local test* is a pair consisting of a finite rooted input and a terminal
 cover of that input. Only the sequence of core arrivals is public. The
 terminal cover is a hidden label. A finite distribution of tests is a tree
 of public prefixes, with termination and its hidden label as possible final
-outcomes. Several outcomes may have the same last public prefix. Both roots
-and their connecting edge are already present. A local arrival in the lemma
+outcomes. Several outcomes may have the same last public prefix. An interleaving merges two such input sequences while preserving the order
+within each one. Both roots and their connecting edge are already present. A local arrival in the lemma
 is a subsequent arrival in that component.
 
-**Interleaving lemma.** Take two finite rational distributions of tests on
+**Interleaving lemma.** Take two distributions, each with finite support and rational probabilities, on tests in
 disjoint rooted components $A,B$. Write
 $\alpha=\Pr(A\text{'s root outside})$ and
 $\delta=\Pr(B\text{'s root inside})$. If $\alpha\le\delta$, there
@@ -177,7 +208,9 @@ prefixes. Independence here means that each assignment uses only that
 side's history. If there were no such pair, compactness of the product
 of the two strategy spaces would give a finite list of test pairs whose
 inequalities no pair of local strategies satisfies. For each test pair the
-inequality is that $L_A+hL_B$ be at most $p$ or $q-\beta$, according
+local surpluses $L_A,L_B$ are computed with each component's root
+normalized to weight one. Thus the required inequality is that
+$L_A+hL_B$ be at most $p$ or $q-\beta$, according
 to $A$'s root status. Compatibility here means the two roots are not
 both outside. The product of local strategy polytopes on these finite
 prefix trees is compact and convex, and each performance inequality is
@@ -252,9 +285,10 @@ the actual isolated-state consequence is $F(0)\le\beta$.
 
 ### A fork that can be checked directly
 
-As a check on the three masks, take two adjacent unit pools and allow
+For a small example, take two adjacent pools of weight one and allow
 one further child of weight $h=1/2$ on each endpoint, in either order.
-The exact excess ratio with terminal completions is $3/5$. Label the
+Allow a private-leaf completion after any core prefix. The smallest feasible
+$\beta$ in this example is $3/5$, so its optimal ratio is $8/5$. Label the
 endpoints $U,V$ so that $V$'s initial coordinate is at least $1/2$.
 Attach the first child to $U$, and let $r$ be $U$'s coordinate
 then. The cover consisting of $U$ requires $1/2+h(1-r)\le\beta$.
@@ -314,20 +348,70 @@ $$
  \qquad(0\le p\le1).                                      \tag{3}
 $$
 
-The function $f_\eta$ is continuous, positive, and
-$(1-u)/f_\eta(u)=g_\eta(1-u)$ is decreasing. Wang and Wong (Section 4.1, Eq. (1)) minimize the
-supremum of the left side of (3) plus one over this class. Their
-equalization argument and solution of the differential equation
-reduce the optimum excess to minimizing $G(k)=a^{a/k}b^{b/k}$ with
-$a=(k+1)/2$, $b=(k-1)/2$. For $k>1$,
+The function $f_\eta$ is continuous and strictly positive on $[0,1]$.
+We show that every continuous function $f:[0,1]\to(0,\infty)$ satisfying
+$$
+  f(1-p)+\int_p^1\frac{1-u}{f(u)}\,du\ \le\ \gamma \qquad(0\le p\le1)
+$$
+must satisfy $\gamma\ge B^*-1$, following Wang and Wong's equalization argument (Section 4.1).
+
+First, equalize the inequality to an exact identity. Set $r_1(p)=f(1-p)$ and
+$$
+  R_1(p)=r_1(p)+\int_{1-p}^1\frac{1-x}{r_1(x)}\,dx\ \le\ \gamma .
+$$
+Define two sequences of functions recursively by
+$$
+  r_{i+1}\ =\ r_i+\gamma-R_i,\qquad
+  R_{i+1}(p)\ =\ r_{i+1}(p)+\int_{1-p}^1\frac{1-x}{r_{i+1}(x)}\,dx .
+$$
+Since $R_1\le\gamma$, we have $r_1\le r_2$. If $r_i\le r_{i+1}$ and $R_i\le\gamma$ hold for some $i$, then
+$$
+  R_{i+1}(p)
+  \ \le\ r_{i+1}(p)+\int_{1-p}^1\frac{1-x}{r_i(x)}\,dx
+  \ =\ r_{i+1}(p)+R_i(p)-r_i(p)
+  \ =\ \gamma .
+$$
+By induction the sequence $\{r_i\}$ is pointwise nondecreasing and bounded above by $\gamma$. Its pointwise limit $r_\infty=\lim_{i\to\infty} r_i$ is continuous and satisfies $R_\infty\equiv\gamma$. By the dominated convergence theorem,
+$$
+  r_\infty(p)+\int_{1-p}^1\frac{1-x}{r_\infty(x)}\,dx\ =\ \gamma \qquad(0\le p\le1).
+$$
+Setting $u=1-p$, this is $r_\infty(1-u)+\int_u^1\frac{1-x}{r_\infty(x)}\,dx=\gamma$. Since the integral is differentiable in $u$, $r_\infty$ is differentiable on $[0,1]$ and satisfies $-r_\infty'(1-u)-\frac{1-u}{r_\infty(u)}=0$, or equivalently
+$$
+  r_\infty(u)\,r_\infty'(1-u)\ =\ u-1 .
+$$
+
+Next, solve this differential equation. Replacing $u$ by $1-u$ yields $r_\infty(1-u)\,r_\infty'(u)=-u$.
+Differentiating the product $r_\infty(u)r_\infty(1-u)$ gives
+$$
+  \frac{d}{du}\bigl[r_\infty(u)\,r_\infty(1-u)\bigr]
+  \ =\ r_\infty'(u)\,r_\infty(1-u) - r_\infty(u)\,r_\infty'(1-u)
+  \ =\ -u - (u-1)
+  \ =\ 1-2u .
+$$
+Integrating from $0$ gives $r_\infty(u)\,r_\infty(1-u)=u-u^2+c$ for the constant $c=r_\infty(0)r_\infty(1)\ge0$.
+Write $k=\sqrt{1+4c}\ge1$, $a=(k+1)/2$, and $b=(k-1)/2$, so $a+b=k$, $a-b=1$, and $u-u^2+c=(a-u)(u+b)$.
+Dividing $r_\infty'(u)r_\infty(1-u)=-u$ by $r_\infty(u)r_\infty(1-u)=(a-u)(u+b)$ gives the separable equation
+$$
+  \frac{r_\infty'(u)}{r_\infty(u)}
+  \ =\ \frac{-u}{(a-u)(u+b)}
+  \ =\ -\frac{a}{k(a-u)} + \frac{b}{k(u+b)} .
+$$
+Integrating with the boundary condition $r_\infty(0)r_\infty(1)=ab$ yields the unique solution
+$$
+  r_\infty(u)\ =\ (a-u)^{a/k}(u+b)^{b/k} .
+$$
+Evaluating the identity $r_\infty(1-u)+\int_u^1\frac{1-x}{r_\infty(x)}\,dx=\gamma$ at $u=1$ gives
+$$
+  \gamma\ =\ r_\infty(0)\ =\ a^{a/k}b^{b/k}\ =:\ G(k) .
+$$
+
+Finally, minimize $G(k)$ over $k\ge1$. Since $\log G(k)=\frac{a}{k}\log a+\frac{b}{k}\log b$, differentiating with respect to $k$ with $a'=\frac12$ and $b'=\frac12$ gives
 $$
   \frac{d}{dk}\log G(k)
    = \frac{k-\frac12\log((k+1)/(k-1))}{k^2}.
 $$
-The numerator increases from $-\infty$ to $+\infty$ and vanishes at
-$k=\coth k$. This gives the minimum, including comparison with the
-endpoint limit $G(1)=1$. Thus (3) forces $B^*-1\le\beta+\eta$ for
-every $\eta>0$, contradicting $\beta<B^*-1$. [Wang and Wong](https://arxiv.org/abs/1305.1694)
+The numerator increases strictly from $-\infty$ (as $k\downarrow1$) to $+\infty$ (as $k\to\infty$) and vanishes uniquely at $k=\coth k$. The unique minimum of $G(k)$ on $[1,\infty)$ is therefore achieved at this root, giving $G(k)=B^*-1$ (and strictly beating $G(1)=1$).
+Consequently, (3) implies $B^*-1\le\gamma\le\beta+\eta$ for every $\eta>0$. Taking $\eta\downarrow0$ gives $B^*-1\le\beta$, contradicting $\beta<B^*-1$. [Wang and Wong](https://arxiv.org/abs/1305.1694)
 
 ## 5. Constructing a finite ordinary input
 
@@ -348,9 +432,15 @@ is unavailable.
    compactness would give the strategy ruled out by Sections 1–4. The
    weights used in the scaled child subgames are rational and thus all
    occur in this exhaustion.
-3. Multiply all weights in this stage by $\mathrm{lcm}(1,\ldots,n)$.
-   Replace each pool by that many independent twin vertices, presented
-   consecutively, with all edges to the already present parent pool.
+3. Let $d=\operatorname{lcm}(1,\ldots,n)$, the least common multiple
+   of the integers from $1$ to $n$. Every allowed denominator $b$ divides
+   $d$, so $d w_P$ is a positive integer for every pool $P$ in this stage.
+   For instance, stage $n=3$ uses $d=6$ and represents weights $1$ and
+   $2/3$ by six and four twins. Replace each pool $P$ by $d w_P$
+   consecutive vertex arrivals, each joined to all vertices of the
+   previously arrived parent pool. Present the root vertices first as
+   isolated vertices. Multiplying costs by the same $d$ preserves the
+   ratio.
    If the horizon is announced, fix it now at the maximum length of all
    completed inputs of this stage, and pad shorter ones at the end with
    isolated vertices. On each fixed expanded prefix take expectations
@@ -366,11 +456,11 @@ is unavailable.
    from Section 1. Both root-only tests have nonpositive surplus, so
    the prefix contains an edge and $w(C)>0$. At this prefix the vector
    equals the algorithm's actual mean. Fix the prefix and its completion
-   before sampling the algorithm's seed. In integer units the private
+   before sampling the algorithm's seed. As in Section 1, the private
    matching and monotonicity outside $C$ give
 $$
-  \mathbb E[\mathrm{ALG}]\ \ge\ w(C)+\sum_{v\notin C}w_v y_v
-    \ >\ (1+\beta)w(C)\ >\ (B^*-\epsilon)\mathrm{OPT}_f.
+  \mathbb E[\mathrm{ALG}]\ \ge\ d\left(w(C)+\sum_{v\notin C}w_v y_v\right)
+    \ >\ (1+\beta)d w(C)\ >\ (B^*-\epsilon)\mathrm{OPT}_f.
 $$
 
 All core and terminal edges are revealed with a new endpoint. The continuum
@@ -431,24 +521,59 @@ Rounding the right side down preserves validity. An alternative operation
 increases the slope of any old line at unchanged intercept using $p\ge0$.
 This uses the same family.
 
-Take $M=4000,\ S=4\cdot10^{12},\ \beta=1801/2000$. Slopes are
-$\ell/M$ and intercepts are integer multiples of $1/S$. Row zero
-uses only root-only records. Record $(k,\ell)$ uses parent $(k,\ell-1)$.
-A stored child index $i\ge0$ uses child $(k-1,i)$ and
-$h=M/(M^2-\ell i)$ in (4). A value of $-1$ just increases the slope.
-Column zero is always the trivial line. These instructions are acyclic.
-They specify actual relative pool weights, allowed interleavings, and the
-arrival graphs for the witness in compressed form. Subtree weights are
-multiplied by the child's weight at each use and can all be given a common
-integer denominator on expansion.
+### The discrete integer recurrence
 
-At record $(126,4105)$ the verified intercept numerator is
-$3{,}602{,}076{,}706{,}847$, strictly above
-$S\beta=3{,}602{,}000{,}000{,}000$. Thus $p=0,q=\beta$ is impossible
-on that single family. The verifier recomputes the integer inequalities
-from the recorded child choices using Python arbitrary-precision integers.
-The certificate checks the finite claim conditional on the interleaving
-lemma. Sections 1–5 prove the limit independently of this example.
+To implement (4) without floating-point error, choose a mesh
+$M=4000$, a common integer scale $S=4\cdot10^{12}$, and the excess ratio
+$\beta=1801/2000$ (corresponding to $1+\beta=1.9005$). The root budget in
+units of $S$ is the integer $B = S\beta = 3{,}602{,}000{,}000{,}000$.
+
+Discretize slopes as $b = \ell/M$ for integers $0\le\ell\le L$, where
+$L=\lfloor 5M/4\rfloor=5000$. Subtree intercepts are represented by integer
+numerators $A^{(k)}[\ell]$ such that the intercept is $A^{(k)}[\ell]/S$.
+Candidate child slopes are indexed by $i\in\{0,\ldots,L\}$ on a subgrid with
+step $\lfloor M/150\rfloor=26$.
+
+The recurrence proceeds in sweeps $k=0,1,2,\ldots$:
+1. **Base sweep ($k=0$):** Root-only records have intercept zero:
+   $A^{(0)}[\ell]=0$ for all $0\le\ell\le L$.
+2. **Sweep update ($k\ge1$):** Set $A^{(k)}[0]=0$. For each slope index
+   $\ell=1,2,\ldots,L$:
+   The parent slope index is $j=\ell-1$, with slope $b_j=(\ell-1)/M$ and
+   intercept numerator $A^{(k)}[\ell-1]$.
+   For each candidate child slope index $i$ from sweep $k-1$ such that
+   $M^2-\ell i>0$, setting $h=M/(M^2-\ell i)$ in (4) yields the
+   integer intercept gain
+   $$
+     \Delta(\ell,i)\ =\ \left\lfloor
+       \frac{S(M^2-\ell i) - M\ell\bigl(B - A^{(k-1)}[i]\bigr)}{M(M^2-\ell i)}
+     \right\rfloor .
+   $$
+   Let $\Delta^*(\ell)=\max_i \Delta(\ell,i)$. If $\Delta^*(\ell)>0$, we choose the
+   maximizing child index $i^*(\ell)=\arg\max_i \Delta(\ell,i)$ and advance the
+   intercept:
+   $$
+     A^{(k)}[\ell]\ =\ A^{(k)}[\ell-1] + \Delta^*(\ell).
+   $$
+   If $\Delta^*(\ell)\le0$, no child improves the bound; we set $i^*(\ell)=-1$
+   (pure slope increase at unchanged intercept) and $A^{(k)}[\ell]=A^{(k)}[\ell-1]$.
+
+These instructions are completely deterministic and acyclic. They specify
+relative pool weights $h$, allowed interleavings, and the finite trees in
+compressed form. Subtree weights are multiplied by $h$ at each fork and can all
+be cleared to a common integer denominator on expansion.
+
+At sweep $k=126$ and slope index $\ell=4105$ (slope $4105/4000=1.02625$), the
+accumulated intercept numerator reaches
+$$
+  A^{(126)}[4105]\ =\ 3{,}602{,}076{,}706{,}847\ >\ B\ =\ 3{,}602{,}000{,}000{,}000 .
+$$
+Since $q+b p\ge A^{(126)}[4105]/S > \beta$, the point $p=0,q=\beta$ is strictly
+infeasible on this finite family. The verifier in `scripts/fork_certificate.py` recomputes
+the integer inequalities from the recorded child choices using Python
+arbitrary-precision integers. The certificate checks the finite claim
+conditional on the interleaving lemma. Sections 1–5 prove the limit
+independently of this example.
 
 Run `python scripts/fork_certificate.py --check experiments/fork-1801-2000.npz`
 to replay it, or `python scripts/fork_certificate.py` to regenerate it.
