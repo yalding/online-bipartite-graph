@@ -2,3 +2,8 @@
 .research-deps/
 __pycache__/
 *.py[cod]
+
+# Auxiliary files from rebuilding the typeset proof.
+/output/pdf/*.aux
+/output/pdf/*.log
+/output/pdf/*.out

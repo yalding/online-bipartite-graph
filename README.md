@@ -11,6 +11,10 @@ its random seed. With Wang and Wong's upper bound, the optimal ratio is
 $B^*=1.9007616968738465\ldots$. This is a new research proof in this
 repository and has not received independent review.
 
+For offline review, download the [typeset proof (PDF)](output/pdf/optimality-proof.pdf).
+To rebuild it, run `pdflatex optimality-proof.tex` twice from `output/pdf/`
+using the [standalone LaTeX source](output/pdf/optimality-proof.tex).
+
 The core graph is a tree of pools. After each parent-child edge, both
 endpoints may have future children. A shared random walk interleaves
 their continuations, preserving what an algorithm can learn at each
