@@ -2,5 +2,17 @@
   "public_paths_and_labels": 18,
   "decision_prefix_laws_checked": 18,
   "incompatible_mass": "0",
-  "total_mass": "1"
+  "total_mass": "1",
+  "hidden_stops_parent_first": {
+    "public_paths_and_labels": 21,
+    "decision_prefix_laws_checked": 17,
+    "incompatible_mass": "0",
+    "total_mass": "1"
+  },
+  "hidden_stops_child_first": {
+    "public_paths_and_labels": 21,
+    "decision_prefix_laws_checked": 17,
+    "incompatible_mass": "0",
+    "total_mass": "1"
+  }
 }

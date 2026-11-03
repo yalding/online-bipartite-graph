@@ -1,5 +1,40 @@
 # Session log
 
+## 2026-11-02 proof review
+
+Reviewed the [optimality proof](OPTIMALITY_PROOF.md) from the conditional
+cost game through the finite unweighted construction. The earlier theorem
+statement allowed an edgeless witness with zero optimum. The construction
+gives a strict ratio on a graph containing an edge. The statement and final
+cost calculation now say so explicitly.
+
+The main review question was whether another component can reveal an
+unseen local coin at a simultaneous arrival. The revised argument fixes
+the other component's coins and conditions only on the sign word and own
+choices consumed through the current arrival. This determines the joint
+public past and leaves the local continuation law intact. Conditional
+expectations at consecutive prefixes then give a feasible local strategy.
+The proof now spells out the minimax margin, the order of quantifiers in
+the fork inequalities, and the use of a common horizon before evaluating
+any randomized algorithm. The resulting integral bound agrees with
+Section 4.1, equation (1), of [Wang and Wong](https://arxiv.org/abs/1305.1694).
+
+Expanded the [exact interleaving check](../scripts/interleaving_check.py)
+to include root-only stops, hidden intermediate decisions, and distinct
+terminal labels with the same root status. The original fixture checked
+18 decision-prefix laws. The new fixture checked 17 under each tie order.
+All distributions had unit mass and zero incompatible mass. See the
+[saved results](../experiments/interleaving-check.json).
+
+Replayed the integer verifier and independently reconstructed the saved
+fork lines with rational arithmetic. For each stored child, substituted
+its slope into the formula for $h$ in Section 6, evaluated inequality
+(4), and rounded its intercept down to the $1/S$ grid. The first crossing
+in row 126 was column 4105 with integer margin 76,706,847. An end-to-end
+check of the witness generator with an algorithm that buys each vertex on
+its first incident edge returned four vertices, optimum one, and a cost
+lower bound of three. These finite checks complement the analytic argument.
+
 ## 2026-11-01: seventh research session
 
 Derived the [universal lower bound](OPTIMALITY_PROOF.md) for vertex arrivals
