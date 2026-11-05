@@ -12,6 +12,12 @@ def main():
     points=list(map(mp.mpf,['0','0.1','0.5','0.9','1']))
     charge_residual=max(abs(1+allocation(1-z)+mp.quad(
         lambda t:(1-t)/allocation(t),[z,1])-B) for z in points)
+    # Section 4.2 substitutes p -> 1-p in the inequality, leaving r_1=f.
+    # Reflecting f as well does not preserve the initial feasible bound.
+    equalization_residual=max(abs(allocation(p)+mp.quad(
+        lambda x:(1-x)/allocation(x),[1-p,1])-(B-1)) for p in points)
+    reflected_excess=max(allocation(1-p)+mp.quad(
+        lambda x:(1-x)/allocation(1-x),[1-p,1])-(B-1) for p in points)
     derivative_residual=max(abs(mp.diff(allocation,z)+z/allocation(1-z)) for z in points)
     r=mp.sqrt(mp.e)
     beta=r/2
@@ -31,11 +37,14 @@ def main():
     ts=[mp.mpf('0.1'),1/r,mp.mpf('0.9'),mp.mpf(1),mp.mpf('1.5'),r,mp.mpf(2),mp.mpf(10)]
     fixed_residual=max(abs(profile(t)-max(0,1-beta*t+t*tail(1/t))) for t in ts)
     integral=tail(mp.mpf(0))
-    assert max(charge_residual,derivative_residual,fixed_residual)<mp.mpf('1e-60')
+    assert max(charge_residual,equalization_residual,derivative_residual,fixed_residual)<mp.mpf('1e-60')
+    assert reflected_excess>mp.mpf('0.1')
     assert abs(integral-(beta-1/(4*r)))<mp.mpf('1e-60')
     result={key:str(value) for key,value in dict(k=K,cover_upper=B,matching_optimum=1/B,
         cover_lower=1+beta,remaining_gap=B-1-beta,
         charging_identity_max_residual=charge_residual,
+        equalization_initial_max_residual=equalization_residual,
+        reflected_initial_max_excess=reflected_excess,
         allocation_derivative_max_residual=derivative_residual,
         critical_fixed_point_max_residual=fixed_residual,
         critical_profile_integral=integral,critical_budget_slack=1/(4*r)).items()}

@@ -231,3 +231,34 @@ Audited the Graded $k$-Phase Allocation Theorem and audited Tang's (2026) matchi
   * Deconstructs why Tang reaches $\Gamma^* = 1/B^*$ for matching via active partition branching and selective deactivation of least-matched vertices.
   * Identified the duality asymmetry: matching deactivation succeeds because disjoint complete bipartite components decompose additively without cross liability, whereas in vertex cover, historical cross edges prevent localized deactivation.
 - Saved `GRADED_PHASES_AND_PARTITIONS.md`, `scripts/graded_phase_recursion.py`, and `experiments/graded-phase-recursion.json`.
+
+## 2026-11-04: clarify and complete the optimality proof exposition
+
+Revised `OPTIMALITY_PROOF.md` and the standalone LaTeX/PDF together. Added
+the online model and ratio convention, a proof roadmap, a notation table,
+and the three compatible root-cover cases. Expanded the diagonal
+compactness argument, the ordered-walk sampling and conditional-law proof,
+the extraction of local strategies, and the finite input construction for
+randomized algorithms. Replaced the finite minimax invocation with a direct
+convex separation argument using squared positive excesses. The previously
+cited upper bound remains explicitly distinguished from the lower bound
+proved here.
+
+Corrected a mathematical error in the equalization step: after substituting
+`p -> 1-p` in the functional inequality, the initial function is `r_1=f`,
+not `r_1(p)=f(1-p)`. Added the positive lower bound needed for dominated
+convergence, derived continuity before differentiating the limit, and
+explained the integration constant and unique minimizer. The analytic
+checks now verify the correct initialization and detect the invalid
+reflection on the explicit optimal allocation function. The correct
+identity has residual below `2e-71`; the reflected initialization exceeds
+the proposed bound by more than `1.48` at a sampled point.
+
+Validation: `analytical_checks.py`, `interleaving_check.py`, and replay of
+`fork-1801-2000.npz` all passed. The exact certificate retains integer
+margin `76,706,847` at record `(126, 4105)`. Checked agreement of all 448
+inline formulas and 34 displays between Markdown and LaTeX, and reviewed
+the rendered 15-page PDF. These computations supplement the analytic
+argument; they are not an independent review of the theorem. Preserved
+the pre-existing PDF locally before rebuilding and left unrelated
+biclique experiment files untouched.
