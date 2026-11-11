@@ -1,5 +1,33 @@
 # Session log
 
+## 2026-11-11: proof validation and readability revision
+
+Completed a full mathematical validation and readability overhaul of the
+[optimality proof](OPTIMALITY_PROOF.md) and its typeset manuscript
+([LaTeX source](../output/pdf/optimality-proof.tex),
+[compiled PDF](../output/pdf/optimality-proof.pdf)):
+
+- **Mathematical audit:** Verified every step of the proof from the unweighted
+  vertex-arrival model to the constant $B^* = 1.9007616968738465\ldots$:
+  surplus obstruction via private leaves (Lemma 1.4), diagonal compactness over
+  finite families (Lemma 1.5), properties of the two-budget frontier $F(p)$
+  (Lemma 1.7), the coupled random-walk Interleaving Lemma and its
+  *Deterministic Position Invariant* (Lemma 2.2), component-local update
+  reduction (Lemma 3.1), finite convex separation and decoupling (Lemma 3.2),
+  the two-budget recurrence (2) (Lemma 3.3), the $h\downarrow 0$ variational
+  integral inequality (3) (Lemma 4.1), Wang–Wong monotone equalization and
+  explicit ODE integration (Lemma 4.2), finite unweighted witness construction
+  with edgeless root normalization override (Section 5), and the exact integer
+  fork certificate (4) at $1.9005$ (Appendix A).
+- **Expository improvements:** Added an abstract, a high-level five-step
+  overview, a two-panel TikZ figure illustrating the two-stage pool-tree/private-leaf
+  construction and subtree budget coupling across $(r_A, r_B)$, a notation
+  reference table, formal `Definition`/`Lemma`/`Example`/`Proof` environments,
+  and explicit compatibility tables in Section 3.
+- **Verification checks:** Re-ran `scripts/analytical_checks.py`,
+  `scripts/fork_certificate.py --check experiments/fork-1801-2000.npz`, and
+  `scripts/interleaving_check.py`.
+
 ## 2026-11-02 proof review
 
 Reviewed the [optimality proof](OPTIMALITY_PROOF.md) from the conditional

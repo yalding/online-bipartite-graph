@@ -3,9 +3,13 @@
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage{amsmath,amssymb}
-\usepackage[hidelinks]{hyperref}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage[colorlinks=true,linkcolor=blue!55!black,citecolor=blue!55!black,urlcolor=blue!55!black]{hyperref}
 \hypersetup{pdftitle={Optimal fractional vertex cover under vertex arrivals},
   pdfsubject={Research proof for offline review}, bookmarksnumbered}
+
 \setlength{\textwidth}{6.15in}
 \setlength{\oddsidemargin}{0.175in}
 \setlength{\textheight}{8.6in}
@@ -19,916 +23,801 @@
 \pagestyle{myheadings}
 \markright{\small Optimal fractional vertex cover under vertex arrivals}
 
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}[section]
+\newtheorem{proposition}[lemma]{Proposition}
+\newtheorem{corollary}[lemma]{Corollary}
+
+\newenvironment{definition}[1][]{\refstepcounter{lemma}\par\medskip\noindent\textbf{Definition~\thelemma\ifx&#1&\else\ (#1)\fi.}\ \ignorespaces}{\par\medskip}
+\newenvironment{example}[1][]{\refstepcounter{lemma}\par\medskip\noindent\textbf{Example~\thelemma\ifx&#1&\else\ (#1)\fi.}\ \ignorespaces}{\par\medskip}
+\newenvironment{remark}[1][]{\refstepcounter{lemma}\par\medskip\noindent\textbf{Remark~\thelemma\ifx&#1&\else\ (#1)\fi.}\ \ignorespaces}{\par\medskip}
+\newenvironment{proof}[1][Proof]{\par\smallskip\noindent\textit{#1.}\ \ignorespaces}{\hfill$\square$\par\medskip}
+
 \begin{document}
 \thispagestyle{plain}
 \begin{center}
 {\small\scshape Research proof for review}\par\medskip
 {\LARGE\bfseries Optimal fractional vertex cover\\[2pt] under vertex arrivals\par}
 \medskip
-{\small Revised November 4, 2026}
+{\small Revised November 11, 2026}
 \end{center}
 
-The lower-bound
-argument is given in full below; the matching upper bound is the theorem
-of Wang and Wong cited after the statement. The proof has not received
-independent review.
+\begin{abstract}
+\noindent
+We prove that no randomized online fractional (or integral) vertex-cover algorithm can achieve a competitive ratio strictly below Wang and Wong's constant $B^* \approx 1.9007617$ ($B^* = 1.9007616968738465\ldots$) under vertex arrivals, even on unweighted bipartite graphs against an oblivious adversary. Together with the general-graph upper bound of Wang and Wong~\cite{ww}, this settles the optimal competitive ratio of online vertex cover under vertex arrivals on both bipartite and general graphs. Our lower bound constructs a rooted tree of vertex pools completed by private leaves, and uses a coupled random-walk interleaving lemma to show that observing both endpoints of a tree edge gives no informational advantage over independent subtree strategies. This decoupling forces the Pareto frontier between inside-root and outside-root cover budgets to obey a variational inequality whose minimum recovers $B^*$.
+\end{abstract}
 
-In the \textbf{vertex-arrival model}, a new vertex reveals all its edges to
-earlier vertices. An online fractional vertex-cover algorithm assigns a
-number $y_v\in[0,1]$ to every vertex seen so far. It may increase these
-numbers after an arrival, but never decrease them. After every arrival,
-each revealed edge $uv$ must satisfy $y_u+y_v\ge1$. All vertices have
-unit cost, so $\mathrm{ALG}=\sum_v y_v$ at the end of the input.
-The offline optimum $\mathrm{OPT}_f$ is the minimum of the same sum over
-all fractional covers of the completed graph, with full knowledge of
-that graph. We use the competitive-ratio convention
-$\mathbb E[\mathrm{ALG}]\le R\,\mathrm{OPT}_f$ on every finite input,
-without an additive constant. The expectation is over the algorithm's
-random bits.
+\subsection*{Problem model and main result}
 
-\textbf{Theorem.} For every $\epsilon>0$ and every randomized online fractional
-vertex-cover algorithm there is a finite, unweighted bipartite vertex-arrival
-input, independent of the algorithm's realized random bits, with $\mathrm{OPT}_f>0$ and
-$\mathbb E[\mathrm{ALG}]> (B^*-\epsilon)\mathrm{OPT}_f$.
-The input may depend on the algorithm's rule, but is fixed before its
-random seed is drawn. Together with Wang and Wong's upper bound, this
-gives the optimal competitive ratio on bipartite graphs and on general
-graphs: the lower-bound inputs are bipartite, and the upper bound holds
-for general graphs. \cite{ww}
+In the \textbf{vertex-arrival model}, the vertices of an unknown finite graph arrive one at a time, and each arriving vertex reveals all of its edges to previously arrived vertices. An online fractional vertex-cover algorithm maintains a fractional assignment $y_v\in[0,1]$ for every vertex $v$ seen so far. These values may increase upon later arrivals, but can never decrease (\emph{irrevocability}), and after every arrival each revealed edge $uv$ must satisfy the covering constraint $y_u+y_v\ge1$. All vertices have unit cost, so the algorithm's final cost is $\mathrm{ALG}=\sum_v y_v$ at the end of the input. The offline fractional optimum $\mathrm{OPT}_f$ is the minimum of $\sum_v y_v^*$ over all fractional vertex covers $y^*$ of the completed graph. (On bipartite graphs, $\mathrm{OPT}_f$ equals the integral minimum vertex cover size $\mathrm{OPT}$, and any randomized integral algorithm is a special case of a randomized fractional algorithm.) We use the strict competitive-ratio convention $\mathbb E[\mathrm{ALG}]\le R\,\mathrm{OPT}_f$ on every finite input, where the expectation is over the algorithm's random bits.
 
-Here $B^*=1.9007616968738465\ldots$. Explicitly, let $k>1$ solve
-$k=\coth k=(e^{2k}+1)/(e^{2k}-1)$, put
-$a=(k+1)/2,\ b=(k-1)/2$, and write $B^*=1+a^{a/k}b^{b/k}$.
+\begin{theorem}[Optimal lower bound under vertex arrivals]\label{thm:main}
+For every $\epsilon>0$ and every randomized online fractional vertex-cover algorithm, there exists a finite, unweighted bipartite vertex-arrival input, fixed independently of the algorithm's realized random bits, with $\mathrm{OPT}_f>0$ and
+\[
+  \mathbb E[\mathrm{ALG}]\ >\ (B^*-\epsilon)\,\mathrm{OPT}_f .
+\]
+Together with the upper bound of Wang and Wong~\cite{ww}, the optimal competitive ratio of online vertex cover under vertex arrivals is $B^*$ on both bipartite graphs and general graphs.
+\end{theorem}
+
+Here $B^*=1.9007616968738465\ldots$ is defined explicitly as follows: let $k>1$ be the unique solution to
+\[
+  k\ =\ \coth k\ =\ \frac{e^{2k}+1}{e^{2k}-1},
+\]
+set $a=(k+1)/2$ and $b=(k-1)/2$, and write
+\[
+  B^*\ =\ 1 + a^{a/k}b^{b/k} .
+\]
+The lower-bound argument is given in full below; the matching upper bound is the theorem of Wang and Wong~\cite{ww}. This manuscript is a research proof for review and has not yet received independent peer review.
 
 \subsection*{How the proof fits together}
 
-We build the input in two stages. The first stage, called the \emph{core},
-starts with a rooted tree and replaces each node by a \emph{pool}: a group
-of vertices with no edges between them and identical neighbors in the
-core. For every parent and child in the tree, we put an edge between
-every vertex of the parent's pool and every vertex of the child's pool.
-These are all the core edges. For example, a parent with three vertices
-and a child with two give the six edges of $K_{3,2}$. The second stage
-adds individual leaves to selected vertices of the core.
+Previous vertex-arrival lower bounds~\cite{ww,lu} used a single chain of alternating complete-bipartite blocks, which caps out at $1+\sqrt{e}/2\approx 1.8244$ because only one side of the current biclique ever continues~\cite{lu}. To reach $B^*$, we allow \emph{both} endpoints of an edge to spawn further descendants in a rooted tree of pools, and we interleave their continuations so that the online algorithm cannot deduce which side will ultimately belong to the offline cover.
 
-The argument has five steps.
+\begin{figure}[!ht]
+\centering
+\begin{tikzpicture}[scale=0.92, every node/.style={font=\footnotesize},
+  pool/.style={draw, thick, rounded corners=3pt, minimum height=0.62cm, inner xsep=6pt, inner ysep=3pt, align=center},
+  subbox/.style={draw, thick, fill=gray!8, rounded corners=4pt, minimum width=2.45cm, minimum height=1.55cm, inner sep=4pt, align=center}]
+  % Panel (a): Core tree of pools + private leaves
+  \begin{scope}[xshift=-4.1cm]
+    \node[font=\bfseries\footnotesize] at (0, 2.35) {(a) Core tree of pools and private leaves};
+    % Pools
+    \node[pool, fill=gray!12] (rA) at (0, 1.45) {Root pool $r_A$ ($w=1$)};
+    \node[pool, fill=blue!10] (P2) at (-1.55, 0.08) {Pool $P_2 \in C$};
+    \node[pool, fill=gray!12] (P3) at (1.55, 0.08) {Pool $P_3 \notin C$};
+    \node[pool, fill=blue!10] (P4) at (1.55, -1.32) {Pool $P_4 \in C$};
+    % Tree edges (bicliques)
+    \draw[thick] (rA.south west) ++(0.35,0) -- (P2.north) node[midway, left=3pt] {biclique};
+    \draw[thick] (rA.south east) ++(-0.35,0) -- (P3.north) node[midway, right=3pt] {biclique};
+    \draw[thick] (P3.south) -- (P4.north) node[midway, right=2pt] {biclique};
+    % Private leaves attached to C
+    \draw[thick, dashed, blue!65!black] (-2.05, -0.23) -- (-2.05, -0.92);
+    \draw[thick, dashed, blue!65!black] (-1.55, -0.23) -- (-1.55, -0.92);
+    \draw[thick, dashed, blue!65!black] (-1.05, -0.23) -- (-1.05, -0.92);
+    \filldraw[blue!65!black] (-2.05, -0.92) circle (1.7pt);
+    \filldraw[blue!65!black] (-1.55, -0.92) circle (1.7pt);
+    \filldraw[blue!65!black] (-1.05, -0.92) circle (1.7pt);
+    \node[blue!65!black] at (-1.55, -1.28) {private leaves on $C$};
+    \draw[thick, dashed, blue!65!black] (1.05, -1.63) -- (1.05, -2.28);
+    \draw[thick, dashed, blue!65!black] (1.55, -1.63) -- (1.55, -2.28);
+    \draw[thick, dashed, blue!65!black] (2.05, -1.63) -- (2.05, -2.28);
+    \filldraw[blue!65!black] (1.05, -2.28) circle (1.7pt);
+    \filldraw[blue!65!black] (1.55, -2.28) circle (1.7pt);
+    \filldraw[blue!65!black] (2.05, -2.28) circle (1.7pt);
+  \end{scope}
+
+  % Panel (b): Subtree decomposition at first child
+  \begin{scope}[xshift=4.1cm]
+    \node[font=\bfseries\footnotesize] at (0, 2.35) {(b) Coupling subtrees across edge $(r_A, r_B)$};
+    % Root nodes
+    \node[pool, fill=gray!12, minimum width=2.45cm] (rootA) at (-1.85, 1.45) {$r_A$ ($w=1$, val $r$)};
+    \node[pool, fill=gray!12, minimum width=2.45cm] (rootB) at (1.85, 1.45) {$r_B$ ($w=h$, val $z$)};
+    % Connecting edge
+    \draw[very thick, red!70!black] (rootA.east) -- (rootB.west) node[midway, above=9pt, font=\scriptsize] {$r+z\ge 1$};
+    % Subtree boxes
+    \node[subbox] (subA) at (-1.85, -0.3) {\textbf{Subtree $A$}\\outside: $s$\\inside: $F(s)-\beta$};
+    \node[subbox] (subB) at (1.85, -0.3) {\textbf{Subtree $B$ ($h$)}\\outside: $t$\\inside: $F(t)-\beta$};
+    \draw[thick] (rootA.south) -- (subA.north);
+    \draw[thick] (rootB.south) -- (subB.north);
+    % Cross-coupling summary
+    \node[align=center] at (0, -1.85) {Compatible mixed covers:\\$s + h(F(t)-\beta) \le p$, \quad $F(s) + ht \le F(p)$};
+  \end{scope}
+\end{tikzpicture}
+\caption{Structure of the adversarial construction. (a)~The core replaces each node of a rooted tree by a pool of twin vertices and places a complete bipartite graph across every tree edge; terminal private leaves are then attached to every vertex of a chosen pool cover~$C$. (b)~Attaching a first child $r_B$ of relative weight $h$ splits subsequent continuations into two subtrees $A$ and $B$ whose outside-root and inside-root budgets cross-couple across the edge $(r_A,r_B)$.}
+\label{fig:overview}
+\end{figure}
+
+We build every adversarial input in two stages (Figure~\ref{fig:overview}a). The first stage, called the \emph{core}, starts with a rooted tree and replaces each node by a \emph{pool}: an independent set of twin vertices that share identical neighbors in the core. Across every parent-child edge in the tree, we place a complete bipartite graph between the parent's pool and the child's pool; for example, a parent pool of three vertices and a child pool of two vertices induce the six edges of $K_{3,2}$. In the second stage, after the core finishes arriving, the adversary selects a vertex cover $C$ of the core consisting of whole pools and attaches one degree-$1$ \emph{private leaf} to each vertex in $C$.
+
+The proof proceeds in five steps, corresponding to Sections~\ref{sec:game}--\ref{sec:finite}:
 
 \begin{enumerate}
-\item \textbf{Turn a cover into a test of past spending.} Private leaves force
-   the online algorithm to pay for every vertex of a chosen offline
-   cover, in addition to what it already spent outside that cover.
-   This makes the surplus $L(C)$ in Section 1 the quantity to control.
-\item \textbf{Describe all possible strategies by two budgets.} The function
-   $F(p)$ records the smallest inside-root budget compatible with an
-   outside-root budget $p$. It allows strategies to use their entire
-   history; it does not assume they use a scalar state.
-\item \textbf{Separate the two sides of a new edge.} Both endpoints can receive
-   later children. Sections 2--3 show how to interleave their continuations
-   so that observing the other side cannot improve a local decision.
-   This gives the three inequalities \eqref{eq:budgets} for $F$.
-\item \textbf{Extract the constant.} Section 4 turns \eqref{eq:budgets} into an integral
-   inequality and solves it, proving that no proposed ratio below $B^*$
-   can satisfy every test.
-\item \textbf{Return to ordinary finite inputs.} Section 5 clears the rational
-   pool sizes, takes the algorithm's expected responses, and chooses a
-   violating input before its random seed is drawn.
+\item \textbf{Turn every cover into a test of past spending (Section~\ref{sec:game}).}
+  Attaching private leaves to a pool cover $C$ of weight $w(C)$ forces both the online algorithm and the offline optimum to pay $w(C)$ on the disjoint private edges, while any fractional weight the online algorithm already bought \emph{outside} $C$ remains as irrevocable sunk cost. To achieve ratio $1+\beta$, the algorithm's \emph{surplus} $L(C) = \sum_{v\notin C} w_v y_v - \beta w(C)$ must be nonpositive for every pool cover $C$ (Lemma~\ref{lem:surplus}). By diagonal compactness over finite families of pool trees, a $(1+\beta)$-competitive algorithm induces a single causal strategy on all rational core histories satisfying $L(C)\le 0$ everywhere (Lemma~\ref{lem:compactness}).
 
+\item \textbf{Track the two-budget frontier $F(p)$ (Section~\ref{sec:game}).}
+  When a new child pool is attached to the root, any valid cover must contain at least one endpoint of the connecting edge: a cover that \emph{excludes} the parent root must \emph{include} the child root, and vice versa (Figure~\ref{fig:overview}b). We therefore parameterize a strategy by two root budgets: an upper bound $p$ on $L(C)$ when $C$ excludes the root, and an upper bound $q-\beta$ on $L(C)$ when $C$ includes the root. The function $F(p)$ records the smallest achievable $q$ for a given outside-root budget $p$. It is bounded, nonincreasing, convex, and continuous on $[0,\infty)$ (Lemma~\ref{lem:frontier}), and requires no assumption that the algorithm uses a scalar state.
+
+\item \textbf{Interleave and decouple the two subtrees of an edge (Sections~\ref{sec:interleaving}--\ref{sec:budgets}).}
+  After the root $r_A$ acquires a first child $r_B$ of weight $h$, both $r_A$ and $r_B$ can grow their own subtrees $A$ and $B$. An online algorithm observes the merged sequence of arrivals in $A$ and $B$ and might try to use arrivals in $B$ to infer which cover will be tested on $A$. Lemma~\ref{lem:interleaving} (\emph{Interleaving Lemma}) shows how to couple any two local test distributions with $\Pr(r_A\notin C_A)\le\Pr(r_B\in C_B)$ using two ordered random-walk particles driven by the same fair coin flips, so that the terminal covers always cover the edge $(r_A,r_B)$ while the merged public past at each local arrival leaks \emph{zero} additional information about that subtree's test. Combining this coupling with a component-local update reduction (Lemma~\ref{lem:lazy}) and finite convex separation (Lemma~\ref{lem:decoupling}) yields the fundamental two-budget recurrence \eqref{eq:budgets} for $F(p)$ (Lemma~\ref{lem:recurrence}).
+
+\item \textbf{Extract the exact constant $B^*$ (Section~\ref{sec:constant}).}
+  Sending the child weight $h\downarrow 0$ in \eqref{eq:budgets} converts the discrete two-budget trade-off into the variational integral inequality \eqref{eq:integral} (Lemma~\ref{lem:variational}). Monotone equalization and explicit integration of the resulting differential equation show that no proposed ratio $1+\beta < B^*$ can satisfy \eqref{eq:integral} (Lemma~\ref{lem:ww-threshold}).
+
+\item \textbf{Construct a finite unweighted input (Section~\ref{sec:finite}).}
+  For any $\epsilon>0$ and any randomized online algorithm, finite linear programming infeasibility at some stage $n$, expansion by the common denominator $d=\operatorname{lcm}(1,\ldots,n)$, and marginalization of the algorithm's expected responses produce a single finite unweighted bipartite input violating ratio $B^*-\epsilon$ before the algorithm's random seed is drawn.
 \end{enumerate}
-Appendix~\ref{sec:certificate} is an optional exact certificate at ratio $1.9005$. It is not
-needed for the proof of the limiting constant. The main notation is:
+
+Appendix~\ref{sec:certificate} provides an optional computer-assisted certificate at the concrete ratio $1.9005$ using exact integer arithmetic; the analytic proof of Theorem~\ref{thm:main} in Sections~\ref{sec:game}--\ref{sec:finite} is completely self-contained and independent of Appendix~\ref{sec:certificate}. The main notation is summarized below:
 
 \begin{center}
-\small\renewcommand{\arraystretch}{1.25}
-\begin{tabular}{@{}p{0.15\linewidth}p{0.79\linewidth}@{}}
+\small\renewcommand{\arraystretch}{1.23}
+\begin{tabular}{@{}p{0.17\linewidth}p{0.77\linewidth}@{}}
 \hline
 \textbf{Symbol} & \textbf{Meaning} \\
 \hline
-$\beta$ & Proposed ratio minus one: $0<\beta<B^*-1$ \\
-$w_P$, $y_P$ & Relative size and mean fractional purchase of pool $P$ \\
-$C$, $w(C)$ & A cover consisting of whole pools, and its total weight \\
-$L(C)$ & Spending outside $C$, minus $\beta w(C)$ \\
-$p$, $q$ & Bounds $L(C)\le p$ outside the root and $L(C)\le q-\beta$ inside it \\
-$F(p)$ & Smallest achievable $q$ at outside budget $p$ \\
-$h$, $s$, $t$ & Child weight, parent outside budget, child outside budget \\
+$\beta$ & Proposed excess competitive ratio: $0<\beta<B^*-1$ (testing ratio $1+\beta$) \\
+$w_P,\ y_P$ & Relative weight of pool $P$ ($w_{\text{root}}=1$) and mean fractional value on $P$ \\
+$d$ & Common integer denominator clearing all pool weights $w_P$ in a finite family \\
+$C,\ w(C)$ & An integral pool cover of the core tree, and its total weight $\sum_{v\in C} w_v$ \\
+$L(C)$ & Cover surplus $\sum_{v\notin C} w_v y_v - \beta \sum_{v\in C} w_v$ (spending outside $C$ minus $\beta w(C)$) \\
+$p,\ q$ & Root budgets: $L(C)\le p$ when $\text{root}\notin C$, and $L(C)\le q-\beta$ when $\text{root}\in C$ \\
+$F(p)$ & Budget frontier: smallest achievable $q$ for a given outside-root budget $p\ge 0$ \\
+$h,\ r,\ z$ & First child's relative weight $h>0$, parent root value $r$, and child root value $z$ \\
+$s,\ t$ & Outside-root surplus budgets on parent subtree $A$ and child subtree $B$ \\
+$\tau=(u,C)$ & A local test consisting of local core arrivals $u$ and a hidden terminal cover $C$ \\
+$m_A(x),\ m_B(y)$ & Conditional probability marks $\Pr(r_A\notin C_A\mid x)$ and $\Pr(r_B\in C_B\mid y)$ \\
 \hline
 \end{tabular}
 \end{center}
 
-\section{A countable game and its conditional costs}\label{sec:game}
+\section{The pool game, cover surplus, and the two-budget frontier}\label{sec:game}
 
 \subsection{Pools and causal strategies}
 
-We first describe the core by its tree of pools. A positive rational
-weight $w_P$ specifies the size of pool $P$ relative to the root, whose
-weight is one. In any finite core, choose an integer $d$ that clears
-all weight denominators. Pool $P$ then stands for $d w_P$ ordinary
-vertices, called twins because they have the same core neighbors. For
-example, weights $1$ and $2/3$ on a parent and child give the $K_{3,2}$
-above when $d=3$. The two pools lie on opposite sides of the bipartition.
+We represent the first stage of the adversarial input---the \emph{core}---by a rooted tree of pools that arrives one pool at a time.
 
-At each move the adversary announces the new pool's weight and its
-parent among earlier pools. The parent may acquire further children at
-later moves. A public prefix is the ordered list of weights and parent
-choices seen so far. A \textbf{causal strategy} assigns a vector of coordinates
-to each such prefix, using only the information in that prefix. In
-particular, two inputs with the same prefix receive the same vector
-there. The adversary may stop after any move, including the root.
-Since all weights are rational and every prefix is finite, the set of
-public prefixes is countable.
-
-A pool coordinate $y_P\in[0,1]$ represents the mean of the fractions
-bought on its twins. Their individual fractions may differ. At the end
-of a pool's arrivals, summing those fractions gives $d w_P y_P$, and
-averaging the edge inequalities between adjacent pools $P,Q$ gives
-$y_P+y_Q\ge1$. Thus in units of $d$ the total cost is
-$\sum_P w_P y_P$. In the pool game a response maintains these edge
-inequalities and may only increase old coordinates. Section 5 obtains such responses from algorithms that see ordinary vertices one at a time.
-
-\subsection{Why surplus measures the obstruction}
-
-Fix a rational $0<\beta<B^*-1$. We test the proposed competitive ratio
-$1+\beta$. An integral pool cover $C$ is a set of pools containing at
-least one endpoint of each tree edge in the prefix. In the expanded
-graph it selects every twin in every pool in $C$. Write
-$w(C)=\sum_{v\in C}w_v$, where $v$ indexes pools. Define the surplus
-
-\[
-L(C)=\sum_{v\notin C}w_v y_v-\beta\sum_{v\in C}w_v .
-\]
-
-If $L(C)>0$, the algorithm has spent more than $\beta w(C)$ outside
-the proposed cover. To turn this into a violation of $1+\beta$, complete
-the core by presenting one new vertex for each selected twin. This
-vertex is a private leaf: its only edge joins it to that twin. The
-$d w(C)$ private edges have disjoint endpoints. Even a fractional
-offline cover must pay at least one on each of these edges, and the
-selected twins cover the entire completed graph for exactly $d w(C)$.
-The online algorithm must pay for the same private edges while retaining
-its earlier purchases outside $C$. Hence in ordinary vertex units
-\[
-\mathrm{OPT}_f=d w(C),\qquad \mathrm{ALG}\ge d w(C)+d\sum_{v\notin C} w_v y_v.
-\]
-Subtracting $(1+\beta)\mathrm{OPT}_f$ shows that the excess cost is at
-least $dL(C)$. Thus a strictly positive surplus supplies the desired
-violation. The cover $C$ is a choice for the eventual completion; it is
-not announced while the core arrives. Lu uses a complete-bipartite
-extension with the same matching accounting, and the edge-arrival
-construction of Tang and Zhang uses private edges.
-\cite{lu}
-\cite{tz}
-
-\subsection{Passing from finite families to a single strategy}
-
-For now require the isolated root to start at zero. Section 5 explains
-why this normalization does not restrict the algorithms covered by the
-theorem. Assume for contradiction that every finite, prefix-closed
-family of core histories has a causal strategy satisfying $L(C)\le0$
-for every cover of every prefix in the family.
-
-This assumption gives a single strategy satisfying all the tests at
-once. To see this, enumerate the countably many histories and take
-increasing finite, prefix-closed families containing them. Choose a
-feasible strategy on each family and extend its assignment arbitrarily
-to the remaining histories. Each coordinate belongs to $[0,1]$.
-Successively extract subsequences on which the first coordinate, the
-second coordinate, and so on converge, and then take a diagonal
-subsequence. Every particular feasibility, monotonicity, or surplus
-inequality uses only finitely many coordinates. It holds eventually
-along this subsequence and is preserved in the limit. The limiting
-assignment is the required causal strategy.
-
-\subsection{The two root budgets}
-
-We now allow different bounds according to whether the test cover
-contains the root. For $p\ge0$, let $F(p)$ be the infimum of the values
-$q$ for which a \textbf{single causal strategy on all core histories}, with
-the isolated root at zero, satisfies
-
-\begin{equation}\label{eq:promises}
-L(C)\le p\quad(\text{root outside }C),\qquad
-L(C)\le q-\beta\quad(\text{root inside }C).
-\end{equation}
-
-The offset $-\beta$ accounts for the root's weight when it belongs to
-$C$. On the root-only input, the two covers are the empty set and the
-root itself. Their surpluses are $0$ and $-\beta$, respectively.
-Consequently $q\ge0$ for every feasible pair. The strategy from
-Section 1.3 gives the feasible pair $(0,\beta)$, so $F(0)\le\beta$.
-
-We will use the following properties:
-
+\begin{definition}[Core histories and unweighted expansion]\label{def:core}
+A \emph{core history} (or \emph{public prefix}) of length $k\ge 1$ is a rooted tree on pools $P_1,\ldots,P_k$ arriving in order:
 \begin{itemize}
-\item \textbf{Bounds and monotonicity:} $0\le F(p)\le\beta$ for all $p\ge0$,
-  and $F$ is nonincreasing, because increasing $p$ relaxes a promise.
-\item \textbf{Attainment and closedness:} a convergent sequence of feasible budget
-  pairs has a feasible limit, by the same diagonal argument applied to
-  their strategies. In particular, the infimum defining $F(p)$ is
-  attained.
-\item \textbf{Convexity:} coordinatewise convex combinations of two strategies
-  preserve edge feasibility and monotonicity. Since surplus is affine
-  in the coordinates, the same combination of their budget pairs is
-  feasible. Thus $F$ is convex.
-\item \textbf{Continuity:} a finite convex function is continuous in the interior
-  of its domain. At zero, monotonicity gives a right limit at most
-  $F(0)$, and closedness of the feasible pairs gives the reverse
-  inequality. Hence $F$ is continuous on $[0,\infty)$.
-
+\item Pool $P_1$ is the root pool and has relative weight $w_{P_1}=1$.
+\item Each subsequent move $j\in\{2,\ldots,k\}$ introduces a new pool $P_j$ by announcing its positive rational weight $w_{P_j}\in\mathbb Q_{>0}$ and its parent pool $\mathrm{par}(P_j)\in\{P_1,\ldots,P_{j-1}\}$.
 \end{itemize}
-The variable $p$ describes a guarantee over all continuations, not the
-algorithm's current coordinate or internal state. Strategies in the
-definition of $F$ may still use their full histories.
+An earlier pool may receive any number of children at later moves, and the adversary may stop the core after any move (including the root-only prefix $H_0$ of length $1$). Because every prefix is finite and all weights are rational, the set of all possible core histories is countable.
 
-\section{Interleaving two finite tests}\label{sec:interleaving}
+Given any finite family $\mathcal H$ of core histories, let $d\in\mathbb Z_{\ge 1}$ be a common multiple of all weight denominators appearing in $\mathcal H$. The \emph{unweighted expansion} at scale $d$ replaces each pool $P$ on arrival by $d w_P$ consecutive ordinary vertices (called \emph{twins}), each joined to all $d w_{\mathrm{par}(P)}$ twins of its parent pool and having no edges to one another.
+\end{definition}
 
-The difficulty is that a strategy can observe both sides of an edge.
-If we simply reveal one whole continuation before the other, the first
-may reveal information about which cover will be used on the second.
-The lemma below couples the hidden covers while withholding that extra
-information at every decision that matters.
+For example, a root pool of weight $1$ and a child pool of weight $2/3$ expand at scale $d=3$ to $3$ root vertices followed by $2$ child vertices forming $K_{3,2}$. Coloring each pool by the parity of its depth in the tree places every parent and child on opposite sides of the bipartition.
 
-\subsection{What is public and what must be preserved}
-
-A \emph{local test} is a pair consisting of a finite rooted input and a terminal
-cover of that input. Only the sequence of core arrivals is public. The
-terminal cover is a hidden label. A finite distribution of tests is a tree
-of public prefixes, with termination and its hidden label as possible final
-outcomes. Several outcomes may have the same last public prefix. An interleaving merges two such input sequences while preserving the order
-within each one. Both roots and their connecting edge are already
-present. A local arrival in the lemma is a subsequent arrival in that
-component. Stopping a component does not announce that it has stopped;
-the other component may continue to receive arrivals.
-
-\textbf{Interleaving lemma.} Take two distributions, each with finite support and rational probabilities, on tests in
-disjoint rooted components $A,B$. Write
-$\alpha=\Pr(A\text{'s root outside})$ and
-$\delta=\Pr(B\text{'s root inside})$. If $\alpha\le\delta$, there
-is a distribution of interleaved tests with these properties.
-
+\begin{definition}[Causal pool strategy]\label{def:strategy}
+Let $\mathcal H$ be a prefix-closed family of core histories (meaning that if $H\in\mathcal H$, every prefix of $H$ also belongs to $\mathcal H$). A \emph{causal strategy} $y$ on $\mathcal H$ assigns to each prefix $H\in\mathcal H$ of $k$ pools a deterministic coordinate vector $y(H)=(y_{P_1}(H),\ldots,y_{P_k}(H))\in[0,1]^k$ depending only on $H$, such that:
 \begin{enumerate}
-\item Both local marginals are preserved, including their entire input and
-   hidden cover. The two selected covers jointly cover the connecting
-   root edge on every outcome of positive probability.
-\item At \textbf{each local arrival} in either component, conditional on its local
-   public prefix, the joint public past available for that decision gives
-   no further information about the rest of that component's test. This
-   includes its hidden cover.
-
+\item \textbf{Normalized isolated root:} At the single-pool root prefix $H_0$, $y_{P_1}(H_0)=0$.
+\item \textbf{Monotonicity:} Whenever a prefix $H'\in\mathcal H$ extends $H\in\mathcal H$, every pool $P$ already present in $H$ satisfies $y_P(H)\le y_P(H')$.
+\item \textbf{Edge feasibility:} For every parent-child edge $PQ$ present in $H$, $y_P(H)+y_Q(H)\ge 1$.
 \end{enumerate}
-The probability condition is necessary for compatible covers: whenever
-$A$'s root is outside its cover, $B$'s root must be inside its cover.
-It is not enough just to couple these two final bits. We must also
-preserve the conditional laws of the input sequences seen along the way.
+\end{definition}
 
-\subsection{Sampling both tests with an ordered walk}
+In the unweighted expansion at scale $d$, a pool coordinate $y_P\in[0,1]$ represents the average of the expected fractional values bought by an online vertex-arrival algorithm across the $d w_P$ twins of pool $P$. Although the algorithm may assign different fractions to individual twins, summing its expected fractions over $P$ gives $d w_P y_P$, and averaging the $(d w_P)(d w_Q)$ edge constraints $Y_u+Y_v\ge 1$ across a parent-child biclique gives $y_P+y_Q\ge 1$. In units of $d$, the total expected cost on the core is $\sum_P w_P y_P$. (Section~\ref{sec:finite} verifies in detail that normalizing the edgeless prefix $H_0$ to zero preserves monotonicity and feasibility for arbitrary randomized vertex-arrival algorithms.)
 
-In the first local prefix tree mark each node by the
-conditional probability that its terminal cover excludes its root. In the
-second tree use the probability that its cover includes its root. Terminal
-labels are marked zero or one. Each mark is the probability-weighted mean
-of its children's marks. Implement a multiway transition by a finite binary
-tree of choices, marking each internal split with its corresponding weighted
-mean. Only the resulting next public arrival is revealed. Zero-probability
-outcomes can be dropped. Choose a common denominator $M$ for all marks.
+\subsection{Why cover surplus measures the competitive obstruction}
 
-Place two particles at $M\alpha,M\delta$ in $\{0,\ldots,M\}$.
-They use the \textbf{same sequence} of independent fair signs. At each tick add
-the sign to each interior particle and leave an absorbed particle fixed.
-For a local binary choice with distinct child marks, wait until its particle
-first hits either scaled child mark on this lattice and take that branch.
-From $m$ between child positions $l<u$, the probability of hitting $u$
-first is $(m-l)/(u-l)$. One elementary justification is that the hitting
-probability $H(j)$ solves $H(l)=0$, $H(u)=1$, and
-$H(j)=(H(j-1)+H(j+1))/2$ at each interior site. Its successive
-differences are constant, giving $H(j)=(j-l)/(u-l)$. The walk reaches
-a boundary almost surely: in each block of $u-l$ ticks, a run of signs
-all in one direction has a fixed positive chance of forcing a hit.
-The hitting probability equals the prescribed mass of the upper child
-because the parent mark is the mean of the two child marks.
-For equal child marks use a fresh independent coin with the prescribed
-probability and advance no ticks. Continue this procedure through local
-arrivals and the final hidden label. Once absorbed, all remaining choices
-in that local tree have equal marks and use the coin rule.
+Fix a rational excess ratio $0<\beta<B^*-1$; our goal is to rule out the competitive ratio $1+\beta$.
 
-Merge the local arrivals by tick, keeping local order. Break ties by a
-fixed component priority. Reveal only actual arriving pools and their
-parents. Hidden transitions and termination labels are not announcements.
-The particles remain ordered: while both are interior their difference
-does not change, and a particle at $0$ or $M$ cannot be crossed. Equal-mark
-choices do not move either particle. Every required hit occurs almost
-surely and there are only finitely many local transitions. Each local
-branch has its prescribed probability, so each full local test has its
-original marginal law. At termination the two binary marks are ordered. Thus
-if $A$'s root is outside, $B$'s root is inside. The unbounded number
-of possible \emph{private walk ticks} causes no long public input. There are
-only finitely many local paths and shuffles. In particular, this is a
-distribution on finite inputs of bounded length. Walk ticks are private
-sampling steps, not elapsed time or extra information shown to the algorithm.
-
-\subsection{Why the public past reveals no extra local information}
-
-Fix a local public prefix $v$ in component $A$. Write $T_A$ for its full
-test and $v\preceq T_A$ for the event that the test reaches $v$. On this
-event let $H_v$ be the joint public history up to and including the
-arrival at $v$. For every possible $H$ ending there and every full local
-test $\tau$, we claim
+\begin{definition}[Integral pool cover and surplus]\label{def:surplus}
+An \emph{integral pool cover} of a core prefix $H$ is a subset $C$ of the pools in $H$ containing at least one endpoint of every tree edge in $H$. Its weight is $w(C)=\sum_{v\in C} w_v$, where $v$ ranges over pools. Given a causal strategy $y$, the \emph{surplus} of $C$ at prefix $H$ is
 \[
-\Pr(T_A=\tau\mid H_v=H)=\Pr(T_A=\tau\mid v\preceq T_A).
+  L(C)\ =\ \sum_{v\notin C}w_v y_v - \beta\sum_{v\in C}w_v .
 \]
+\end{definition}
 
-Here the left-hand side conditions on the entire merged past; the
-right-hand side conditions only on the local prefix. We consider only
-conditioning events of positive probability.
+Intuitively, $\sum_{v\notin C} w_v y_v$ is the algorithm's sunk spending outside the offline cover $C$, while $\beta w(C)$ is the maximum excess spending permitted by a $(1+\beta)$-competitive guarantee when the offline optimum is $w(C)$. The next lemma formalizes how private leaves convert any positive surplus into an explicit competitive-ratio violation.
 
-Fix the other component's independent coins. On reaching $v$, record
-the finite word of signs used and the outcomes of the own equal-mark
-choices made through that arrival. End the record before the next own
-choice, even if it will use the same tick. For any particular record,
-the event of reaching $v$ with that record depends only on the signs
-and own choices it contains. The unused signs and fresh own coins
-therefore have their original law. The sampler resumes at the node for
-$v$, at that node's mark, so the remaining test has precisely the
-standalone law at $v$.
+\begin{lemma}[Surplus obstruction via private leaves]\label{lem:surplus}
+Suppose a core prefix $H$ with at least one edge is expanded at integer scale $d$, and let $C$ be an integral pool cover of $H$. Completing the expanded core by presenting one new degree-$1$ vertex (a \emph{private leaf}) adjacent to each of the $d w(C)$ twins in $\bigcup_{v\in C} v$ yields a finite unweighted bipartite graph with $\mathrm{OPT}_f = d w(C) > 0$ on which any valid online fractional cover with pool averages $y_v$ on $H$ pays at least
+\[
+  \mathrm{ALG}\ \ge\ d w(C) + d\sum_{v\notin C} w_v y_v\ =\ (1+\beta)\,\mathrm{OPT}_f + d\,L(C).
+\]
+In particular, if $L(C)>0$, the completed input strictly violates the competitive ratio $1+\beta$.
+\end{lemma}
 
-Given the other coins, this record also determines $H_v$. If the record
-uses $m$ signs, it determines all other arrivals before tick $m$.
-Fixed component priority specifies whether the other arrivals at tick
-$m$ precede this decision. Those arrivals use only the first $m$ signs
-and the other coins. The conditional law is the same for each such record, so averaging over
-records and other coins consistent with $H$ proves the claim. The same argument applies on $B$.
+\begin{proof}
+Because $H$ contains at least one edge, every pool cover $C$ of $H$ is nonempty, so $w(C)>0$. In the completed graph, the $d w(C)$ private edges have pairwise disjoint endpoints, forming a matching of size $d w(C)$. Even a fractional offline cover must pay at least $1$ on each private edge, so $\mathrm{OPT}_f\ge d w(C)$. Conversely, selecting every twin in $\bigcup_{v\in C} v$ (and no private leaves or vertices outside $C$) covers every core biclique edge (since $C$ is a pool cover) and every private edge, giving an integral cover of size $d w(C)$. Hence $\mathrm{OPT}_f = d w(C) > 0$.
 
-This proves the lemma at local arrivals. It makes no independence claim
-at arbitrary times when only the other component has just changed.
-The next section first ensures that a component's coordinates change
-only at its own arrivals, which is why this precise form is sufficient.
+By irrevocability, as the private leaves arrive, the online algorithm retains its earlier fractional spending $d\sum_{v\notin C} w_v y_v$ on the vertices outside $C$, and must additionally pay at least $1$ on each of the $d w(C)$ disjoint private edges (whose endpoints lie entirely in $C$ and the new private leaves). Summing these disjoint contributions gives $\mathrm{ALG}\ge d w(C) + d\sum_{v\notin C} w_v y_v = (1+\beta)\mathrm{OPT}_f + d L(C)$. Placing each private leaf on the side of the bipartition opposite its neighbor preserves bipartiteness.
+\end{proof}
 
-\section{Why the budgets must separate}\label{sec:budgets}
+Note that the cover $C$ is used only to define the terminal private-leaf completion after the core stops; $C$ is \emph{not} revealed to the algorithm while the core arrives. Lu~\cite{lu} uses a complete-bipartite extension with the same matching accounting, and the edge-arrival construction of Tang and Zhang~\cite{tz} uses private pendant edges.
 
-\subsection{The three compatible root choices}
+\subsection{Passing from finite families to a single global strategy}
 
-Fix $p\ge0$ and a strategy attaining \eqref{eq:promises} at $q=F(p)$. Offer a first
-child of rational weight $h>0$. Fix the resulting root coordinates
-$r,z$, with $r+z\ge1$. There are now two rooted components if their
-connecting edge is set aside. Each can undergo every rational rooted-tree
-continuation, in any interleaving. Scale the child's subsequent weights by
-$h$. Its local surplus will be expressed in units of $h$. Arrival
-indices in each local test can be translated canonically to global indices.
+For any fixed finite, prefix-closed family $\mathcal H$ of core histories, clearing denominators by a common integer $d$ and applying Lemma~\ref{lem:surplus} shows that a $(1+\beta)$-competitive algorithm induces a causal strategy on $\mathcal H$ satisfying $L(C)\le 0$ for every cover $C$ of every prefix in $\mathcal H$ (see Section~\ref{sec:finite} for the full detail on randomized algorithms). Because different finite families require different common denominators $d$, we use compactness to combine these finite-family strategies into a single causal strategy defined on all rational core histories at once.
 
-Let $L_A$ and $L_B$ denote the local surpluses, with each local root
-normalized to weight one. The global surplus is $L_A+hL_B$. There are
-exactly three compatible choices of terminal covers:
+\begin{lemma}[Diagonal compactness]\label{lem:compactness}
+Suppose every finite, prefix-closed family of core histories admits a causal strategy satisfying $L(C)\le 0$ for every integral pool cover $C$ of every prefix in the family. Then there exists a single causal strategy on the countable set of \emph{all} core histories that satisfies $L(C)\le 0$ for every cover $C$ of every core history.
+\end{lemma}
+
+\begin{proof}
+Enumerate the countably many rational core histories as $H_1,H_2,\ldots$, and let $\mathcal H_n$ be the finite prefix-closed family consisting of $H_1,\ldots,H_n$ together with all of their prefixes. By assumption, each $\mathcal H_n$ admits a feasible causal strategy $y^{(n)}$; extend $y^{(n)}$ arbitrarily to $[0,1]^k$ on prefixes outside $\mathcal H_n$. Since there are countably many pool coordinates across all core histories and each coordinate lies in the compact interval $[0,1]$, we can successively extract subsequences along which the first coordinate converges, the second coordinate converges, and so on, and then pass to the diagonal subsequence. Every individual edge-covering, monotonicity, root-normalization, or surplus inequality $L(C)\le 0$ involves only finitely many coordinates of a single prefix (and its parent prefix), holds for all sufficiently large $n$ along the diagonal subsequence, and is closed; hence it is preserved in the pointwise limit. The limiting assignment $y$ is therefore a single causal strategy satisfying $L(C)\le 0$ on all core histories.
+\end{proof}
+
+\subsection{The two root budgets and the frontier function \texorpdfstring{$F(p)$}{F(p)}}
+
+To analyze what happens when a new child pool is attached to the root, we must distinguish covers $C$ that exclude the root from covers $C$ that include the root.
+
+\begin{definition}[The two-budget frontier $F(p)$]\label{def:frontier}
+For each $p\ge 0$, let $F(p)$ be the infimum of the values $q\in\mathbb R$ for which there exists a \textbf{single causal strategy on all core histories} satisfying, for every core prefix and every integral pool cover $C$ of that prefix,
+\begin{equation}\label{eq:promises}
+  L(C)\ \le\ p \quad(\text{if }\text{root}\notin C),\qquad
+  L(C)\ \le\ q-\beta \quad(\text{if }\text{root}\in C).
+\end{equation}
+\end{definition}
+
+Why is the inside-root budget written as $q-\beta$? Because the root has weight $w_{\text{root}}=1$, including the root in $C$ automatically contributes $-\beta w_{\text{root}} = -\beta$ to the surplus $L(C)$. Thus $L(C)\le q-\beta$ is equivalent to
+\[
+  \sum_{v\notin C} w_v y_v - \beta\sum_{v\in C\setminus\{\text{root}\}} w_v\ \le\ q,
+\]
+which says that the surplus contributed by all \emph{non-root} pools is at most $q$. On the root-only prefix $H_0$ (where $y_{\text{root}}(H_0)=0$), the two possible covers are $C=\emptyset$ (root outside, giving $L(\emptyset)=0$) and $C=\{\text{root}\}$ (root inside, giving $L(\{\text{root}\})=-\beta$). Consequently, every feasible budget pair $(p,q)$ must satisfy $p\ge 0$ and $q\ge 0$. Moreover, under the contradiction assumption of Lemma~\ref{lem:compactness}, the global strategy with $L(C)\le 0$ everywhere witnesses that $(p,q)=(0,\beta)$ is feasible, so $F(0)\le\beta$.
+
+We emphasize that the parameter $p$ in $F(p)$ represents an adversarial budget promise over all future continuations, \emph{not} the algorithm's current root coordinate or internal state; strategies competing in Definition~\ref{def:frontier} may depend on the full arrival history.
+
+\begin{lemma}[Properties of the budget frontier]\label{lem:frontier}
+Under the existence of a causal strategy satisfying $L(C)\le 0$ on all core histories, the function $F:[0,\infty)\to[0,\beta]$ is well-defined and satisfies:
+\begin{enumerate}
+\item \textbf{Bounds and monotonicity:} $0\le F(p)\le\beta$ for all $p\ge 0$, and $F$ is nonincreasing on $[0,\infty)$.
+\item \textbf{Attainment and closedness:} The set of feasible budget pairs $(p,q)$ satisfying \eqref{eq:promises} is closed, and for every $p\ge 0$ the infimum defining $F(p)$ is attained by some causal strategy.
+\item \textbf{Convexity:} $F$ is convex on $[0,\infty)$.
+\item \textbf{Continuity:} $F$ is continuous on $[0,\infty)$ (including from the right at $p=0$).
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(1)~Increasing $p$ or $q$ only relaxes the upper bounds in \eqref{eq:promises}. Since $(0,\beta)$ is feasible, $(p,\beta)$ is feasible for every $p\ge 0$, giving $F(p)\le\beta$; the root-only inside cover $C=\{\text{root}\}$ forces $q\ge 0$, giving $F(p)\ge 0$. Relaxing $p_1\le p_2$ shows $F(p_1)\ge F(p_2)$.
+
+(2)~If $(p_n,q_n)\to(p,q)$ is a convergent sequence of feasible budget pairs witnessed by causal strategies $y^{(n)}$, applying the diagonal subsequence argument of Lemma~\ref{lem:compactness} to $\{y^{(n)}\}$ yields a limiting causal strategy satisfying \eqref{eq:promises} at $(p,q)$. Taking $p_n=p$ and $q_n\downarrow F(p)$ shows that the infimum $F(p)$ is attained.
+
+(3)~For any two strategies $y^{(0)},y^{(1)}$ feasible for $(p_0,q_0),(p_1,q_1)$ and any $\lambda\in[0,1]$, the coordinatewise convex combination $y^{(\lambda)}=(1-\lambda)y^{(0)}+\lambda y^{(1)}$ preserves root normalization, monotonicity, and the linear edge constraints $y_P+y_Q\ge 1$. Because $L(C)$ is affine in $y$, $y^{(\lambda)}$ satisfies \eqref{eq:promises} with budgets $\bigl((1-\lambda)p_0+\lambda p_1,\,(1-\lambda)q_0+\lambda q_1\bigr)$. Hence $F$ is convex.
+
+(4)~Every finite convex function is continuous on the interior $(0,\infty)$ of its domain. At $p=0$, monotonicity gives $\lim_{p\downarrow 0} F(p)\le F(0)$, while closedness of the feasible set applied to $\bigl(p_n,F(p_n)\bigr)$ as $p_n\downarrow 0$ gives $F(0)\le\lim_{p\downarrow 0} F(p)$.
+\end{proof}
+
+\section{Interleaving two finite subtree tests}\label{sec:interleaving}
+
+Suppose the root pool $r_A$ (of weight $1$) has just received its first child pool $r_B$ (of weight $h>0$). If we set aside the connecting edge $(r_A,r_B)$, any further core arrivals attach either to the subtree $A$ rooted at $r_A$ or to the subtree $B$ rooted at $r_B$. Because an online strategy observes the combined arrival stream, if we simply revealed all arrivals of $A$ before all arrivals of $B$, the structure of $A$'s continuation could leak information about which terminal cover will be tested on $B$. The lemma in this section couples any two compatible distributions of subtree tests by interleaving their arrivals so that, at every local arrival, observing the other subtree's past provides \emph{zero} additional information about the current subtree's test.
+
+\subsection{Local tests, interleavings, and the Interleaving Lemma}
+
+\begin{definition}[Local tests and interleavings]\label{def:interleaving}
+Fix two disjoint rooted components $A$ and $B$ whose roots $r_A,r_B$ and connecting edge $(r_A,r_B)$ are already present:
+\begin{itemize}
+\item A \emph{local arrival} in component $A$ (or $B$) is a subsequent core pool arrival whose parent lies in that component.
+\item A \emph{local test} in component $A$ is a pair $\tau_A=(u_A,C_A)$, where $u_A$ is a finite sequence of subsequent local arrivals in $A$ (possibly empty if $A$ stops immediately at its root $r_A$) and $C_A$ is an integral pool cover of $A$'s resulting local tree. Only the arrival sequence $u_A$ is revealed publicly during the core; the terminal cover $C_A$ is a \emph{hidden label}. Local tests $\tau_B=(u_B,C_B)$ in $B$ are defined identically.
+\item An \emph{interleaving} (or \emph{shuffle}) of $u_A$ and $u_B$ is a merged global sequence $H$ of core arrivals after $(r_A,r_B)$ whose restrictions to $A$ and $B$ are $u_A$ and $u_B$ in their original local orders. Stopping a component is not announced publicly; one component may silently finish while the other continues to receive arrivals.
+\end{itemize}
+\end{definition}
+
+When $A$ and $B$ are tested with local covers $C_A$ and $C_B$, their union $C_A\cup C_B$ covers the connecting edge $(r_A,r_B)$ if and only if $r_A\in C_A$ or $r_B\in C_B$---equivalently, whenever $r_A\notin C_A$, we must have $r_B\in C_B$. Consequently, if we wish to couple two distributions $\mu_A,\mu_B$ over local tests so that $C_A\cup C_B$ always covers $(r_A,r_B)$, a necessary condition on their marginals is
+\[
+  \alpha\ :=\ \Pr_{\mu_A}(r_A\notin C_A)\ \le\ \Pr_{\mu_B}(r_B\in C_B)\ =:\ \delta .
+\]
+Remarkably, this necessary condition is also sufficient to interleave the entire arrival processes without information leakage.
+
+\begin{lemma}[Interleaving Lemma]\label{lem:interleaving}
+Let $\mu_A$ and $\mu_B$ be probability distributions, each with finite support and rational probabilities, on local tests $T_A=(u_A,C_A)$ in component $A$ and $T_B=(u_B,C_B)$ in component $B$. Suppose
+\[
+  \alpha\ :=\ \Pr_{\mu_A}(r_A\notin C_A)\ \le\ \Pr_{\mu_B}(r_B\in C_B)\ =:\ \delta .
+\]
+Then there exists a probability distribution $\nu$ over interleaved tests $(H,C_A,C_B)$ satisfying both of the following properties:
+\begin{enumerate}
+\item \textbf{Marginal preservation and root-edge compatibility:} The local marginal distributions of $T_A=(u_A,C_A)$ and $T_B=(u_B,C_B)$ under $\nu$ are $\mu_A$ and $\mu_B$, respectively, and on every outcome of positive probability under $\nu$, the selected covers $C_A$ and $C_B$ jointly cover the connecting edge $(r_A,r_B)$ (that is, $r_A\notin C_A \implies r_B\in C_B$).
+\item \textbf{No information leakage at local arrivals:} For every non-empty local public prefix $v$ in component $A$, let $v\preceq T_A$ denote the event that $A$'s local arrival sequence begins with $v$, and on this event let $H_v$ denote the merged joint public history up to and including the local arrival that ends $v$. Then for every joint history $H$ in the support of $H_v$ and every full local test $\tau_A=(u_A,C_A)$,
+\[
+  \Pr_\nu(T_A=\tau_A\mid H_v=H)\ =\ \Pr_{\mu_A}(T_A=\tau_A\mid v\preceq T_A).
+\]
+The symmetric statement holds at every non-empty local public prefix $w$ in component $B$.
+\end{enumerate}
+\end{lemma}
+
+Notice what Property~2 says: at the moment an arrival $v$ occurs in component $A$, conditioning on the \emph{entire merged history} $H_v$ (including all interleaved arrivals from $B$ seen so far and their exact order) gives the exact same conditional distribution over $A$'s remaining arrivals and hidden cover $C_A$ as conditioning on $A$'s local prefix $v$ alone.
+
+\subsection{Sampling both tests with an ordered random walk}
+
+We construct the interleaved distribution $\nu$ in three stages.
+
+\paragraph{Stage 1: Binary decision trees and probability marks.}
+A finite distribution $\mu_A$ over local tests can be viewed as a finite rooted tree of local public prefixes in which each node branches to possible next local arrivals or to termination with a hidden cover label $C_A$. Drop any zero-probability branches. By replacing any multiway branching ($k>2$) with a finite binary cascade of private internal splits, we represent $\mu_A$ (and similarly $\mu_B$) as a finite \emph{binary decision tree} $\mathcal T_A$ (and $\mathcal T_B$). In $\mathcal T_A$, only the nodes representing actual next pools are announced publicly when reached; binary split nodes and terminal cover leaves are private. Crucially, each local public prefix $v$ of $A$ corresponds to a unique public arrival node in $\mathcal T_A$ (any binary splits required to choose among the children of $v$ occur \emph{after} node $v$).
+
+Now assign a rational \emph{mark} in $[0,1]$ to every node of $\mathcal T_A$ and $\mathcal T_B$:
+\begin{itemize}
+\item In $\mathcal T_A$, mark each node $x$ with the conditional probability $m_A(x) := \Pr_{\mu_A}(r_A\notin C_A\mid x)$ that $A$'s terminal cover excludes $r_A$ given that $\mathcal T_A$ reaches $x$. Thus the root of $\mathcal T_A$ has mark $\alpha$, and each terminal leaf $\tau_A=(u_A,C_A)$ has mark $\mathbf 1[r_A\notin C_A]\in\{0,1\}$.
+\item In $\mathcal T_B$, mark each node $y$ with the conditional probability $m_B(y) := \Pr_{\mu_B}(r_B\in C_B\mid y)$ that $B$'s terminal cover \emph{includes} $r_B$ given that $\mathcal T_B$ reaches $y$. Thus the root of $\mathcal T_B$ has mark $\delta$, and each terminal leaf $\tau_B=(u_B,C_B)$ has mark $\mathbf 1[r_B\in C_B]\in\{0,1\}$.
+\end{itemize}
+By the law of total probability, if an internal node $x$ branches to two children $x_0,x_1$ with probabilities $1-p$ and $p$, its mark is the probability-weighted average $m(x) = (1-p)m(x_0) + p\,m(x_1)$. Order the two children so that $m(x_0)\le m(x)\le m(x_1)$. Because $\mathcal T_A$ and $\mathcal T_B$ are finite and all branch probabilities are rational, all marks in both trees are rational numbers in $[0,1]$. Let $M\in\mathbb Z_{\ge 1}$ be a common denominator for all marks in $\mathcal T_A$ and $\mathcal T_B$, so that every scaled mark $M\cdot m(\cdot)$ is an integer in $\{0,1,\ldots,M\}$.
+
+\paragraph{Stage 2: Coupled random walk on $\{0,1,\ldots,M\}$.}
+Place two particles on the integer lattice $\{0,1,\ldots,M\}$ at initial positions
+\[
+  X_0\ =\ M\alpha,\qquad Y_0\ =\ M\delta,\qquad\text{where } 0\le X_0\le Y_0\le M.
+\]
+Let $\xi_1,\xi_2,\ldots\in\{-1,+1\}$ be a shared sequence of i.i.d.\ fair random signs ($\Pr(\xi_t=+1)=\Pr(\xi_t=-1)=1/2$). At each discrete tick $t=1,2,\ldots$, add the same sign $\xi_t$ to each particle that is strictly inside $\{1,\ldots,M-1\}$, and leave any particle that has reached $\{0,M\}$ fixed (absorbed).
+
+Each component uses its particle to traverse its binary decision tree from the root to a terminal leaf as follows. Suppose a component is currently at an internal node $x$ with scaled mark $m=M\cdot m(x)$ and children $x_0,x_1$ having scaled marks $l=M\cdot m(x_0)$ and $u=M\cdot m(x_1)$, where $l\le m\le u$:
+\begin{itemize}
+\item \textbf{Distinct child marks ($l < m < u$):} Advance the walk ticks until the first tick at which the component's particle hits either $l$ or $u$, and transition to $x_0$ (if it hits $l$) or $x_1$ (if it hits $u$) at that tick. By the standard gambler's ruin identity for a fair random walk on $\{l,\ldots,u\}$, the hitting probability $H(j)$ of reaching $u$ before $l$ from state $j$ solves $H(l)=0$, $H(u)=1$, and $H(j)=(H(j-1)+H(j+1))/2$ for $l<j<u$, which has the unique linear solution $H(j)=(j-l)/(u-l)$. Starting from $m=(1-p)l+pu$, the particle hits $u$ before $l$ with probability
+\[
+  H(m)\ =\ \frac{m-l}{u-l}\ =\ p,
+\]
+matching the exact prescribed branch probability in the decision tree! Moreover, the boundary $\{l,u\}$ is reached in finitely many ticks almost surely (since every block of $u-l$ consecutive ticks has probability at least $2^{-(u-l)}>0$ of being all $+1$).
+\item \textbf{Equal child marks ($l = m = u$):} Flip a fresh independent local coin with success probability $p$ to choose $x_1$ (probability $p$) or $x_0$ (probability $1-p$) immediately at the \emph{current tick}, advancing zero walk ticks. (In particular, once a particle reaches $0$ or $M$, any remaining splits in its local tree necessarily have equal marks and are resolved immediately at that tick via local coins.)
+\end{itemize}
+
+By induction on the steps down $\mathcal T_A$ (and $\mathcal T_B$), this sampling rule maintains a crucial property:
+\begin{quote}
+\textbf{Deterministic Position Invariant:} \emph{Whenever a component's tree traversal reaches any node $x$ of its binary decision tree (whether by hitting the mark $M\cdot m(x)$ in a distinct-mark step or by an equal-mark coin flip), its particle at that moment is deterministically located at the scaled mark $M\cdot m(x)$, regardless of which path of signs or how many ticks were used to reach $x$.}
+\end{quote}
+
+\paragraph{Stage 3: Merging public arrivals and verifying Property~1.}
+Whenever the traversal of $\mathcal T_A$ or $\mathcal T_B$ reaches a public arrival node at tick $t$, record that pool arrival as occurring at tick $t$. Merge all public arrivals of $A$ and $B$ in nondecreasing order of their ticks, preserving the local arrival order within each component and breaking same-tick ties between $A$ and $B$ using a fixed component priority (say, $A$ before $B$). Private split nodes and terminal cover choices are never announced. Note that walk ticks are purely internal sampling steps of the adversary: although the walk may take an unbounded number of ticks to hit a boundary, there are only finitely many root-to-leaf paths in $\mathcal T_A$ and $\mathcal T_B$ and only finitely many order-preserving shuffles of their public arrivals, so $\nu$ is a distribution over a finite set of bounded-length inputs.
+
+Let us verify Property~1 of Lemma~\ref{lem:interleaving}:
+\begin{itemize}
+\item \emph{Marginal preservation:} In each tree $\mathcal T_A$ and $\mathcal T_B$, every binary split transitions to its children with the exact prescribed conditional probabilities $(1-p,p)$ independently of past transitions. Hence the induced marginal distributions of $T_A$ and $T_B$ equal $\mu_A$ and $\mu_B$.
+\item \emph{Root-edge compatibility:} Initially $0\le X_0 = M\alpha \le M\delta = Y_0 \le M$. At each tick $t\ge 1$, if both particles are interior ($0<X_{t-1}\le Y_{t-1}<M$), both move by the same step $\xi_t\in\{-1,+1\}$, preserving $X_t\le Y_t$; if $X_{t-1}=0$ or $Y_{t-1}=M$, the inequality $X_t\le Y_t$ holds trivially. Equal-mark coin flips do not move either particle. Thus $X_t\le Y_t$ holds for all $t\ge 0$. When both trees reach their terminal leaves, the Deterministic Position Invariant gives
+\[
+  M\cdot\mathbf 1[r_A\notin C_A]\ =\ X_\infty\ \le\ Y_\infty\ =\ M\cdot\mathbf 1[r_B\in C_B],
+\]
+so whenever $r_A\notin C_A$ ($X_\infty=M$), we must have $r_B\in C_B$ ($Y_\infty=M$).
+\end{itemize}
+
+\begin{example}[Visualizing the coupled walk on $\{0,\ldots,5\}$]\label{ex:walk}
+Suppose $M=5$, $A$'s root has mark $X_0 = 5\alpha = 2$ with child marks $l_A=1, u_A=3$ (branch probabilities $1/2, 1/2$), and $B$'s root has mark $Y_0 = 5\delta = 3$ with child marks $l_B=1, u_B=4$ (branch probabilities $1/3, 2/3$). On the first tick:
+\begin{itemize}
+\item If $\xi_1 = +1$, the particles move in lockstep to $(X_1,Y_1)=(3,4)$, so $A$ hits $u_A=3$ and $B$ hits $u_B=4$ simultaneously at tick $1$ (and under priority $(A,B)$, $A$'s arrival is revealed just before $B$'s).
+\item If $\xi_1 = -1$, the particles move to $(X_1,Y_1)=(1,2)$: $A$ hits its lower child $l_A=1$ at tick $1$ and transitions to its next split, while $B$'s particle at $Y_1=2$ is still strictly between $l_B=1$ and $u_B=4$ and continues walking on subsequent ticks while staying $\ge X_t$.
+\end{itemize}
+\end{example}
+
+\subsection{Why the merged public past reveals no extra local information}
+
+We now prove Property~2 of Lemma~\ref{lem:interleaving}. First observe the intuition: when component $A$ reaches the node for a local public prefix $v$ at some tick $m$, the interleaved arrivals of $B$ observed in $H_v$ may allow the algorithm to infer information about the tick $m$ and the sign word $(\xi_1,\ldots,\xi_m)$ up to tick $m$. Why does this not help the algorithm predict the rest of $A$'s test? Because by the \emph{Deterministic Position Invariant}, \textbf{every} sign trajectory that reaches node $v$ places $A$'s particle at the exact same integer position $M\cdot m_A(v)$ upon reaching $v$! From that moment onward, the remainder of $A$'s path in $\mathcal T_A$ is driven entirely by the fresh future signs $(\xi_{m+1},\xi_{m+2},\ldots)$ and fresh local coins of $A$, which have not yet been used by either component.
+
+\begin{proof}[Formal proof of Property~2 of Lemma~\ref{lem:interleaving}]
+Fix a non-empty local public prefix $v$ in component $A$, and let $H$ be any merged public history in the support of $H_v$ (so $\Pr_\nu(H_v=H)>0$). Fix the entire sequence $\omega_B$ of independent equal-mark coins of the other component $B$.
+
+On the event $v\preceq T_A$ that $\mathcal T_A$'s traversal reaches the unique public arrival node corresponding to $v$, define the \emph{local stopping record} $R_v$ at $v$ to consist of:
+\begin{enumerate}
+\item the finite word of shared signs $(\xi_1,\ldots,\xi_m)$ consumed up to the tick $m\ge 0$ at which $\mathcal T_A$ reaches node $v$, and
+\item the finite sequence of outcomes of $A$'s own equal-mark coins used along the path in $\mathcal T_A$ up to reaching node $v$ (stopping the record immediately upon reaching $v$, before any decision out of $v$ is taken, even if the next transition out of $v$ is an equal-mark split at the same tick $m$).
+\end{enumerate}
+
+We verify two facts about the pair $(R_v, \omega_B)$:
+\begin{itemize}
+\item \textbf{Conditional law of the future of $T_A$ given $(R_v,\omega_B)$:}
+  For any specific record $r=(\xi_1,\ldots,\xi_m;\,\text{own coins})$, whether the traversal of $\mathcal T_A$ reaches node $v$ with record $R_v=r$ depends \emph{only} on the first $m$ signs $(\xi_1,\ldots,\xi_m)$ and the specified prefix of $A$'s own coins (and is completely independent of $\omega_B$). Conditional on $\{v\preceq T_A,\ R_v=r,\ \omega_B\}$, the remaining shared signs $(\xi_{m+1},\xi_{m+2},\ldots)$ and the remaining unused coins of $A$ are independent and retain their original i.i.d.\ distribution. Moreover, by the Deterministic Position Invariant, upon reaching node $v$ the particle $X_m$ is at the fixed position $M\cdot m_A(v)$. Therefore, the continuation of $\mathcal T_A$ from node $v$ has the exact standalone conditional distribution of $\mathcal T_A$ at $v$: for every full local test $\tau_A$,
+  \[
+    \Pr_\nu(T_A=\tau_A \mid v\preceq T_A,\ R_v=r,\ \omega_B)\ =\ \Pr_{\mu_A}(T_A=\tau_A\mid v\preceq T_A).
+  \]
+\item \textbf{The pair $(R_v,\omega_B)$ deterministically fixes the merged past $H_v$:}
+  If $R_v=r$ uses $m$ signs, then $R_v$ determines all public arrivals of $A$ up to $v$ and the exact ticks $\le m$ at which they occurred. Meanwhile, in component $B$, any distinct-mark split that has not finished by tick $m$ requires at least one further sign $\xi_{m+1}$ and therefore cannot finish until tick $\ge m+1$. Consequently, all transitions and public arrivals of $B$ at ticks $<m$, as well as all public arrivals of $B$ at tick $m$, are completely determined by the first $m$ signs $(\xi_1,\ldots,\xi_m)$ and $B$'s coins $\omega_B$. Since the fixed tie-breaking priority specifies whether $B$'s arrivals at tick $m$ precede or follow $v$, the entire merged public history $H_v$ up to and including $v$ is a deterministic function of $(R_v,\omega_B)$.
+\end{itemize}
+
+Because $\Pr_\nu(T_A=\tau_A \mid v\preceq T_A,\ R_v=r,\ \omega_B) = \Pr_{\mu_A}(T_A=\tau_A\mid v\preceq T_A)$ takes the \emph{same} value for every pair $(r,\omega_B)$ consistent with $H_v=H$, averaging over all $(r,\omega_B)$ that produce $H_v=H$ proves Property~2 on component $A$. The identical argument with the roles of $A$ and $B$ exchanged proves Property~2 at every local arrival $w$ in component $B$.
+\end{proof}
+
+Observe that Lemma~\ref{lem:interleaving} asserts conditional independence \emph{at each component's own local arrivals}; it makes no claim at moments when only the other component has just received an arrival. In Section~\ref{sec:budgets}, we first ensure (Lemma~\ref{lem:lazy}) that a component's coordinates only ever change at its own local arrivals, which is why conditioning at local arrivals is all we need.
+
+\section{Decoupling the subtrees and deriving the budget recurrence}\label{sec:budgets}
+
+\subsection{Decomposing the global surplus after the first child}
+
+Fix $p\ge 0$ and a global causal strategy $y^{\text{glob}}$ attaining \eqref{eq:promises} at $q=F(p)$ (by Lemma~\ref{lem:frontier}(2)). Let the adversary present a first child pool $r_B$ of rational weight $h>0$ attached to the root pool $r_A$ (of weight $1$), and let
+\[
+  r\ :=\ y^{\text{glob}}_{r_A}(H_1),\qquad z\ :=\ y^{\text{glob}}_{r_B}(H_1),\qquad\text{with } r+z\ge 1,
+\]
+be the coordinates assigned by $y^{\text{glob}}$ immediately after this first edge $(r_A,r_B)$ arrives.
+
+From this point onward, any continuation is an interleaving $H$ of a local arrival sequence $u_A$ in component $A$ (rooted at $r_A$) and a local arrival sequence $u_B$ in component $B$ (rooted at $r_B$), where we scale all pool weights in component $B$ by $h$ so that $B$'s local root $r_B$ has local weight $1$ and any pool in $B$ of local weight $w_v$ has global weight $h w_v$. Arrival indices in each local test translate canonically to global arrival indices in $H$.
+
+For any local pool cover $C_A$ of $u_A$ and any local pool cover $C_B$ of $u_B$, let $L_A(C_A)$ and $L_B(C_B)$ denote their local surpluses in units where each local root has weight $1$. Then the global surplus of the combined cover $C = C_A\cup C_B$ is
+\[
+  L(C_A\cup C_B)\ =\ L_A(C_A) + h\,L_B(C_B).
+\]
+There are four combinations of root memberships $(r_A\in C_A,\, r_B\in C_B)$. Excluding both roots ($r_A\notin C_A$ and $r_B\notin C_B$) leaves the connecting edge $(r_A,r_B)$ uncovered. For the remaining \textbf{three compatible root choices}, $C_A\cup C_B$ is a valid global pool cover, and the global promise \eqref{eq:promises} requires:
 
 \begin{center}
 \small\renewcommand{\arraystretch}{1.25}
 \begin{tabular}{@{}p{0.22\linewidth}p{0.22\linewidth}p{0.46\linewidth}@{}}
 \hline
-\textbf{Root of $A$} & \textbf{Root of $B$} & \textbf{Required global bound} \\
+\textbf{Root $r_A$ of $A$} & \textbf{Root $r_B$ of $B$} & \textbf{Required global surplus bound} \\
 \hline
-Outside & Inside & $L_A+hL_B\le p$ \\
-Inside & Outside & $L_A+hL_B\le q-\beta$ \\
-Inside & Inside & $L_A+hL_B\le q-\beta$ \\
+Outside ($r_A\notin C_A$) & Inside ($r_B\in C_B$) & $L_A(C_A)+hL_B(C_B)\le p$ \\
+Inside ($r_A\in C_A$) & Outside ($r_B\notin C_B$) & $L_A(C_A)+hL_B(C_B)\le q-\beta$ \\
+Inside ($r_A\in C_A$) & Inside ($r_B\in C_B$) & $L_A(C_A)+hL_B(C_B)\le q-\beta$ \\
 \hline
 \end{tabular}
 \end{center}
 
-The fourth choice, both roots outside, leaves their connecting edge
-uncovered. Although we will derive \eqref{eq:budgets} from the first two rows, all
-three rows are included in the argument below.
-
-We claim there exist \textbf{two independent local strategies}, starting at
-$r,z$, that meet the global promises against \emph{every compatible pair}
-of local tests. This is a consequence of the interleaving lemma, even
-though the original strategy sees both histories.
-
-\subsection{If local strategies failed, a finite average would witness failure}
-
-For each side, a local strategy assigns a response to each of its own
-prefixes. Independence here means that each assignment uses only that
-side's history; these are deterministic assignments, not an assertion
-about two random seeds. If there were no such pair, compactness of the product
-of the two strategy spaces would give a finite list of test pairs whose
-inequalities no pair of local strategies satisfies. Close the two
-finite sets of local histories under prefixes. On these finite trees,
-the pairs of feasible local strategies form a compact convex polytope
-$X$: their coordinates lie in $[0,1]$, and their feasibility and
-monotonicity conditions are linear. Any such assignment extends to all
-histories by setting every coordinate to one as soon as a history
-leaves the finite tree.
-
-For test pair $i$, let $e_i(x)$ be $L_A+hL_B$ minus its required bound
-from the table. Each $e_i$ is affine. No $x\in X$ makes every
-$e_i(x)\le0$. We next show that a fixed probability distribution on
-these tests defeats every $x\in X$ in expectation.
-
-Here is a direct finite separation argument. Minimize the continuous
-function $\Phi(x)=\sum_i\max(e_i(x),0)^2$ on $X$, and let $x_*$ be a
-minimizer. Put $c_i=\max(e_i(x_*),0)$. Since no feasible point satisfies
-all tests, $\sum_i c_i^2>0$. For any $x\in X$, the segment from $x_*$
-to $x$ stays in $X$. Its one-sided derivative at the minimum is
-nonnegative, so
+Notice that across all three compatible rows, the required right-hand side depends \emph{only} on whether the global root $r_A$ belongs to $C_A$; we denote this threshold by
 \[
-\sum_i c_i\bigl(e_i(x)-e_i(x_*)\bigr)\ge0,
-\qquad \sum_i c_i e_i(x)\ge\sum_i c_i^2>0.
+  B(C_A)\ :=\ \begin{cases}
+    p, & \text{if } r_A\notin C_A,\\
+    q-\beta, & \text{if } r_A\in C_A.
+  \end{cases}
 \]
-Normalize by $\sum_i c_i$ to obtain probabilities $\lambda_i$ with
-$\min_{x\in X}\sum_i\lambda_i e_i(x)>0$. Because the finitely many
-$e_i$ are bounded on $X$, sufficiently close rational probabilities
-preserve this strict positive margin. Use those rational probabilities
-on the same compatible test pairs.
 
-Keep only the two local marginals of this distribution. Every original
-pair was compatible, so $\Pr(A\text{'s root outside})\le
-\Pr(B\text{'s root inside})$. The interleaving lemma therefore gives
-a new joint distribution with these same marginals and compatible
-terminal covers.
-The expected threshold depends only on $A$'s marginal root status.
-The expected performance of independent strategies likewise depends only
-on the two marginals.
+\subsection{Making a global strategy update locally}
 
-\subsection{Extracting local strategies from a joint strategy}
+In general, $y^{\text{glob}}$ might increase coordinates in component $A$ when a pool arrives in component $B$. Because every pool arriving after $(r_A,r_B)$ has its unique parent in its \emph{own} component, such cross-component increases are never needed to cover new edges. The next lemma replaces $y^{\text{glob}}$ by a dominating strategy $\tilde y$ that updates each component only at its own arrivals.
 
-We will contradict the positive expected excess just obtained. First
-modify the given global strategy so that the vector on a component
-does not change between that component's own arrivals.
-
-To apply separation to the joint strategy, simulate it internally from
-the fixed coordinates $r,z$. At each subsequent arrival copy its
-newborn coordinate $y$. Replace each older neighbor's current value
-$x$ by $\max(x,1-y)$, and keep every other old value. The simulated
-neighbor value is at least $x$ by induction and at least $1-y$ by
-feasibility. Thus each coordinate stays at most its simulated value,
-and all old and new edges are covered. This strategy meets the original
-promises: decreasing coordinates can only decrease $L(C)$ for every
-cover $C$. After the first connecting edge, every new pool has its
-parent in its own component, so the modified strategy changes a
-component only at its own arrivals. The initial connecting edge remains
-covered because the coordinates $r,z$ never decrease.
-
-Let $Y_v$ be its vector on $A$ just after local arrival $v$. This
-vector is a function of $H_v$. Define the local strategy by
-$\bar y_v=\mathbb E[Y_v\mid v\preceq T_A]$. The lemma gives
+\begin{lemma}[Component-local update reduction]\label{lem:lazy}
+Starting from the initial coordinates $\tilde y_{r_A}(H_1)=r$ and $\tilde y_{r_B}(H_1)=z$, define a modified global strategy $\tilde y$ inductively on every subsequent arrival $w$ (at prefix $H'$ extending $H$, with parent pool $u=\mathrm{par}(w)$) by setting
 \[
-\mathbb E[Y_v\mid T_A=\tau]=\bar y_v\qquad(v\preceq\tau)
+  \tilde y_w(H')\ :=\ y^{\text{glob}}_w(H'),\qquad
+  \tilde y_u(H')\ :=\ \max\bigl(\tilde y_u(H),\,1-y^{\text{glob}}_w(H')\bigr),
 \]
-for every full test of positive mass, including its hidden cover.
-For a child prefix $v'$ of $v$, average this equality over the tests
-reaching $v'$. On coordinates already present at $v$ this gives
+and leaving $\tilde y_v(H') := \tilde y_v(H)$ unchanged for every other pool $v\notin\{u,w\}$. Then:
+\begin{enumerate}
+\item $\tilde y$ is a valid monotone, edge-feasible strategy satisfying $\tilde y\le y^{\text{glob}}$ coordinatewise (and hence satisfying $L_A(\tilde y,C_A)+hL_B(\tilde y,C_B)\le B(C_A)$ on every interleaving and compatible cover pair).
+\item After $(r_A,r_B)$, the coordinate vector of $\tilde y$ on component $A$ changes \emph{only} at local arrivals in $A$, and the coordinate vector of $\tilde y$ on component $B$ changes \emph{only} at local arrivals in $B$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+We verify $\tilde y_v(H')\le y^{\text{glob}}_v(H')$ by induction on the number of arrivals after $H_1$. At $H_1$ equality holds. When $w$ arrives with parent $u$, $\tilde y_w(H')=y^{\text{glob}}_w(H')$ by definition; for its parent $u$, the induction hypothesis and monotonicity of $y^{\text{glob}}$ give $\tilde y_u(H)\le y^{\text{glob}}_u(H)\le y^{\text{glob}}_u(H')$, while edge feasibility of $y^{\text{glob}}$ on $uw$ gives $1-y^{\text{glob}}_w(H')\le y^{\text{glob}}_u(H')$, so $\tilde y_u(H')\le y^{\text{glob}}_u(H')$. All other coordinates are unchanged and stay at most $y^{\text{glob}}$.
+
+By construction, $\tilde y$ never decreases any coordinate, covers each new edge $uw$ upon arrival since $\tilde y_u(H')+\tilde y_w(H')\ge (1-y^{\text{glob}}_w(H'))+y^{\text{glob}}_w(H')=1$, and keeps all earlier edges (including $(r_A,r_B)$) covered by monotonicity. Because decreasing coordinates can only decrease $L(C)$, $\tilde y$ inherits all surplus bounds from $y^{\text{glob}}$. Finally, since every arrival $w$ after $H_1$ and its parent $u=\mathrm{par}(w)$ belong to the same component ($A$ or $B$), an arrival in one component never alters any coordinate in the other component.
+\end{proof}
+
+\subsection{Decoupling into two independent local strategies}
+
+A \emph{local strategy} $y^A$ on component $A$ starting at $r$ is a deterministic causal strategy on $A$'s local prefixes $u_A$ (assigning $y^A_{r_A}(\emptyset)=r$ at the empty local prefix, and maintaining monotonicity and local edge feasibility) that depends \emph{only} on $A$'s own local prefix $u_A$. Local strategies $y^B$ on $B$ starting at $z$ are defined analogously.
+
+\begin{lemma}[Decoupling Lemma]\label{lem:decoupling}
+There exist two independent deterministic local strategies $y^A$ on $A$ (starting at $r$) and $y^B$ on $B$ (starting at $z$) that simultaneously satisfy the global surplus bounds against \emph{every} compatible pair of local tests $\tau_A=(u_A,C_A)$ and $\tau_B=(u_B,C_B)$:
 \[
-\bar y_v=\mathbb E[Y_v\mid v'\preceq T_A]
-\ \le\ \mathbb E[Y_{v'}\mid v'\preceq T_A]=\bar y_{v'}.
+  L_A(y^A,\tau_A) + h\,L_B(y^B,\tau_B)\ \le\ B(C_A).
 \]
-The local edge inequalities hold by linearity. Start at $r$ and set all
-coordinates to one on prefixes outside the sampled tree. Do the same
-on $B$, starting at $z$.
+\end{lemma}
 
-Given a full local test, the final local vector equals the vector at its
-last local arrival, or the fixed initial vector if there was none. Thus
-the expected surplus conditional on this test equals the surplus of
-its local mean strategy. Summing over the two marginals, the joint
-strategy has the same expected excess as this pair of local strategies.
-Separation makes that excess strictly positive, contradicting the
-promises on every interleaving.
+\begin{proof}
+We first prove the claim for any \emph{finite} collection of compatible test pairs, and then pass to all compatible pairs by compactness.
 
-Thus every finite list of compatible test pairs has feasible local
-strategies. The diagonal compactness argument of Section 1.3 now gives
-one pair of local strategies satisfying all compatible pairs at once.
+\paragraph{Step 1: Finite families of test pairs via convex separation and Lemma~\ref{lem:interleaving}.}
+Let $(\tau_{A,i},\tau_{B,i})_{i=1}^m$ be any finite list of compatible local test pairs, with terminal covers $(C_{A,i},C_{B,i})$. Close the finite sets of local prefixes appearing in $\{\tau_{A,i}\}$ and $\{\tau_{B,i}\}$ under taking prefixes. On these two finite local prefix trees, the set $X = X_A\times X_B$ of pairs of feasible local strategies $x=(y^A,y^B)$ starting at $r$ and $z$ is a non-empty compact convex polytope (defined by coordinates in $[0,1]$ and linear monotonicity and edge-covering inequalities; any assignment on the finite prefix tree extends to all local prefixes by setting coordinates to $1$ outside the finite tree).
 
-\subsection{The inequalities forced by a new child}
-
-For the independent strategies let $s,t$ be the suprema of their
-outside-root surpluses. Pairing each with the other root's root-only
-inside test gives $s-h\beta\le p$ and $-\beta+ht\le q-\beta$,
-so $s,t$ are finite. The root-only outside tests give $s\ge r$ and
-$t\ge z$, hence $s+t\ge1$.
-
-Let $I_A,I_B$ be the suprema of the respective inside-root surpluses.
-They too are finite: pair either with the other side's root-only inside
-test. A local strategy starting at a positive coordinate can be simulated
-from zero by postponing that initial purchase until the first local move.
-This only improves its root-only outside test and preserves all other
-test values. The resulting zero-start strategy has feasible budgets
-$(s,I_A+\beta)$ on $A$, and similarly $(t,I_B+\beta)$ on $B$.
-By definition of $F$,
+For each test pair $i\in\{1,\ldots,m\}$ and $x=(y^A,y^B)\in X$, define the affine excess function
 \[
-I_A\ge F(s)-\beta,\qquad I_B\ge F(t)-\beta.
+  e_i(x)\ :=\ L_A(y^A,\tau_{A,i}) + h\,L_B(y^B,\tau_{B,i}) - B(C_{A,i}).
 \]
-The two local tests may be chosen separately, as long as their root
-statuses are compatible. Taking suprema in the first two rows of the
-table therefore gives
-$s+hI_B\le p$ and $I_A+ht\le q-\beta$. A supremum need not be
-attained: choosing each local test within any positive error of its
-supremum gives the same inequalities after the error tends to zero.
-Substitute the lower bounds on $I_A,I_B$ and recall $q=F(p)$.
-We have proved that for every
-$p\ge0$ and rational $h>0$ there exist $s,t\ge0$ satisfying
+Suppose for contradiction that no $x\in X$ satisfies $e_i(x)\le 0$ for all $i=1,\ldots,m$. Consider the continuous convex function $\Phi(x) = \sum_{i=1}^m \max(e_i(x),0)^2$ on the compact set $X$, and let $x_*\in X$ be a minimizer of $\Phi$. Set $c_i := \max(e_i(x_*),0)\ge 0$. Because $x_*$ violates at least one test, $\sum_{i=1}^m c_i^2 > 0$. For any $x\in X$, the line segment $(1-t)x_* + t x$ lies in $X$ for $t\in[0,1]$; taking the one-sided derivative of $\Phi((1-t)x_*+tx)$ at $t=0^+$ yields
+\[
+  \sum_{i=1}^m c_i\bigl(e_i(x)-e_i(x_*)\bigr)\ \ge\ 0
+  \quad\Longrightarrow\quad
+  \sum_{i=1}^m c_i e_i(x)\ \ge\ \sum_{i=1}^m c_i e_i(x_*)\ =\ \sum_{i=1}^m c_i^2\ >\ 0.
+\]
+Normalizing $c_i$ by $\sum_j c_j > 0$ gives weights $\lambda_i\ge 0$ summing to $1$ with $\min_{x\in X} \sum_{i=1}^m \lambda_i e_i(x) > 0$. Since the finitely many functions $e_i$ are bounded on $X$, perturbing $\lambda_i$ to sufficiently close \emph{rational} probabilities preserves the strict positive margin:
+\[
+  \min_{x=(y^A,y^B)\in X}\ \sum_{i=1}^m \lambda_i\, e_i(y^A,y^B)\ >\ 0.
+\]
 
+Now let $\mu_A$ and $\mu_B$ be the two local marginal distributions of $(\tau_{A,i},\tau_{B,i})$ under the rational distribution $\lambda$. Because every pair $(\tau_{A,i},\tau_{B,i})$ in the list is compatible, the event $\{r_A\notin C_{A,i}\}$ is contained in $\{r_B\in C_{B,i}\}$, so $\alpha = \Pr_{\mu_A}(r_A\notin C_A) \le \Pr_{\mu_B}(r_B\in C_B) = \delta$. By the Interleaving Lemma (Lemma~\ref{lem:interleaving}), there exists an interleaved distribution $\nu$ over $(H,C_A,C_B)$ with local marginals $\mu_A$ and $\mu_B$ and compatible terminal covers. Notice that for any independent local strategies $(y^A,y^B)\in X$, $L_A(y^A,\tau_A)$ and $B(C_A)$ depend only on $\tau_A\sim\mu_A$, while $L_B(y^B,\tau_B)$ depends only on $\tau_B\sim\mu_B$, so the expected excess $\sum_{i=1}^m \lambda_i e_i(y^A,y^B)$ depends only on the marginals $\mu_A$ and $\mu_B$.
+
+We now extract a pair of local strategies $(\bar y^A,\bar y^B)\in X$ from the component-local global strategy $\tilde y$ of Lemma~\ref{lem:lazy} that contradicts this strict positive margin. For each non-empty local prefix $v$ in the support of $\mu_A$, let $Y_v$ denote the coordinate vector of $\tilde y$ on component $A$ immediately after the local arrival ending $v$ (which is a deterministic function of the merged history $H_v$). Define $\bar y^A(\emptyset):=(r)$ at the root-only prefix, and for every non-empty local prefix $v$ in the support of $\mu_A$ set
+\[
+  \bar y^A(v)\ :=\ \mathbb E_\nu[Y_v\mid v\preceq T_A].
+\]
+(Set $\bar y^A$ to $1$ on prefixes outside the support of $\mu_A$, and define $\bar y^B$ symmetrically on $B$ starting at $z$.) By Property~2 of Lemma~\ref{lem:interleaving}, conditional on $v\preceq T_A$, the full local test $T_A$ is conditionally independent of $H_v$ (and hence of $Y_v$). Therefore, for every full local test $\tau_A\in\mathrm{supp}(\mu_A)$ with $v\preceq\tau_A$,
+\[
+  \mathbb E_\nu[Y_v\mid T_A=\tau_A]\ =\ \mathbb E_\nu[Y_v\mid v\preceq T_A]\ =\ \bar y^A(v).
+\]
+If $v'$ is a child prefix of $v$ in $\mathrm{supp}(\mu_A)$, averaging this equality over all $\tau_A$ satisfying $v'\preceq\tau_A$ and using the samplewise monotonicity $Y_v\le Y_{v'}$ of $\tilde y$ on coordinates already present at $v$ gives
+\[
+  \bar y^A(v)\ =\ \mathbb E_\nu[Y_v\mid v'\preceq T_A]\ \le\ \mathbb E_\nu[Y_{v'}\mid v'\preceq T_A]\ =\ \bar y^A(v').
+\]
+Linearity of expectation likewise preserves all local edge inequalities, so $(\bar y^A,\bar y^B)\in X$.
+
+Finally, by Lemma~\ref{lem:lazy}(2), the coordinate vector of $\tilde y$ on component $A$ never changes after $A$'s last local arrival. Thus, on any full local test $\tau_A=(u_A,C_A)$, the final vector of $\tilde y$ on $A$ at the end of the entire merged input $H$ is simply $Y_{u_A}$ (or $(r)$ if $u_A=\emptyset$). By the conditional expectation identity above and linearity of $L_A$, the expected local surplus of $\tilde y$ given $T_A=\tau_A$ equals $L_A(\bar y^A,\tau_A)$, and similarly on $B$. Taking the expectation over $\nu$ (which has marginals $\mu_A,\mu_B$ and produces only compatible covers where $\tilde y$ satisfies $L_A+hL_B-B(C_A)\le 0$) yields
+\[
+  0\ <\ \sum_{i=1}^m \lambda_i\, e_i(\bar y^A,\bar y^B)
+  \ =\ \mathbb E_\nu\bigl[L_A(\tilde y(H),C_A) + h\,L_B(\tilde y(H),C_B) - B(C_A)\bigr]\ \le\ 0,
+\]
+a contradiction.
+
+\paragraph{Step 2: Passing from finite lists to all compatible test pairs.}
+Since the set of all compatible test pairs is countable and every finite subset admits a feasible pair of local strategies $(y^A,y^B)$, applying the diagonal compactness argument of Lemma~\ref{lem:compactness} to the product space of local strategy coordinates produces a single pair of local strategies $(y^A,y^B)$ satisfying the decoupled surplus bound for all compatible pairs $(\tau_A,\tau_B)$ simultaneously.
+\end{proof}
+
+\subsection{The two-budget recurrence forced by a new child}
+
+Equipped with the decoupled local strategies $(y^A,y^B)$ from Lemma~\ref{lem:decoupling}, we now derive the functional recurrence for $F(p)$.
+
+\begin{lemma}[Two-budget recurrence]\label{lem:recurrence}
+For every $p\ge 0$ and every rational $h>0$, there exist real numbers $s,t\ge 0$ satisfying
 \begin{equation}\label{eq:budgets}
-s+h(F(t)-\beta)\le p,\qquad F(s)+ht\le F(p),\qquad s+t\ge1.
+  s + h\bigl(F(t)-\beta\bigr)\ \le\ p,\qquad
+  F(s) + h t\ \le\ F(p),\qquad
+  s + t\ \ge\ 1.
 \end{equation}
+\end{lemma}
 
-The initial promises $p$ need not be reachable from a particular play.
-Their frontier was defined using the very same rooted input family;
-the actual isolated-state consequence is $F(0)\le\beta$.
-
-\subsection{A fork that can be checked directly}
-
-For a small example, take two adjacent pools of weight one and allow
-one further child of weight $h=1/2$ on each endpoint, in either order.
-Allow a private-leaf completion after any core prefix. The smallest feasible
-$\beta$ in this example is $3/5$, so its optimal ratio is $8/5$. Label the
-endpoints $U,V$ so that $V$'s initial coordinate is at least $1/2$.
-Attach the first child to $U$, and let $r$ be $U$'s coordinate
-then. The cover consisting of $U$ requires $1/2+h(1-r)\le\beta$.
-Attach the second child to $V$ and write $s$ for $V$'s coordinate.
-The two covers that exclude one endpoint require
-
+\begin{proof}
+Let $(y^A,y^B)$ be the independent local strategies starting at $r$ and $z$ provided by Lemma~\ref{lem:decoupling}, where $r+z\ge 1$ and $q=F(p)$. Define the suprema of their outside-root and inside-root local surpluses:
 \[
-r+h(1-s)\le\beta(1+h),\qquad s+h(1-r)\le\beta(1+h).
+  s\ :=\ \sup_{\tau_A:\,r_A\notin C_A} L_A(y^A,\tau_A),\qquad
+  I_A\ :=\ \sup_{\tau_A:\,r_A\in C_A} L_A(y^A,\tau_A),
+\]
+\[
+  t\ :=\ \sup_{\tau_B:\,r_B\notin C_B} L_B(y^B,\tau_B),\qquad
+  I_B\ :=\ \sup_{\tau_B:\,r_B\in C_B} L_B(y^B,\tau_B).
 \]
 
-At $h=1/2$, weight the one-child inequality by $3$ and the two
-displayed inequalities by $2$ and $1$, respectively. The coefficients
-of $r,s$ cancel, giving $9/2\le(15/2)\beta$, hence $\beta\ge3/5$.
-Conversely keep the isolated root at zero until the connecting edge
-arrives, then set both endpoints to $1/2$. If a child arrives, raise
-its parent to $4/5$ and give the child $1/5$. At $\beta=3/5$ the
-outside surplus at an endpoint with a child is
-$4/5-(3/5)(1/2)=1/2$. Its inside surplus is at most
-$(1/2)(1/5)-3/5=-1/2$. Without a child the corresponding bounds
-are $1/2$ and $-3/5$. Every compatible pair therefore has nonpositive
-total surplus. On completion give each private leaf the complement of
-its neighbor's current value. Each matched pair now costs exactly one,
-so the completed cost is at most $(1+\beta)w(C)$. In the blowup by two,
-a core arrival sees both twins of its parent, whereas a private leaf
-sees a single vertex. Thus the completion rule can be implemented from
-the revealed edges alone.
+First check the root-only local tests (where $u_A=\emptyset$ or $u_B=\emptyset$):
+\begin{itemize}
+\item On the root-only outside test $(\emptyset,\emptyset)$, the local surplus is $r$ on $A$ and $z$ on $B$. Hence $s\ge r\ge 0$ and $t\ge z\ge 0$, which gives $s+t\ge r+z\ge 1$.
+\item On the root-only inside test $(\emptyset,\{\text{root}\})$, the local surplus is $-\beta$. Pairing any test on $A$ with $B$'s root-only inside test in Lemma~\ref{lem:decoupling} gives $s - h\beta \le p$ and $I_A - h\beta \le q-\beta$; pairing $A$'s root-only inside test with any test on $B$ gives $-\beta + ht \le q-\beta$ and $-\beta + h I_B \le q-\beta$. Thus $s,t,I_A,I_B$ are all finite.
+\end{itemize}
 
-\section{Recovering the exact constant}\label{sec:constant}
-
-This section uses only the properties of $F$ in Section 1 and the
-inequalities \eqref{eq:budgets}. We first turn the effect of an arbitrarily small
-child into a differential inequality. We then integrate it and solve
-the resulting optimization problem explicitly.
-
-\subsection{From a small child to an integral inequality}
-
-Put $D=\beta-F$. It is nonnegative, concave, and bounded by $\beta$.
-Fix a point $0<p<1$ where $F$ is differentiable. Such points have full
-measure because $F$ is convex. For each rational $h>0$, choose $s,t$
-from \eqref{eq:budgets}. Convexity gives the supporting-line inequality
-$F(s)\ge F(p)+F'(p)(s-p)$. Combining it with \eqref{eq:budgets} gives
-
+Next relate $I_A$ and $I_B$ to the frontier $F$. Although $y^A$ starts with coordinate $y^A_{r_A}(\emptyset)=r$ at the isolated local root of $A$, we can turn $y^A$ into a zero-start causal strategy $\hat y^A$ by setting $\hat y^A_{r_A}(\emptyset):=0$ at the root-only prefix and keeping $\hat y^A(u_A):=y^A(u_A)$ on every non-empty local prefix $u_A\neq\emptyset$ (postponing the initial purchase $r$ until the first local arrival in $A$). Lowering the isolated root coordinate to zero reduces the root-only outside surplus from $r$ to $0\le s$ and leaves every other test surplus unchanged. Thus $\hat y^A$ is a valid zero-start causal strategy on all core histories with budgets $(s, I_A+\beta)$ in \eqref{eq:promises}, and symmetrically $\hat y^B$ has budgets $(t, I_B+\beta)$. By the definition of $F$ (Definition~\ref{def:frontier}),
 \[
-t\le -F'(p)D(t),\qquad t\ge1-p-h\beta .
+  I_A + \beta\ \ge\ F(s) \quad\text{and}\quad I_B + \beta\ \ge\ F(t)
+  \qquad\Longleftrightarrow\qquad
+  I_A\ \ge\ F(s)-\beta,\qquad I_B\ \ge\ F(t)-\beta.
 \]
 
-Indeed,
-\[
-ht\le F(p)-F(s)\le -F'(p)(s-p)
-\le -F'(p)hD(t),
-\]
-where the last inequality uses $s-p\le hD(t)$ and $-F'(p)\ge0$.
-Also $s\le p+h\beta$, so $s+t\ge1$ gives the stated lower bound on
-$t$. The choice of $t$ can depend on $h$; we do not assume it converges.
+Finally, because $y^A$ and $y^B$ are independent, we may take the supremum in Lemma~\ref{lem:decoupling} separately over all compatible pairs $(\tau_A,\tau_B)$ in the first two rows of the compatibility table:
+\begin{align*}
+  \text{Row 1 ($r_A\notin C_A,\ r_B\in C_B$):} \qquad & s + h I_B\ \le\ p,\\
+  \text{Row 2 ($r_A\in C_A,\ r_B\notin C_B$):} \qquad & I_A + h t\ \le\ q - \beta\ =\ F(p) - \beta.
+\end{align*}
+(A supremum need not be attained: choosing local tests within any $\varepsilon>0$ of their suprema and sending $\varepsilon\downarrow 0$ yields both inequalities.) Substituting $I_B\ge F(t)-\beta$ into the first inequality and $I_A\ge F(s)-\beta$ into the second inequality (and adding $\beta$ to both sides of the second) gives \eqref{eq:budgets}.
+\end{proof}
 
-To avoid dividing by a possible zero of $D$, fix $\eta>0$ and write
-$g_\eta(v)=v/(D(v)+\eta)$. Concavity and $D(0)\ge0$ give
-$D(x)+\eta>(x/y)(D(y)+\eta)$ for $0\le x<y$, so $g_\eta$ is strictly
-increasing. For every sufficiently small rational $h>0$,
-\[
--F'(p)\ \ge\ g_\eta(t)\ \ge\ g_\eta(1-p-h\beta).
-\]
-The right side converges as $h\downarrow0$, regardless of the choice of
-$t$ for each $h$. Hence
-\[
--F'(p)\ \ge\ \frac{1-p}{\beta+\eta-F(1-p)} .
-\]
+\subsection{A worked four-pool fork that can be checked directly}
 
-Define $f_\eta(u)=\beta+\eta-F(1-u)>0$ on the closed unit interval.
-A convex function is absolutely continuous on each closed interval
-inside its domain. Integrating the last inequality from $p>0$ to $1$
-therefore gives
+\begin{example}[A concrete fork at $h=1/2$ with optimal ratio $8/5$]\label{ex:fork}
+To see the two-budget mechanism in miniature, consider a core consisting of two adjacent root pools $U,V$ of weight $1$, where the adversary may subsequently attach one child pool of weight $h=1/2$ to $U$ and one child pool of weight $h=1/2$ to $V$, in either arrival order, and may complete the graph with private leaves after any core prefix. The optimal excess ratio for this finite game is $\beta=3/5$ (competitive ratio $1+\beta=8/5$):
+\begin{itemize}
+\item \textbf{Lower bound ($\beta\ge 3/5$):} After the initial edge $UV$ arrives, relabel $U,V$ if necessary so that $V$'s coordinate is at least $1/2$. First attach a child of weight $h$ to $U$, and let $r$ be $U$'s coordinate then (so $U$'s child has coordinate at least $1-r$). Testing the cover $C=\{U\}$ (weight $1$) forces the outside spending on $V$ and $U$'s child to satisfy
 \[
-\int_p^1\frac{1-u}{f_\eta(u)}\,du
-\le F(p)-F(1)\le F(p).
+  \frac12 + h(1-r)\ \le\ \beta .
 \]
-Since $f_\eta(1-p)=\beta+\eta-F(p)$, adding this identity yields
+Next attach a child of weight $h$ to $V$, and let $s$ be $V$'s coordinate then (so $V$'s child has coordinate at least $1-s$). Testing the cover $C=\{V,\,\text{child of }U\}$ (which excludes $U$ and has weight $1+h$) and the cover $C=\{U,\,\text{child of }V\}$ (which excludes $V$ and has weight $1+h$) gives the two inequalities
+\[
+  r + h(1-s)\ \le\ \beta(1+h),\qquad s + h(1-r)\ \le\ \beta(1+h).
+\]
+At $h=1/2$, multiplying the one-child inequality by $3$ and the two two-child inequalities by $2$ and $1$ and summing cancels $r$ and $s$ completely, giving $9/2\le (15/2)\beta$, hence $\beta\ge 3/5$.
+\item \textbf{Matching strategy at $\beta=3/5$:} Keep the isolated root at $0$ until the edge $UV$ arrives, then set both $U$ and $V$ to $1/2$. Whenever a child of weight $1/2$ arrives on an endpoint, raise that endpoint to $4/5$ and assign $1/5$ to the child. At $\beta=3/5$, an endpoint with a child has outside-root surplus $4/5 - (3/5)(1/2) = 1/2$ and inside-root surplus $(1/2)(1/5) - 3/5 = -1/2$; an endpoint without a child has outside-root surplus $1/2$ and inside-root surplus $-3/5$. Every compatible pair of local covers therefore has total surplus at most $1/2 + (-1/2) = 0$. When private leaves arrive, assign each private leaf $1-y_u$, where $y_u$ is its neighbor's current coordinate, so each private edge costs $1$ and the total completed cost is at most $(1+\beta)w(C)$. (In the unweighted blowup by $d=2$, a core child arrival is adjacent to both twins of its parent, whereas a private leaf is adjacent to a single vertex, so the algorithm can distinguish core arrivals from private leaves directly from the revealed edges.)
+\end{itemize}
+\end{example}
 
+\section{Recovering the exact constant \texorpdfstring{$B^*$}{B*}}\label{sec:constant}
+
+This section uses only the properties of $F$ from Lemma~\ref{lem:frontier} and the two-budget recurrence \eqref{eq:budgets} from Lemma~\ref{lem:recurrence}. We first pass to the limit $h\downarrow 0$ of an arbitrarily small child to obtain an integral inequality, and then solve that inequality via monotone equalization.
+
+\subsection{From an arbitrarily small child to a variational integral inequality}
+
+\begin{lemma}[Variational integral inequality]\label{lem:variational}
+For every $\eta>0$, the continuous positive function $f_\eta(u) := \beta + \eta - F(1-u)$ on $[0,1]$ satisfies
 \begin{equation}\label{eq:integral}
-f_\eta(1-p)+\int_p^1\frac{1-u}{f_\eta(u)}\,du\ \le\ \beta+\eta
-\qquad(0\le p\le1).
+  f_\eta(1-p) + \int_p^1 \frac{1-u}{f_\eta(u)}\,du\ \le\ \beta + \eta \qquad(0\le p\le 1).
 \end{equation}
+\end{lemma}
 
-Continuity extends \eqref{eq:integral} to $p=0$; the integrand is bounded by $1/\eta$.
-The function $f_\eta$ is continuous and strictly positive on $[0,1]$.
+\begin{proof}
+Set $D(v) := \beta - F(v)$ for $v\ge 0$. By Lemma~\ref{lem:frontier}, $D$ is concave, nondecreasing, continuous, and satisfies $0\le D(v)\le\beta$. Because $F$ is convex on $[0,\infty)$, it is differentiable almost everywhere on $(0,1)$, with $-F'(p)\ge 0$. Fix any point $p\in(0,1)$ where $F'(p)$ exists.
 
-\subsection{Equalizing the inequality}
+For each rational $h>0$, choose $s,t\ge 0$ satisfying \eqref{eq:budgets}. Since $F(t)\ge 0$, the first inequality of \eqref{eq:budgets} gives $s - p \le h(\beta - F(t)) = h D(t)\le h\beta$; combining $s\le p+h\beta$ with $s+t\ge 1$ yields $t\ge 1-p-h\beta$. Meanwhile, convexity of $F$ gives $F(s)\ge F(p)+F'(p)(s-p)$, so combining this supporting line with $ht\le F(p)-F(s)$ from \eqref{eq:budgets} and $-F'(p)\ge 0$ gives
+\[
+  h t\ \le\ F(p) - F(s)\ \le\ -F'(p)(s-p)\ \le\ -F'(p)\,h D(t).
+\]
+Dividing by $h>0$ shows that for every rational $h>0$, the pair $(s,t)$ satisfies
+\[
+  t\ \le\ -F'(p)\,D(t),\qquad t\ \ge\ 1 - p - h\beta .
+\]
+(Note that $t$ may depend on $h$; we do not assume $t$ converges as $h\downarrow 0$.)
 
-We show that every continuous function $f:[0,1]\to(0,\infty)$ satisfying
+To divide by $D(t)$ safely even if $D(t)$ vanishes, fix $\eta>0$ and define $g_\eta(v) := v/(D(v)+\eta)$ for $v\ge 0$. Since $D$ is concave and $D(0)\ge 0$, for any $0\le x<y$ we have $D(x)\ge (x/y)D(y) + (1-x/y)D(0)\ge (x/y)D(y)$, and hence $D(x)+\eta > (x/y)(D(y)+\eta)$, which implies that $g_\eta$ is strictly increasing on $[0,\infty)$. Therefore, for every rational $h\in(0,(1-p)/\beta)$, monotonicity of $g_\eta$ gives
 \[
-f(1-p)+\int_p^1\frac{1-u}{f(u)}\,du\ \le\ \gamma \qquad(0\le p\le1)
+  -F'(p)\ \ge\ \frac{t}{D(t)+\eta}\ =\ g_\eta(t)\ \ge\ g_\eta(1-p-h\beta).
 \]
-must satisfy $\gamma\ge B^*-1$. We reproduce Wang and Wong's
-equalization argument and the ensuing calculation, so no result about
-this functional inequality is needed from their paper.
+Letting $h\downarrow 0$ through rational values and using the continuity of $D$ at $1-p$ yields, for almost every $p\in(0,1)$,
+\[
+  -F'(p)\ \ge\ g_\eta(1-p)\ =\ \frac{1-p}{\beta+\eta-F(1-p)}\ =\ \frac{1-p}{f_\eta(p)}.
+\]
+Because $F$ is convex on $[0,\infty)$, it is locally Lipschitz and hence absolutely continuous on every compact subinterval $[p,1]\subset(0,1]$. Integrating the differential inequality from $p\in(0,1]$ to $1$ and using $F(1)\ge 0$ gives
+\[
+  \int_p^1 \frac{1-u}{f_\eta(u)}\,du\ \le\ F(p) - F(1)\ \le\ F(p).
+\]
+Adding $f_\eta(1-p) = \beta+\eta-F(p)$ to both sides establishes \eqref{eq:integral} for $p\in(0,1]$, and continuity of both sides extends \eqref{eq:integral} to $p=0$ (since the integrand is bounded by $1/\eta$).
+\end{proof}
 
-Replace $p$ by $1-p$ in the displayed inequality. It becomes
-$f(p)+\int_{1-p}^1(1-x)/f(x)\,dx\le\gamma$.
-Thus, with $r_1=f$ (the function itself, without reflecting its argument),
-\[
-R_1(p)=r_1(p)+\int_{1-p}^1\frac{1-x}{r_1(x)}\,dx\ \le\ \gamma .
-\]
-Define two sequences of functions recursively by
-\[
-r_{i+1}\ =\ r_i+\gamma-R_i,\qquad
-R_{i+1}(p)\ =\ r_{i+1}(p)+\int_{1-p}^1\frac{1-x}{r_{i+1}(x)}\,dx .
-\]
-Since $R_1\le\gamma$, we have $r_1\le r_2$. If $r_i\le r_{i+1}$ and $R_i\le\gamma$ hold for some $i$, then
-\[
-R_{i+1}(p)
-\ \le\ r_{i+1}(p)+\int_{1-p}^1\frac{1-x}{r_i(x)}\,dx
-\ =\ r_{i+1}(p)+R_i(p)-r_i(p)
-\ =\ \gamma .
-\]
-By induction, $r_i\le r_{i+1}$ and $R_i\le\gamma$ for every $i$.
-Also $r_i\le R_i\le\gamma$, so $r_i$ has a finite pointwise limit
-$r_\infty$. If $m=\min_{[0,1]}f>0$, then
-$m\le r_i\le\gamma$. The recurrence gives
-$\gamma-R_i=r_{i+1}-r_i\to0$ pointwise. Moreover,
-$0\le(1-x)/r_i(x)\le1/m$. Dominated convergence now yields
-\[
-r_\infty(p)+\int_{1-p}^1\frac{1-x}{r_\infty(x)}\,dx\ =\ \gamma \qquad(0\le p\le1).
-\]
-This identity also proves the regularity we need. Its integral has a
-bounded integrand, so it is continuous in its endpoint. Hence
-$r_\infty$ is continuous. The integrand is then continuous as well,
-so $r_\infty$ is continuously differentiable, with one-sided derivatives
-at the endpoints. Setting $u=1-p$ and differentiating gives
-$-r_\infty'(1-u)-(1-u)/r_\infty(u)=0$, or
-\[
-r_\infty(u)\,r_\infty'(1-u)\ =\ u-1 .
-\]
+\subsection{Equalizing the integral inequality and solving for \texorpdfstring{$B^*$}{B*}}
 
-\subsection{Solving the equality and minimizing its value}
+To keep this paper completely self-contained, we reproduce the equalization argument and explicit differential-equation solution of Wang and Wong~\cite[Section~4.1]{ww}.
 
-Replacing $u$ by $1-u$ in this differential equation yields
-$r_\infty(1-u)\,r_\infty'(u)=-u$.
-Differentiating the product $r_\infty(u)r_\infty(1-u)$ gives
+\begin{lemma}[Wang--Wong variational threshold]\label{lem:ww-threshold}
+Every continuous positive function $f:[0,1]\to(0,\infty)$ satisfying
 \[
-\frac{d}{du}\bigl[r_\infty(u)\,r_\infty(1-u)\bigr]
-\ =\ r_\infty'(u)\,r_\infty(1-u) - r_\infty(u)\,r_\infty'(1-u)
-\ =\ -u - (u-1)
-\ =\ 1-2u .
+  f(1-p) + \int_p^1 \frac{1-u}{f(u)}\,du\ \le\ \gamma \qquad(0\le p\le 1)
 \]
-Integrating from $0$ gives
-$r_\infty(u)\,r_\infty(1-u)=u-u^2+c$, where
-$c=r_\infty(0)r_\infty(1)>0$. Write $k=\sqrt{1+4c}>1$,
-$a=(k+1)/2$, and $b=(k-1)/2$. Then $a+b=k$, $a-b=1$,
-$ab=c$, and $u-u^2+c=(a-u)(u+b)$.
-Dividing $r_\infty'(u)r_\infty(1-u)=-u$ by $r_\infty(u)r_\infty(1-u)=(a-u)(u+b)$ gives the separable equation
+must satisfy $\gamma \ge B^*-1$.
+\end{lemma}
+
+\begin{proof}
+\paragraph{Step 1: Monotone equalization.}
+Replacing $p$ by $1-p$ in the assumed inequality rewrites the hypothesis as
 \[
-\frac{r_\infty'(u)}{r_\infty(u)}
-\ =\ \frac{-u}{(a-u)(u+b)}
-\ =\ -\frac{a}{k(a-u)} + \frac{b}{k(u+b)} .
+  f(p) + \int_{1-p}^1 \frac{1-x}{f(x)}\,dx\ \le\ \gamma \qquad(0\le p\le 1).
 \]
-Integration gives
-$r_\infty(u)=K(a-u)^{a/k}(u+b)^{b/k}$ for a constant $K>0$.
-At $u=0,1$, the product of these two expressions is $K^2ab$.
-The identity $r_\infty(0)r_\infty(1)=ab>0$ forces $K=1$. Thus
+Set $r_1 := f$ (the function $f$ itself, without reflecting its argument), and define two sequences of functions $(r_i)_{i\ge 1}$ and $(R_i)_{i\ge 1}$ on $[0,1]$ recursively by
 \[
-r_\infty(u)\ =\ (a-u)^{a/k}(u+b)^{b/k} .
+  R_i(p)\ :=\ r_i(p) + \int_{1-p}^1 \frac{1-x}{r_i(x)}\,dx,\qquad
+  r_{i+1}(p)\ :=\ r_i(p) + \gamma - R_i(p).
 \]
-Evaluating the identity $r_\infty(1-u)+\int_u^1\frac{1-x}{r_\infty(x)}\,dx=\gamma$ at $u=1$ gives
+By hypothesis, $R_1\le\gamma$, so $r_1\le r_2$. If $r_i\le r_{i+1}$ and $R_i\le\gamma$ hold for some $i\ge 1$, then because $r_{i+1}\ge r_i > 0$,
 \[
-\gamma\ =\ r_\infty(0)\ =\ a^{a/k}b^{b/k}\ =:\ G(k) .
+  R_{i+1}(p)\ \le\ r_{i+1}(p) + \int_{1-p}^1 \frac{1-x}{r_i(x)}\,dx
+  \ =\ r_{i+1}(p) + R_i(p) - r_i(p)\ =\ \gamma,
+\]
+which in turn implies $r_{i+2} = r_{i+1} + \gamma - R_{i+1} \ge r_{i+1}$. By induction, $r_i\le r_{i+1}$ and $R_i\le\gamma$ for every $i\ge 1$.
+
+Let $m := \min_{x\in[0,1]} f(x) > 0$. Since $m \le r_1(p) \le r_i(p) \le R_i(p) \le \gamma$, the monotone nondecreasing sequence $(r_i(p))_{i\ge 1}$ converges pointwise on $[0,1]$ to a limit function $r_\infty:[0,1]\to[m,\gamma]$. Consequently, $\gamma - R_i(p) = r_{i+1}(p) - r_i(p) \to 0$ pointwise. Because $0 \le (1-x)/r_i(x) \le 1/m$, the dominated convergence theorem allows us to pass to the limit inside the integral, yielding the exact identity
+\[
+  r_\infty(p) + \int_{1-p}^1 \frac{1-x}{r_\infty(x)}\,dx\ =\ \gamma \qquad(0\le p\le 1).
 \]
 
-Finally, minimize $G(k)$ over $k>1$. Since
-$\log G(k)=(a/k)\log a+(b/k)\log b$, differentiation gives
+\paragraph{Step 2: Regularity and differential equation.}
+In this limiting identity, the integrand $(1-x)/r_\infty(x)$ is bounded by $1/m$, so the integral is a Lipschitz (hence continuous) function of $p\in[0,1]$. Thus $r_\infty$ is continuous on $[0,1]$. This makes the integrand $(1-x)/r_\infty(x)$ continuous on $[0,1]$, so by the fundamental theorem of calculus $r_\infty$ is continuously differentiable on $[0,1]$ (with one-sided derivatives at the endpoints). Substituting $u=1-p$ gives
 \[
-\frac{d}{dk}\log G(k)
-= \frac{k-\frac12\log((k+1)/(k-1))}{k^2}.
+  r_\infty(1-u) + \int_u^1 \frac{1-x}{r_\infty(x)}\,dx\ =\ \gamma \qquad(0\le u\le 1).
 \]
-The numerator $N(k)=k-\tfrac12\log((k+1)/(k-1))$ has derivative
-$N'(k)=1+1/(k^2-1)>0$. It tends to $-\infty$ as $k\downarrow1$
-and to $+\infty$ as $k\to\infty$. Its unique zero satisfies
-$e^{2k}=(k+1)/(k-1)$, equivalently $k=\coth k$. Therefore $G$
-decreases up to this root and increases thereafter; its minimum is
-$B^*-1$.
+Differentiating with respect to $u$ yields $-r_\infty'(1-u) - (1-u)/r_\infty(u) = 0$, or
+\[
+  r_\infty(u)\,r_\infty'(1-u)\ =\ u - 1 .
+\]
 
-Apply this result to \eqref{eq:integral} with $f=f_\eta$ and $\gamma=\beta+\eta$.
-For every $\eta>0$ we obtain $B^*-1\le\beta+\eta$. Letting
-$\eta\downarrow0$ contradicts $\beta<B^*-1$.
-This completes the contradiction to the finite-family assumption in
-Section 1.3. \cite{ww}
+\paragraph{Step 3: Closed-form solution of the differential equation.}
+Replacing $u$ by $1-u$ in the differential equation gives $r_\infty(1-u)\,r_\infty'(u) = -u$. Differentiating the symmetric product $r_\infty(u)r_\infty(1-u)$ therefore gives
+\[
+  \frac{d}{du}\bigl[r_\infty(u)\,r_\infty(1-u)\bigr]
+  \ =\ r_\infty'(u)\,r_\infty(1-u) - r_\infty(u)\,r_\infty'(1-u)
+  \ =\ -u - (u-1)\ =\ 1 - 2u .
+\]
+Integrating from $0$ to $u$ yields
+\[
+  r_\infty(u)\,r_\infty(1-u)\ =\ u - u^2 + c,\qquad\text{where } c\ :=\ r_\infty(0)\,r_\infty(1)\ \ge\ m^2\ >\ 0.
+\]
+Set $k := \sqrt{1+4c} > 1$, $a := (k+1)/2$, and $b := (k-1)/2$. Then $a+b=k$, $a-b=1$, $ab=c$, and the quadratic factors as $u-u^2+c = (a-u)(u+b) > 0$ on $[0,1]$. Dividing $r_\infty'(u)r_\infty(1-u) = -u$ by $r_\infty(u)r_\infty(1-u) = (a-u)(u+b)$ gives the separable equation
+\[
+  \frac{r_\infty'(u)}{r_\infty(u)}
+  \ =\ \frac{-u}{(a-u)(u+b)}
+  \ =\ -\frac{a}{k(a-u)} + \frac{b}{k(u+b)} .
+\]
+Integrating with respect to $u$ shows that $r_\infty(u) = K\,(a-u)^{a/k}(u+b)^{b/k}$ for some constant $K>0$. Evaluating at $u=0$ and $u=1$ gives $r_\infty(0)r_\infty(1) = K^2(ab)^{(a+b)/k} = K^2 ab = K^2 c$; since $r_\infty(0)r_\infty(1)=c>0$, we must have $K=1$. Thus
+\[
+  r_\infty(u)\ =\ (a-u)^{a/k}(u+b)^{b/k} .
+\]
+Evaluating $r_\infty(1-u) + \int_u^1 \frac{1-x}{r_\infty(x)}\,dx = \gamma$ at $u=1$ makes the integral vanish and gives
+\[
+  \gamma\ =\ r_\infty(0)\ =\ a^{a/k}b^{b/k}\ =:\ G(k).
+\]
+
+\paragraph{Step 4: Minimizing $G(k)$.}
+For $k>1$, taking the logarithm $\log G(k) = \frac{k+1}{2k}\log\frac{k+1}{2} + \frac{k-1}{2k}\log\frac{k-1}{2}$ and differentiating with respect to $k$ gives
+\[
+  \frac{d}{dk}\log G(k)\ =\ \frac{k - \frac12\log\bigl((k+1)/(k-1)\bigr)}{k^2} .
+\]
+The numerator $N(k) := k - \frac12\log\bigl((k+1)/(k-1)\bigr)$ has derivative $N'(k) = 1 + 1/(k^2-1) > 0$, tends to $-\infty$ as $k\downarrow 1$, and tends to $+\infty$ as $k\to\infty$. Thus $N(k)$ has a unique root $k>1$, characterized by $\frac12\log\bigl((k+1)/(k-1)\bigr) = k \iff e^{2k} = (k+1)/(k-1) \iff k = \coth k$. Because $G(k)$ strictly decreases up to this root and strictly increases thereafter, its global minimum on $(1,\infty)$ is $B^*-1$. Hence $\gamma = G(k) \ge B^*-1$.
+\end{proof}
+
+Applying Lemma~\ref{lem:ww-threshold} to the inequality \eqref{eq:integral} of Lemma~\ref{lem:variational} with $f=f_\eta$ and $\gamma=\beta+\eta$ yields $\beta+\eta \ge B^*-1$ for every $\eta>0$. Letting $\eta\downarrow 0$ gives $\beta\ge B^*-1$, contradicting $\beta < B^*-1$. Consequently, the hypothesis of Lemma~\ref{lem:compactness} cannot hold: for every rational $\beta < B^*-1$, there is a finite, prefix-closed family of core histories on which \emph{no} causal pool strategy satisfies $L(C)\le 0$ for all pool covers $C$.
 
 \section{Constructing a finite ordinary input}\label{sec:finite}
 
-For a requested $\epsilon$, choose a rational
-$\max(0,B^*-1-\epsilon)<\beta<B^*-1$. The following terminating search
-specifies finite adversarial families even when a manageable size bound
-is unavailable.
+We now complete the proof of Theorem~\ref{thm:main} by showing how the finite-family contradiction from Sections~\ref{sec:game}--\ref{sec:constant} produces a single finite unweighted bipartite vertex-arrival input against any given randomized online algorithm. Given $\epsilon>0$, fix a rational $\beta$ with $\max(0,B^*-1-\epsilon) < \beta < B^*-1$.
 
-\subsection{Find a finite family with inconsistent budgets}
+\subsection{\texorpdfstring{Stage-$n$}{Stage-n} exhaustion for an infeasible finite family}
 
-For $n=1,2,\ldots$, take all core histories with at most $n$ pools,
-root weight one, nonroot weights $a/b$ with $1\le a,b\le n$, and
-every single-parent choice. Prefixes are shared across all continuations.
-Test rational linear feasibility with one vector $y\in[0,1]^k$ per
-public prefix of $k$ pools. Impose monotonicity from its parent
-prefix, each new edge inequality, zero at the isolated root, and
-$L(C)\le0$ for every integral pool cover at that prefix. Exact rational
-linear programming or Fourier--Motzkin elimination decides each stage.
-Stop at the first infeasible stage. If every stage were feasible,
-compactness would give the strategy ruled out by Sections 1--4. The
-weights used in the scaled child subgames are rational and thus all
-occur in this exhaustion.
+For $n=1,2,\ldots$, let $\mathcal H_n$ be the finite, prefix-closed family of all core histories having at most $n$ pools, root weight $1$, non-root weights of the form $a/b$ with integers $1\le a,b\le n$, and any valid parent choice at each step. Test rational linear feasibility on $\mathcal H_n$ with one variable vector $y(H)\in[0,1]^k$ per prefix $H\in\mathcal H_n$ of $k$ pools, subject to:
+\begin{itemize}
+\item $y_{P_1}(H_0)=0$ at the root-only prefix $H_0$;
+\item monotonicity $y_P(H)\le y_P(H')$ whenever $H'\in\mathcal H_n$ extends $H$;
+\item edge covering $y_P(H)+y_Q(H)\ge 1$ for every tree edge $PQ$ in $H$; and
+\item nonpositive surplus $L(C)\le 0$ for every integral pool cover $C$ of $H$.
+\end{itemize}
+Exact rational linear programming (or Fourier--Motzkin elimination) decides each stage $\mathcal H_n$. Since every rational core history (including all scaled child subgames used in Section~\ref{sec:budgets}) appears in $\mathcal H_n$ for all sufficiently large $n$, Lemma~\ref{lem:compactness} and Sections~\ref{sec:interleaving}--\ref{sec:constant} guarantee that some finite stage $n$ is infeasible. Stop at the first infeasible stage $\mathcal H_n$.
 
-\subsection{Expand every pool using the same integer scale}
+\subsection{Expanding all pools at a common integer scale}
 
-Let $d=\operatorname{lcm}(1,\ldots,n)$, the least common multiple
-of the integers from $1$ to $n$. Every allowed denominator $b$ divides
-$d$, so $d w_P$ is a positive integer for every pool $P$ in this stage.
-For instance, stage $n=3$ uses $d=6$ and represents weights $1$ and
-$2/3$ by six and four twins. Replace each pool $P$ by $d w_P$
-consecutive vertex arrivals, each joined to all vertices of the
-previously arrived parent pool. Present the root vertices first as
-isolated vertices. Multiplying costs by the same $d$ preserves the
-ratio. Using a common $d$ for the entire family is essential:
-two abstract histories with the same prefix must expand to the same
-ordinary vertex prefix.
+Set $d := \operatorname{lcm}(1,2,\ldots,n)$. Every denominator $b\in\{1,\ldots,n\}$ divides $d$, so $d w_P$ is a positive integer for every pool $P$ appearing in $\mathcal H_n$. Expand each prefix $H\in\mathcal H_n$ into an unweighted vertex-arrival prefix $\sigma(H)$ as in Definition~\ref{def:core}: present the $d$ root vertices first as isolated vertices, and for each subsequent pool $P$ present $d w_P$ consecutive twin vertices, each adjacent to all $d w_{\mathrm{par}(P)}$ twins of its parent pool. Using a single scale $d$ for the entire stage $\mathcal H_n$ is essential: it ensures that whenever two abstract histories share a prefix $H$, their unweighted expansions share the exact same ordinary vertex prefix $\sigma(H)$.
 
-If the horizon is announced, fix it now at the maximum length of all
-completed inputs of this stage, and pad shorter ones at the end with
-isolated vertices. Use a fixed ordering of the twins and of the
-terminal private leaves. Thus the algorithm receives the same
-advance information on every input in the family.
+If the online model announces the total number of vertices (the horizon) in advance, fix the horizon at the maximum vertex count among all completed inputs of stage $\mathcal H_n$, and pad any shorter completed input at the very end with isolated vertices. Fix a canonical ordering of the twins within each pool and of the terminal private leaves, so the algorithm receives identical advance information across the entire family.
 
-\subsection{A randomized algorithm induces a causal pool strategy}
+\subsection{Marginalizing a randomized algorithm and choosing the witness}
 
-Fix the algorithm. At each expanded core prefix $H$, let $Y_u(H)$ be
-the random fraction on ordinary vertex $u$. For a pool $P$, define
+Now fix any randomized online fractional vertex-cover algorithm $\mathcal A$. For each prefix $H\in\mathcal H_n$ and each ordinary vertex $u$ in $\sigma(H)$, let $Y_u(H)\in[0,1]$ be the random fraction assigned to $u$ by $\mathcal A$ after seeing $\sigma(H)$. For each pool $P$ in $H$, define its deterministic expected pool coordinate by
 \[
-y_P(H)=\frac{1}{d w_P}\sum_{u\in P}\mathbb E[Y_u(H)].
+  y_P(H)\ :=\ \frac{1}{d w_P}\sum_{u\in P} \mathbb E\bigl[Y_u(H)\bigr],
 \]
-These are deterministic numbers obtained from the algorithm's law,
-not observations of a realized run. Causality of the algorithm makes
-them the same on common prefixes.
+except at the single-pool root prefix $H_0$, where we override $y_{P_1}(H_0):=0$.
 
-Averaging the edge inequalities over all pairs of twins across a
-parent-child edge gives the pool inequality. Use the same seed on a
-prefix and its extensions to obtain monotonicity of these means.
-Set the vector at the root-only prefix to zero and keep the actual
-means at every later prefix. The root-only prefix has no edges, and
-all later coordinates are nonnegative. Lowering just this initial
-vector to zero therefore preserves feasibility and monotonicity,
-even for algorithms that buy at an isolated root.
+These numbers $y_P(H)$ are deterministic properties of the algorithm's probability law on public prefixes, not observations of a single random run. Because $\mathcal A$ is causal, $y_P(H)$ depends only on $H$. By linearity of expectation, averaging $\mathbb E[Y_u(H)]+\mathbb E[Y_v(H)]\ge 1$ over all $(d w_P)(d w_Q)$ twin pairs across a tree edge $PQ$ gives $y_P(H)+y_Q(H)\ge 1$, and coupling $\sigma(H)$ with its extension $\sigma(H')$ under the same random seed gives $y_P(H)\le y_P(H')$. Overriding $y_{P_1}(H_0):=0$ at the edgeless prefix $H_0$ preserves edge feasibility (since $H_0$ has no edges) and monotonicity (since $y_{P_1}(H)\ge 0$ at every later prefix $H\neq H_0$).
 
-\subsection{Choose the completion before the random seed}
+Thus the assignment $H\mapsto y(H)$ satisfies all constraints of stage $\mathcal H_n$ except, necessarily, at least one surplus inequality $L(C)\le 0$. Because both covers of the root-only prefix $H_0$ have nonpositive surplus ($L(\emptyset)=0$ and $L(\{P_1\})=-\beta$), the violated inequality occurs at some prefix $H\in\mathcal H_n\setminus\{H_0\}$ containing at least one edge and some integral pool cover $C$ of $H$ with $w(C)>0$ and $L(C)>0$. At this prefix $H\neq H_0$, $y_P(H)$ equals $\mathcal A$'s actual expected pool average.
 
-The resulting assignment satisfies all constraints of the finite
-linear system except, potentially, its surplus inequalities.
-Infeasibility therefore supplies a prefix and cover $C$ with strictly positive
-surplus on this evaluation. Finish that prefix with the private matching
-from Section 1. Both root-only tests have nonpositive surplus, so
-the prefix contains an edge and $w(C)>0$. At this prefix the vector
-equals the algorithm's actual mean. Fix the prefix and its completion
-before sampling the algorithm's seed. As in Section 1, the private
-matching and monotonicity outside $C$ give
+Fix this prefix $H$ and its private-leaf completion for cover $C$ \emph{before} drawing $\mathcal A$'s random seed. By Lemma~\ref{lem:surplus} and linearity of expectation, the completed unweighted bipartite input satisfies $\mathrm{OPT}_f = d w(C) > 0$ and
 \[
-\mathbb E[\mathrm{ALG}]\ \ge\ d\left(w(C)+\sum_{v\notin C}w_v y_v\right)
-\ >\ (1+\beta)d w(C)\ >\ (B^*-\epsilon)\mathrm{OPT}_f.
+  \mathbb E[\mathrm{ALG}]\ \ge\ d\left(w(C) + \sum_{v\notin C} w_v y_v(H)\right)
+  \ =\ (1+\beta)d w(C) + d\,L(C)\ >\ (B^*-\epsilon)\,\mathrm{OPT}_f.
 \]
+This completes the proof of Theorem~\ref{thm:main}. Notice that while Section~\ref{sec:constant} passes to a continuum limit $h\downarrow 0$ to prove that the infinite family of all rational core histories is infeasible, the actual output witness is a finite unweighted bipartite graph with exact rational pool weights cleared by $d$.
 
-The graph is bipartite: color each core pool by the parity of its depth
-in the tree, and color every private leaf opposite its neighbor.
-All core and terminal edges are revealed with a new endpoint. The continuum
-limit in Section 4 tests rational offers of arbitrarily small size under
-the contrary hypothesis. The output graph itself uses no limiting weights
-or rounded player responses. The finite search is an existence construction
-and has no practical near-target runtime guarantee.
-
-The script \path{scripts/tree_witness.py} implements
-this algorithm-dependent construction.
-Given a callable {\texttt{marginals(core\_prefix)}},
-{\texttt{find\_witness(beta, marginals)}} evaluates the actual oracle on each scaled
-family, checks the cover budgets, and returns the completed unweighted
-arrival list, an offline cover, its optimum and the guaranteed ratio.
-This permits skipping the LP search for a family hard for every strategy.
-Given exact comparisons of marginal surpluses and a subcritical target,
-the search succeeds no later than the first infeasible stage.
+The script \path{scripts/tree_witness.py} implements this algorithm-dependent witness search directly: given an oracle \texttt{marginals(core\_prefix)} returning $\mathcal A$'s expected vertex fractions on any expanded prefix, \texttt{find\_witness(beta, marginals)} streams the scaled stages $\mathcal H_n$, tests all pool covers $C$ without solving the full-stage LP, and returns the completed unweighted bipartite input as soon as it finds a prefix and cover with $L(C)>0$.
 
 \appendix
-\section{A concrete finite certificate at 1.9005}\label{sec:certificate}
+\section{A concrete finite certificate at \texorpdfstring{$1.9005$}{1.9005}}\label{sec:certificate}
 
-The saved certificate (\path{experiments/fork-1801-2000.npz}) describes a
-particular finite family without enumerating all its interleavings. The
-following recursion explains how to expand it and why it is a lower
-certificate. It also checks the direction of the inequalities in \eqref{eq:budgets}
-without numerical differentiation or evaluating the Wang--Wong function.
+While Sections~\ref{sec:game}--\ref{sec:finite} prove Theorem~\ref{thm:main} analytically for every $\epsilon>0$, one can also use the two-budget recurrence \eqref{eq:budgets} to build an explicit finite lower-bound certificate without numerical differentiation or evaluating the Wang--Wong function. The saved certificate in \path{experiments/fork-1801-2000.npz} certifies that no online algorithm can achieve competitive ratio $1.9005$ ($\beta = 1801/2000$).
 
-A record with rational $a,b\ge0$ denotes a finite rooted test family
-on which the promises \eqref{eq:promises} require $q+bp\ge a$. The letters $a,b$ in
-this section are line coefficients, unrelated to the constants in
-Section 4. A root-only record with
-intercept zero is valid for every nonnegative slope. If a strategy starts
-the root with a positive coordinate, the same lower bound holds by
-simulation from zero. At a fork, join two records with lines
-$a_j-b_j s$ on the parent side and $a_i-b_i t$ on the child side.
-Offer the child of weight $h$, then allow all order-preserving shuffles
-of their core arrivals. A local stop leaves that component idle. Take
-private completions only after the global core stops, using a compatible
-pair of terminal covers. Include root-only stops in each component. Section 3's \textbf{finite}
-separation argument applies directly to these two finite test
-families at any feasible $(p,q)$ because it uses only the global promises on
-their shuffles. For the resulting local strategies, let $s,t$ be their
-maximum outside surpluses. The parent record bounds its maximum inside
-surplus below by $a_j-b_j s-\beta$, and the child record bounds its own
-by $a_i-b_i t-\beta$. The root-only outside tests give $s+t\ge1$.
-Taking maxima for the two mixed root choices gives
+\subsection*{Exact affine lower-envelope recursion}
 
+A \emph{record} is a pair of rational coefficients $(a,b)$ with $a,b\ge 0$ representing a finite rooted test family on which the budget promises \eqref{eq:promises} force the linear inequality
 \[
-p\ge s+h(a_i-\beta-b_i t),\qquad q\ge a_j-b_j s+ht .
+  q + b p\ \ge\ a \qquad(\text{that is, } q\ge a - bp).
 \]
+(In this appendix, $a$ and $b$ denote line intercept and slope, unrelated to the constants $a,b$ in Section~\ref{sec:constant}.) A root-only record with intercept $a=0$ is valid for every slope $b\ge 0$ because $q\ge 0$ and $p\ge 0$; as in Lemma~\ref{lem:recurrence}, if a local strategy starts with a positive root coordinate, postponing that purchase to the first local arrival preserves all non-trivial test surpluses and maintains the same bound.
 
-For a desired $b>b_j$ with $b b_i<1$, choose
-$h=(b-b_j)/(1-b b_i)>0$. Multiply the first inequality by $b$ and
-add the second. The coefficients of $s,t$ are now both $b-b_j$.
-Hence the following line is valid for the forked family:
-
+At a \emph{fork} step, we combine a parent record $(a_j,b_j)$ on component $A$ and a child record $(a_i,b_i)$ on component $B$ by offering a first child of rational weight $h>0$, allowing all order-preserving shuffles of their core arrivals, and completing with compatible terminal covers after both components stop (including root-only stops). Because the convex separation and interleaving argument of Lemma~\ref{lem:decoupling} (Step~1) is already finite, it applies directly to the shuffles of these two finite test families at any feasible $(p,q)$. For the resulting decoupled local strategies on $A$ and $B$ with maximum outside-root surpluses $s,t\ge 0$, the parent record forces maximum inside-root surplus $I_A \ge a_j - b_j s - \beta$, the child record forces $I_B \ge a_i - b_i t - \beta$, and the root-only outside tests force $s+t\ge 1$. The first two rows of the compatibility table therefore give
+\[
+  p\ \ge\ s + h(a_i - \beta - b_i t),\qquad
+  q\ \ge\ a_j - b_j s + h t .
+\]
+For any target slope $b > b_j$ satisfying $b b_i < 1$, choose the rational child weight
+\[
+  h\ =\ \frac{b - b_j}{1 - b b_i}\ >\ 0, \qquad\text{so that } h(1 - b b_i)\ =\ b - b_j .
+\]
+Multiplying the $p$-inequality by $b$ and adding the $q$-inequality makes the coefficients of $s$ and $t$ both equal to $b-b_j>0$; using $s+t\ge 1$ then yields the valid forked line
 \begin{equation}\label{eq:fork}
-q+b p\ \ge\ a_j+(b-b_j)-bh(\beta-a_i).
+  q + b p\ \ge\ a_j + (b - b_j) - b h(\beta - a_i).
 \end{equation}
-
-Rounding the right side down preserves validity. An alternative operation
-increases the slope of any old line at unchanged intercept using $p\ge0$.
-This uses the same family.
+Rounding the right-hand side of \eqref{eq:fork} downward preserves validity. Alternatively, since $p\ge 0$, one may always increase the slope $b>b_j$ of an existing record $(a_j,b_j)$ at unchanged intercept $a_j$ without adding a child.
 
 \subsection*{The discrete integer recurrence}
 
-To implement \eqref{eq:fork} without floating-point error, choose a mesh
-$M=4000$, a common integer scale $S=4\cdot10^{12}$, and the excess ratio
-$\beta=1801/2000$ (corresponding to $1+\beta=1.9005$). The root budget in
-units of $S$ is the integer $B = S\beta = 3{,}602{,}000{,}000{,}000$.
+To implement \eqref{eq:fork} in exact integer arithmetic, choose a slope mesh $M=4000$, an intercept scale $S=4\cdot 10^{12}$, and the target excess ratio $\beta = 1801/2000$ (corresponding to $1+\beta = 1.9005$). In units of $1/S$, the root budget at $p=0$ is the integer
+\[
+  B\ :=\ S\beta\ =\ 3{,}602{,}000{,}000{,}000.
+\]
+Discretize slopes as $b_\ell = \ell/M$ for integers $0\le\ell\le L$, where $L=\lfloor 5M/4\rfloor = 5000$, and represent intercepts as $a_\ell = A^{(k)}[\ell]/S$ with integer numerators $A^{(k)}[\ell]$. Candidate child indices $i$ are restricted to the subgrid of step $\lfloor M/150\rfloor = 26$, namely $i\in\{0,26,52,\ldots,4992\}$.
 
-Discretize slopes as $b = \ell/M$ for integers $0\le\ell\le L$, where
-$L=\lfloor 5M/4\rfloor=5000$. Subtree intercepts are represented by integer
-numerators $A^{(k)}[\ell]$ such that the intercept is $A^{(k)}[\ell]/S$.
-Candidate child slopes are indexed by $i\in\{0,\ldots,L\}$ on a subgrid with
-step $\lfloor M/150\rfloor=26$, namely $0,26,52,\ldots,4992$.
-The sweep index $k$ below is also unrelated to the real parameter $k$
-used to compute $B^*$.
-
-The recurrence proceeds in sweeps $k=0,1,2,\ldots$:
+The recurrence computes integer arrays $A^{(k)}[0\ldots L]$ in sweeps $k=0,1,2,\ldots$:
 \begin{enumerate}
-\item \textbf{Base sweep ($k=0$):} Root-only records have intercept zero:
-   $A^{(0)}[\ell]=0$ for all $0\le\ell\le L$.
-\item \textbf{Sweep update ($k\ge1$):} Set $A^{(k)}[0]=0$. For each slope index
-   $\ell=1,2,\ldots,L$:
-   The parent slope index is $j=\ell-1$, with slope $b_j=(\ell-1)/M$ and
-   intercept numerator $A^{(k)}[\ell-1]$.
-   For each candidate child slope index $i$ from sweep $k-1$ such that
-   $M^2-\ell i>0$, setting $h=M/(M^2-\ell i)$ in \eqref{eq:fork} yields the
-   integer intercept gain
+\item \textbf{Base sweep ($k=0$):} All root-only records have intercept zero: $A^{(0)}[\ell]=0$ for $0\le\ell\le L$.
+\item \textbf{Sweep update ($k\ge 1$):} Set $A^{(k)}[0]=0$. For each slope index $\ell=1,2,\ldots,L$, take the parent record from the preceding slope $j=\ell-1$ of the current sweep (with slope $b_j=(\ell-1)/M$ and intercept numerator $A^{(k)}[\ell-1]$). For each candidate child index $i$ from sweep $k-1$ satisfying $M^2 - \ell i > 0$, substituting $h = M/(M^2-\ell i)$ into \eqref{eq:fork} and rounding down to the $1/S$ grid gives the integer intercept gain
 \[
-\Delta(\ell,i)\ =\ \left\lfloor
-\frac{S(M^2-\ell i) - M\ell\bigl(B - A^{(k-1)}[i]\bigr)}{M(M^2-\ell i)}
-\right\rfloor .
+  \Delta(\ell,i)\ :=\ \left\lfloor
+    \frac{S(M^2-\ell i) - M\ell\bigl(B - A^{(k-1)}[i]\bigr)}{M(M^2-\ell i)}
+  \right\rfloor .
 \]
-   Let $\Delta^*(\ell)=\max_i \Delta(\ell,i)$. If $\Delta^*(\ell)>0$, we choose the
-   smallest maximizing child index $i^*(\ell)$ and advance the
-   intercept:
+Let $\Delta^*(\ell) := \max_i \Delta(\ell,i)$. If $\Delta^*(\ell) > 0$, record the smallest maximizing child index $i^*(\ell)$ and set
 \[
-A^{(k)}[\ell]\ =\ A^{(k)}[\ell-1] + \Delta^*(\ell).
+  A^{(k)}[\ell]\ :=\ A^{(k)}[\ell-1] + \Delta^*(\ell).
 \]
-   If $\Delta^*(\ell)\le0$, no child improves the bound; we set $i^*(\ell)=-1$
-   (pure slope increase at unchanged intercept) and $A^{(k)}[\ell]=A^{(k)}[\ell-1]$.
-
+If $\Delta^*(\ell)\le 0$, set $i^*(\ell) := -1$ (pure slope increase at unchanged intercept) and $A^{(k)}[\ell] := A^{(k)}[\ell-1]$.
 \end{enumerate}
-These instructions are completely deterministic and acyclic. They specify
-relative pool weights $h$, allowed interleavings, and the finite trees in
-compressed form. Subtree weights are multiplied by $h$ at each fork and can all
-be cleared to a common integer denominator on expansion.
 
-At sweep $k=126$ and slope index $\ell=4105$ (slope $4105/4000=1.02625$), the
-accumulated intercept numerator reaches
+At sweep $k=126$ and slope index $\ell=4105$ (slope $b = 4105/4000 = 1.02625$), the integer intercept numerator reaches
 \[
-A^{(126)}[4105]\ =\ 3{,}602{,}076{,}706{,}847\ >\ B\ =\ 3{,}602{,}000{,}000{,}000 .
+  A^{(126)}[4105]\ =\ 3{,}602{,}076{,}706{,}847\ >\ B\ =\ 3{,}602{,}000{,}000{,}000.
 \]
-Since $q+b p\ge A^{(126)}[4105]/S > \beta$, the point $p=0,q=\beta$ is strictly
-infeasible on this finite family. The verifier in {\texttt{scripts/fork\_certificate.py}} recomputes
-the integer inequalities from the recorded child choices using Python
-arbitrary-precision integers. The certificate checks the finite claim
-conditional on the interleaving lemma. Sections 1--5 prove the limit
-independently of this example.
+Evaluating $q + b p \ge A^{(126)}[4105]/S > \beta$ at $p=0$ shows that $(p,q)=(0,\beta)$ is strictly infeasible on this finite family, certifying a lower bound strictly above $1.9005$.
 
-Run {\footnotesize \texttt{python scripts/fork\_certificate.py --check experiments/fork-1801-2000.npz}}
-to replay it, or {\footnotesize \texttt{python scripts/fork\_certificate.py}} to regenerate it.
-{\footnotesize \texttt{python scripts/interleaving\_check.py}} separately checks a finite ordered
-walk with exact fractions, including coincident arrival ticks and an
-equal-mark split. A second fixture includes a hidden stop at the root, private splits,
-and distinct terminal labels with the same root status. It checks both
-tie priorities. In each case the verifier checks the full local test law
-at every decision prefix and zero mass on incompatible terminal labels. These finite checks supplement the proof of the general lemma.
+To replay the saved certificate using Python arbitrary-precision integers, run:
+\begin{center}
+  {\footnotesize\texttt{python scripts/fork\_certificate.py -{-}check experiments/fork-1801-2000.npz}}
+\end{center}
+(or omit \texttt{-{-}check} to regenerate it from scratch). Separately, \path{scripts/interleaving_check.py} verifies the coupled random-walk distribution of Lemma~\ref{lem:interleaving} in exact rational arithmetic on two finite test fixtures (including coincident arrival ticks, equal-mark splits, hidden root-only stops, and both tie-breaking priorities), confirming exact marginal preservation, zero incompatible root-cover mass, and Property~2 of Lemma~\ref{lem:interleaving} at every decision prefix.
 
 \begin{thebibliography}{9}
 \bibitem{ww} Yajun Wang and Sam Chiu-wai Wong.
