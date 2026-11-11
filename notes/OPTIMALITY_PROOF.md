@@ -40,7 +40,7 @@ The proof proceeds in five steps, corresponding to Sections 1–5:
 4. **Extract the exact constant $B^*$ (Section 4).** Sending the child weight $h \downarrow 0$ in (2) converts the discrete two-budget trade-off into the variational integral inequality (3) (Lemma 4.1). Monotone equalization and explicit integration of the resulting differential equation show that no proposed ratio $1 + \beta < B^*$ can satisfy (3) (Lemma 4.2).
 5. **Construct a finite unweighted input (Section 5).** For any $\epsilon > 0$ and any randomized online algorithm, finite linear programming infeasibility at some stage $n$, expansion by the common denominator $d = \operatorname{lcm}(1, \ldots, n)$, and marginalization of the algorithm's expected responses produce a single finite unweighted bipartite input violating ratio $B^* - \epsilon$ before the algorithm's random seed is drawn.
 
-Appendix A provides an optional computer-assisted certificate at the concrete ratio $1.9005$ using exact integer arithmetic; the analytic proof of Theorem 1 in Sections 1–5 is completely self-contained and independent of Appendix A. The main notation is summarized below:
+Appendix A provides an optional computer-assisted certificate at the concrete ratio $1.9005$ using exact integer arithmetic, and Appendix B gives a self-contained pure-math exposition of diagonal compactness (Lemma 1.5) in standard real-analysis and topological terms; the analytic proof of Theorem 1 in Sections 1–5 is completely self-contained. The main notation is summarized below:
 
 | Symbol | Meaning |
 | :--- | :--- |
@@ -109,7 +109,7 @@ For any fixed finite, prefix-closed family $\mathcal H$ of core histories, clear
 
 **Lemma 1.5 (Diagonal compactness).** *Suppose every finite, prefix-closed family of core histories admits a causal strategy satisfying $L(C) \le 0$ for every integral pool cover $C$ of every prefix in the family. Then there exists a single causal strategy on the countable set of **all** core histories that satisfies $L(C) \le 0$ for every cover $C$ of every core history.*
 
-*Proof.* Enumerate the countably many rational core histories as $H_1, H_2, \ldots$, and let $\mathcal H_n$ be the finite prefix-closed family consisting of $H_1, \ldots, H_n$ together with all of their prefixes. By assumption, each $\mathcal H_n$ admits a feasible causal strategy $y^{(n)}$; extend $y^{(n)}$ arbitrarily to $[0, 1]^k$ on prefixes outside $\mathcal H_n$. Since there are countably many pool coordinates across all core histories and each coordinate lies in the compact interval $[0, 1]$, we can successively extract subsequences along which the first coordinate converges, the second coordinate converges, and so on, and then pass to the diagonal subsequence. Every individual edge-covering, monotonicity, root-normalization, or surplus inequality $L(C) \le 0$ involves only finitely many coordinates of a single prefix (and its parent prefix), holds for all sufficiently large $n$ along the diagonal subsequence, and is closed; hence it is preserved in the pointwise limit. The limiting assignment $y$ is therefore a single causal strategy satisfying $L(C) \le 0$ on all core histories. $\square$
+*Proof.* Enumerate the countably many rational core histories as $H_1, H_2, \ldots$, and let $\mathcal H_n$ be the finite prefix-closed family consisting of $H_1, \ldots, H_n$ together with all of their prefixes. By assumption, each $\mathcal H_n$ admits a feasible causal strategy $y^{(n)}$; extend $y^{(n)}$ arbitrarily to $[0, 1]^k$ on prefixes outside $\mathcal H_n$. Since there are countably many pool coordinates across all core histories and each coordinate lies in the compact interval $[0, 1]$, we can successively extract subsequences along which the first coordinate converges, the second coordinate converges, and so on, and then pass to the diagonal subsequence. Every individual edge-covering, monotonicity, root-normalization, or surplus inequality $L(C) \le 0$ involves only finitely many coordinates of a single prefix (and its parent prefix), holds for all sufficiently large $n$ along the diagonal subsequence, and is closed; hence it is preserved in the pointwise limit. The limiting assignment $y$ is therefore a single causal strategy satisfying $L(C) \le 0$ on all core histories. (See Appendix B for a detailed, domain-independent exposition of this compactness principle and its two proofs.) $\square$
 
 ### 1.4 The two root budgets and the frontier function $F(p)$
 
@@ -581,6 +581,66 @@ To replay the saved certificate using Python arbitrary-precision integers, run:
 python scripts/fork_certificate.py --check experiments/fork-1801-2000.npz
 ```
 (or omit `--check` to regenerate it from scratch). Separately, `scripts/interleaving_check.py` verifies the coupled random-walk distribution of Lemma 2.2 in exact rational arithmetic on two finite test fixtures (including coincident arrival ticks, equal-mark splits, hidden root-only stops, and both tie-breaking priorities), confirming exact marginal preservation, zero incompatible root-cover mass, and Property 2 of Lemma 2.2 at every decision prefix.
+
+---
+
+## Appendix B: Diagonal compactness in pure mathematical terms
+
+Lemma 1.5 (and its reuse in Lemma 1.7(2) and Step 2 of Lemma 3.2) has nothing specific to vertex cover or online algorithms. It is a general theorem from real analysis and point-set topology about solving a countably infinite system of closed inequalities in $[0, 1]$ whenever every finite subsystem is solvable. This appendix states and proves the principle in purely mathematical terms and provides a dictionary back to the pool game.
+
+### Abstract statement
+
+**Proposition B.1 (Finitary-to-global compactness on $[0, 1]^{\mathbb N}$).** *Let $x = (x_1, x_2, x_3, \ldots) \in [0, 1]^{\mathbb N}$ be a countably infinite sequence of real variables, each constrained to the closed unit interval $[0, 1]$. Let $C_1, C_2, C_3, \ldots$ be a countably infinite list of constraints on $x$, where each constraint $C_m$ has the form*
+
+$$g_m(x_{i_{m,1}}, x_{i_{m,2}}, \ldots, x_{i_{m,r_m}}) \le 0$$
+
+*for a continuous (for instance, affine/linear) function $g_m : [0, 1]^{r_m} \to \mathbb R$ that depends on **only finitely many** coordinates of $x$. Suppose that for every integer $n \ge 1$, the finite subsystem $\{C_1, \ldots, C_n\}$ admits a simultaneous solution $x^{(n)} \in [0, 1]^{\mathbb N}$. Then there exists a single global point $x^* \in [0, 1]^{\mathbb N}$ that satisfies **all** constraints $C_1, C_2, C_3, \ldots$ simultaneously.*
+
+We give two standard, equivalent proofs: an elementary real-analysis proof via Cantor's diagonal argument, and a one-paragraph topological proof via Tychonoff's theorem.
+
+### Proof 1: Cantor's diagonal subsequence extraction
+
+For each $n \ge 1$, let $x^{(n)} = (x_1^{(n)}, x_2^{(n)}, x_3^{(n)}, \ldots) \in [0, 1]^{\mathbb N}$ be a point satisfying $C_1, \ldots, C_n$. Although the sequence $(x^{(n)})_{n \ge 1}$ need not converge as $n \to \infty$, every coordinate lies in the compact interval $[0, 1]$, where the **Bolzano–Weierstrass theorem** guarantees that every sequence has a convergent subsequence. We extract nested infinite index sets $\mathbb N \supseteq N_1 \supseteq N_2 \supseteq N_3 \supseteq \cdots$ inductively by coordinate:
+
+1. **First coordinate ($x_1$):** Since $(x_1^{(n)})_{n \in \mathbb N} \subset [0, 1]$, choose an infinite subset of indices $N_1 \subseteq \mathbb N$ along which $x_1^{(n)}$ converges to some limit $x_1^* \in [0, 1]$.
+2. **Second coordinate ($x_2$):** Restricting attention to indices $n \in N_1$, the sequence $(x_2^{(n)})_{n \in N_1} \subset [0, 1]$ has a further infinite subsequence $N_2 \subseteq N_1$ along which $x_2^{(n)}$ converges to some limit $x_2^* \in [0, 1]$. Because $N_2 \subseteq N_1$, we still have $x_1^{(n)} \to x_1^*$ along $N_2$.
+3. **$k$-th coordinate ($x_k$):** Given $N_{k-1}$, choose an infinite subset $N_k \subseteq N_{k-1}$ along which $x_k^{(n)} \to x_k^* \in [0, 1]$.
+
+Now form the **diagonal subsequence** by letting $n_k$ be the $k$-th smallest element of $N_k$ for each $k = 1, 2, \ldots$, so that $n_1 < n_2 < n_3 < \cdots$ and $n_k \ge k$. Fix any coordinate index $i \in \mathbb N$. For every $k \ge i$, we have $N_k \subseteq N_i$ and hence $n_k \in N_i$. Thus the tail $(x_i^{(n_k)})_{k \ge i}$ is a subsequence of $(x_i^{(n)})_{n \in N_i}$, which implies
+
+$$\lim_{k \to \infty} x_i^{(n_k)} = x_i^* \qquad \text{for every coordinate } i \in \mathbb N.$$
+
+Finally, fix any constraint $C_m : g_m(x_{i_{m,1}}, \ldots, x_{i_{m,r_m}}) \le 0$. Whenever $k \ge m$, we have $n_k \ge k \ge m$, so $x^{(n_k)}$ satisfies $C_1, \ldots, C_{n_k}$ and in particular satisfies $C_m$:
+
+$$g_m\bigl(x_{i_{m,1}}^{(n_k)}, \ldots, x_{i_{m,r_m}}^{(n_k)}\bigr) \le 0 \qquad (\forall k \ge m).$$
+
+Because $C_m$ involves only the *finitely many* coordinates $x_{i_{m,1}}, \ldots, x_{i_{m,r_m}}$ and $g_m$ is continuous, passing to the limit as $k \to \infty$ preserves the weak inequality:
+
+$$g_m(x_{i_{m,1}}^*, \ldots, x_{i_{m,r_m}}^*) = \lim_{k \to \infty} g_m\bigl(x_{i_{m,1}}^{(n_k)}, \ldots, x_{i_{m,r_m}}^{(n_k)}\bigr) \le 0.$$
+
+Since $m \ge 1$ was arbitrary, $x^* = (x_1^*, x_2^*, \ldots) \in [0, 1]^{\mathbb N}$ satisfies every constraint $C_m$. $\square$
+
+### Proof 2: Tychonoff's theorem and the Finite Intersection Property
+
+Endow the countable product space $\Omega = [0, 1]^{\mathbb N}$ with the **product topology** (the topology of coordinatewise convergence). By **Tychonoff's theorem** (or the sequential compactness of the Hilbert cube $[0, 1]^{\mathbb N}$), $\Omega$ is a compact topological space. For each $m \ge 1$, the projection map $\pi_m : \Omega \to [0, 1]^{r_m}$ onto the finitely many coordinates $(x_{i_{m,1}}, \ldots, x_{i_{m,r_m}})$ is continuous, so the solution set of constraint $C_m$,
+
+$$K_m := \{x \in \Omega : C_m(x) \text{ holds}\} = (g_m \circ \pi_m)^{-1}\bigl((-\infty, 0]\bigr),$$
+
+is a **closed** subset of $\Omega$. The hypothesis that every finite subsystem $\{C_1, \ldots, C_n\}$ has a solution $x^{(n)}$ says that the family of closed sets $\{K_m\}_{m \ge 1}$ has the **Finite Intersection Property**:
+
+$$\bigcap_{m=1}^n K_m \neq \emptyset \qquad \text{for every } n \ge 1.$$
+
+In a compact space, any collection of closed sets with the Finite Intersection Property has a non-empty total intersection. Therefore $\bigcap_{m=1}^\infty K_m \neq \emptyset$, and any point $x^*$ in this intersection satisfies all constraints $C_m$ simultaneously. $\square$
+
+### Dictionary between the pure math statement and the paper
+
+| Pure mathematical object | Role in Lemma 1.5, Lemma 1.7(2), and Lemma 3.2 |
+| :--- | :--- |
+| Countable index set of variables $\mathbb N$ | All pairs $(H, P)$ consisting of a rational core history $H$ and a pool $P$ in $H$ |
+| Bounded variable $x_i \in [0, 1]$ | The fractional pool coordinate $y_P(H) \in [0, 1]$ |
+| Finitary linear constraints $g_m(x) \le 0$ | (i) Root normalization $y_{P_1}(H_0) \le 0$; (ii) monotonicity $y_P(H) - y_P(H') \le 0$; (iii) edge covering $1 - y_P(H) - y_Q(H) \le 0$; (iv) surplus bounds $L(C) \le 0$ (or $L(C) \le B(C)$) |
+| Finite subsystem solution $x^{(n)}$ | A causal strategy $y^{(n)}$ on a finite prefix-closed family $\mathcal H_n$ (induced by clearing denominators at scale $d_n$) |
+| Global limit point $x^* \in \bigcap_{m=1}^\infty K_m$ | A single causal strategy $y$ valid across all rational core histories simultaneously |
 
 ---
 
